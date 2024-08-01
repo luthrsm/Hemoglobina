@@ -95,15 +95,15 @@ const WelcomeScreen = () => {
                 {/* terceira página */}
 
                 <View style={styles.WelcomeContainer}>
-                    <View style={[styles.imgContainer, {marginBottom: 50}]}>
+                    <View style={styles.imgContainer}>
                         <Image source={require('../assets/img/bemvindo3.png')} />
                     </View>
                     <View style={styles.welcomeContainerInfo}>
-                        <View style={styles.txtContainer}>
+                        <View style={styles.txtContainer3}>
                             <Text style={styles.title}> Interaja e descubra</Text>
                             <Text style={styles.welcomeTxt}> Interaja com o HemoAssistent, crie campanhas e compartilhe com seus amigos!</Text>
                         </View>
-                        <View style={styles.bottomContainer}>
+                        <View style={[styles.bottomContainer, {marginTop: 30}]}>
                             <View style={styles.paginacao}>
                                 <AnimatedPaginationDot
                                     activeDotColor="#83afb8"
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 0,
         width: width //largura igual a da tela
-
+        
     },
     imgContainer: {
         marginTop: 160,
@@ -156,6 +156,11 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 30,
     },
     txtContainer: {
+        gap: 12,
+        marginTop: 45,
+        width: 260
+    },
+    txtContainer3: {
         gap: 12,
         marginTop: 45,
         width: 260
