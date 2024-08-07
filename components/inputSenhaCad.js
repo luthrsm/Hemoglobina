@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const InputSenha = () => {
+const InputSenhaCad = () => {
     const [password1, setPassword1] = useState('');
     const [isPasswordVisible1, setIsPasswordVisible1] = useState(false);
     const [passwordConfirm, setPasswordConfirm] = useState('');
@@ -38,11 +38,31 @@ const InputSenha = () => {
                     />
                 </TouchableOpacity>
             </View>
+            <View style={styles.containerBotao}>
+                <TextInput
+                    style={styles.input}
+                    value={passwordConfirm}
+                    onChangeText={setPasswordConfirm}
+                    placeholder="Confirmar Senha"
+                    secureTextEntry={!isPasswordVisible2}
+                    placeholderTextColor="#000"
+                />
+                <TouchableOpacity
+                    style={styles.iconContainer}
+                    onPress={togglePasswordVisibility2}
+                >
+                    <Ionicons
+                        name={isPasswordVisible2 ? 'eye' : 'eye-off'}
+                        size={24}
+                        color="#7A0000"
+                    />
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
 
-export default InputSenha;
+export default InputSenhaCad;
 
 const styles = StyleSheet.create({
     containerBotao: {
@@ -65,3 +85,5 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
     },
 });
+
+
