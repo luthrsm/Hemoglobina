@@ -7,6 +7,7 @@ import AnimatedPaginationDot from 'react-native-animated-pagination-dot';
 import CadastroEscolha from "./cadEscolha";
 
 
+
 const { width } = Dimensions.get('window');
 
 
@@ -108,7 +109,7 @@ const WelcomeScreen = () => {
                                 <Text style={styles.title}> Interaja e descubra</Text>
                                 <Text style={styles.welcomeTxt}> Interaja com o HemoAssistent, crie campanhas e compartilhe com seus amigos!</Text>
                             </View>
-                            <View style={[styles.bottomContainer, { marginTop: '15%' }]}>
+                            <View style={[styles.bottomContainer, {marginTop: '29%'}]}>
                                 <View style={styles.paginacao}>
                                     <AnimatedPaginationDot
                                         activeDotColor="#83afb8"
@@ -140,36 +141,39 @@ export default WelcomeScreen;
 const styles = StyleSheet.create({
     WelcomeContainer: {
         flex: 1,
+        flexGrow: 1,
         backgroundColor: '#EEF0EB',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-end',
         padding: 0,
         width: width //largura igual a da tela
-
     },
     imgContainer: {
         marginTop: 160,
         marginBottom: 90
     },
     welcomeContainerInfo: {
+        flexShrink: 0,
         backgroundColor: '#af2b2b',
-        height: '50%',
+        height: '40%',
         width: '100%',
         padding: 10,
         alignItems: 'center',
         gap: 10,
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
+        marginTop: '10%',
     },
     txtContainer: {
         gap: 12,
         marginTop: 45,
-        width: 260
+        width: 260,
+
     },
     txtContainer3: {
         gap: 12,
         marginTop: 45,
-        width: 260
+        width: 260,      
     },
     title: {
         color: '#f5f5f5',
@@ -179,6 +183,7 @@ const styles = StyleSheet.create({
         fontSize: 24,
         marginLeft: 10,
         marginRight: 10,
+        fontSize: 28,
     },
     welcomeTxt: {
         color: '#f5f5f5',
@@ -188,6 +193,8 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginLeft: 5,
         marginRight: 5,
+        fontSize: 18,
+
     },
     bottomContainer: {
         flexDirection: "row",

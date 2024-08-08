@@ -15,19 +15,19 @@ const MenuDoador = () => {
     return (
         <View style={styles.menuContainer}>
             <TouchableOpacity style={styles.divLink}>
-                <FontAwesome name="home" size={28} color="#EEF0EB"  style={styles.icons}/>
+                <FontAwesome name="home" size={32} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Home</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.divLink}>
-                <Ionicons name="information-circle-outline" size={28} color="#EEF0EB" style={styles.icons}/>
+                <Ionicons name="information-circle-outline" size={32} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Informações</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.divLink}>
-                <MaterialCommunityIcons name="hospital-marker" size={28} color="#EEF0EB" style={styles.icons}/>
+                <MaterialCommunityIcons name="hospital-marker" size={32} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Hemocentros</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.divLink}>
-                <FontAwesome name="bullhorn" size={28} color="#EEF0EB" style={styles.icons}/>
+                <Ionicons name="chatbubbles" size={32} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Campanhas</Text>
             </TouchableOpacity>
         </View>
@@ -46,17 +46,18 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        gap: 35,
+        gap: 40,
+        marginTop: 'auto',
     },
-    divLink:{
-        
+    divLink: {
+
     },
-    txtMenu:{
+    txtMenu: {
         color: '#EEF0EB',
-        fontSize: 10,
+        fontSize: 13,
         textAlign: 'center',
     },
-    icons:{
+    icons: {
         textAlign: 'center'
     }
 });

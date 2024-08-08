@@ -2,7 +2,7 @@ import { Text, SafeAreaView, StyleSheet, View, TouchableOpacity, Image } from 'r
 import React, { useState } from 'react';
 import { NavigationContainer, useNavigation } from '@react-navigation/native'
 
-const CadastroEscolha = () => {
+const LoginEscolha = () => {
     const navigation = useNavigation();
 
     return (
@@ -18,18 +18,13 @@ const CadastroEscolha = () => {
                     <View styles={styles.ordemTam}>
                         <Text style={styles.textoBranco2}>E faça parte de uma comunidade de doadores e hemocentros</Text>
 
-                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('CadHemocentro')} >
+                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LoginHemocentro')} >
 
                             <Text style={styles.buttonText}>Hemocentro</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('CadastroDoador')} >
-
+                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LoginDoador')} >
                             <Text style={styles.buttonText}>Doador</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.button1} onPress={() => navigation.navigate('LoginEscolha')} >
-                            <Text style={styles.textoBrancoLink}>Já tem uma conta? Clique aqui.</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -39,7 +34,7 @@ const CadastroEscolha = () => {
     );
 }
 
-export default CadastroEscolha;
+export default LoginEscolha;
 
 
 const styles = StyleSheet.create({

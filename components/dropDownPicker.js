@@ -8,7 +8,8 @@ const MyDropDownPicker = () => {
 
     const [selected, setSelected] = React.useState("");
 
-    const data = [
+
+    const tipos = [
         { key: "1", value: "Não sei" },
         { key: "2", value: "A+" },
         { key: "3", value: "A-" },
@@ -24,7 +25,7 @@ const MyDropDownPicker = () => {
         <SelectList
             setSelected={setSelected}
             fontFamily='DM-Sans'
-            data={data}
+            data={tipos}
             arrowicon={<FontAwesome name="chevron-down" size={12} color={'black'} />}
             searchicon={<FontAwesome name="search" size={12} color={'black'} />}
             search={false}
