@@ -17,67 +17,71 @@ import CadastroEscolha from './cadEscolha';
 import InputSenhaCad from '../components/inputSenhaCad';
 
 //testar CPF
-const isValidCPF = (cpf) => {
-    cpf = cpf.replace(/[^\d]+/g, ''); //remove todos os caracteres não numéricos
 
-    if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false; //verifica se o cpf tem 11 dígitos e se todos os digitos são iguais
+// const isValidCPF = (cpf) => {
+//     cpf = cpf.replace(/[^\d]+/g, ''); //remove todos os caracteres não numéricos
 
-    //lógica de verificação dos 2 primeiros dígitos e dos dois últimos
+//     if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false; //verifica se o cpf tem 11 dígitos e se todos os digitos são iguais
 
-    let sum = 0;
-    let remainder;
+//     //lógica de verificação dos 2 primeiros dígitos e dos dois últimos
 
-    for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i - 1, i)) * (11 - i);
-    remainder = (sum * 10) % 11;
-    if (remainder === 10 || remainder === 11) remainder = 0;
-    if (remainder !== parseInt(cpf.substring(9, 10))) return false;
-    sum = 0;
-    for (let i = 1; i <= 10; i++) sum += parseInt(cpf.substring(i - 1, i)) * (12 - i);
-    remainder = (sum * 10) % 11;
-    if (remainder === 10 || remainder === 11) remainder = 0; if (remainder !== parseInt(cpf.substring(10, 11))) return false;
+//     let sum = 0;
+//     let remainder;
 
-    return true;
-}
+//     for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+//     remainder = (sum * 10) % 11;
+//     if (remainder === 10 || remainder === 11) remainder = 0;
+//     if (remainder !== parseInt(cpf.substring(9, 10))) return false;
+//     sum = 0;
+//     for (let i = 1; i <= 10; i++) sum += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+//     remainder = (sum * 10) % 11;
+//     if (remainder === 10 || remainder === 11) remainder = 0;
+//     if (remainder !== parseInt(cpf.substring(10, 11))) return false;
+
+//     return true;
+// }
 
 
 
 const CadastroDoador = () => {
 
-    const tiposValidos = [
-        "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Não sei"
-    ];
-    const schemaPerfilDoador = yup.object({
-        nome: yup.string().required("Informe seu nome"),
-        sobrenome: yup.string().required("Informe seu sobrenome"),
-        dataNascimento: yup.date().required("Informe sua data de nascimento").test(
-            "idade-minima",
-            "Você deve ter pelo menos 16 anos",
-            function (value) {
-                //pega a data do dia
-                const hoje = new Date();
-                //subtrai 16 anos à data do dia
-                const data16AnosAtras = new Date(
-                    today.getFullYear() - 16,
-                    today.getMonth(),
-                    today.getDate()
-                );
-                //verifica se a data de nascimento é anterior à data mínima de 16 anos
-                return value <= data16AnosAtras;
-            }
-        ),
-        cpf: yup.string().required("Informe seu CPF").test("is-valid-cpf", "CPF inválido", value => isValidCPF(value)),
-        tipoSanguineo: yup.string().oneOf(tiposValidos, "Selecione uma opção válida").required("Selecione um tipo sanguíneo")
-    })
-    const { control, handleSubmit, formState: { errors }, trigger } = useForm({
-        resolver: yupResolver(schemaPerfilDoador)
-    });
+    // const tiposValidos= [
+    //     "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Não sei"
+    // ];
 
-    const validateStep = async (step) => {
-        const result = await trigger();
-        if (result) {
-            setCurrentStep(step);
-        }
-    };
+    // const schemaPerfilDoador = yup.object({
+    //     nome: yup.string().required("Informe seu nome"),
+    //     sobrenome: yup.string().required("Informe seu sobrenome"),
+    //     dataNascimento: yup.date().required("Informe sua data de nascimento").test(
+    //         "idade-minima",
+    //         "Você deve ter pelo menos 16 anos",
+    //         function (value) {
+    //             //pega a data do dia
+    //             const hoje = new Date();
+    //             //subtrai 16 anos à data do dia
+    //             const data16AnosAtras = new Date(
+    //                 today.getFullYear() - 16,
+    //                 today.getMonth(),
+    //                 today.getDate()
+    //             );
+    //             //verifica se a data de nascimento é anterior à data mínima de 16 anos
+    //             return value <= data16AnosAtras;
+    //         }
+    //     ),
+    //     cpf: yup.string().required("Informe seu CPF").test("is-valid-cpf", "CPF inválido", value => isValidCPF(value)),
+    //     tipoSanguineo: yup.string().oneOf(tiposValidos, "Selecione uma opção válida").required("Selecione um tipo sanguíneo")
+    // })
+
+    // const { control, handleSubmit, formState: { errors }, trigger } = useForm({
+    //     resolver: yupResolver(schemaPerfilDoador)
+    // });
+
+    // const validateStep = async (step) => {
+    //     const result = await trigger();
+    //     if (result) {
+    //         setCurrentStep(step);
+    //     }
+    // };
 
     //cria navegação
     const navigation = useNavigation();
@@ -86,13 +90,15 @@ const CadastroDoador = () => {
     const [currentStep, setCurrentStep] = useState(1);
 
     //avança pra prox etapa
-
-    const handleNext = async () => {
-        const result = await trigger();
-        if (result) {
-            setCurrentStep(prevStep => prevStep + 1);
-        }
+    const handleNext = () => {
+        setCurrentStep(prevStep => prevStep + 1);
     };
+    // const handleNext = async () => {
+    //     const result = await trigger();
+    //     if (result) {
+    //         setCurrentStep(prevStep => prevStep + 1);
+    //     }
+    // };
 
     //volta para a etapa anterior
     const handleBack = () => {
@@ -181,117 +187,103 @@ const CadastroDoador = () => {
 
                     <View style={styles.inputContainer}>
 
-                        <Controller
+                        {/*<Controller
                             control={control}
                             name='nome'
                             render={({ field: { onChange, onBlur, value } }) =>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder='Nome'
-                                    placeholderTextColor='#000'
-                                    onChange={onChange}
-                                    onBlur={onBlur}
-                                    value={value}
-                                />
+                                
                             }
+                        />*/}
+                        <TextInput
+                            style={styles.input}
+                            placeholder='Nome'
+                            placeholderTextColor='#000'
+
                         />
-
-                        {errors.nome && <Text style={styles.labelError}>{errors.nome.message}</Text>}
-
+                        {/*{errors.nome && <Text style={styles.labelError}>{errors.nome.message}</Text>}*/}
 
 
-                        <Controller
+
+                        {/*<Controller
                             control={control}
                             name='sobrenome'
                             render={({ field: { onChange, onBlur, value } }) =>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder='Sobrenome'
-                                    placeholderTextColor='#000'
-                                    onChange={onChange}
-                                    onBlur={onBlur}
-                                    value={value}
-                                />
+                                
                             }
+                        />*/}
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder='Sobrenome'
+                            placeholderTextColor='#000'
                         />
 
+                        {/*{errors.sobrenome && <Text style={styles.labelError}>{errors.sobrenome.message}</Text>}*/}
 
 
-                        {errors.sobrenome && <Text style={styles.labelError}>{errors.sobrenome.message}</Text>}
-
-
-                        <Controller
+                        {/*<Controller
                             control={control}
                             name='dataNascimento'
                             render={({ field: { onChange, onBlur, value } }) => (
-                                <>
-                                    <TouchableOpacity onPress={() => setShow(true)} style={styles.input}>
-                                        <Text>
-                                            {date ? formatDate(date) : 'Data de Nascimento'}
-                                        </Text>
-                                    </TouchableOpacity>
-                                    {show && (
-                                        <DateTimePicker
-                                            testID="dateTimePicker"
-                                            value={date || new Date()}
-                                            mode="date"
-                                            display="default"
-                                            onChange={onChange}
-                                            onBlur={onBlur}
-                                        />
-                                    )}
-                                </>
+                                
                             )}
-                        />
+                        />*/}
+                        <TouchableOpacity onPress={() => setShow(true)} style={styles.input}>
+                            <Text>
+                                {date ? formatDate(date) : 'Data de Nascimento'}
+                            </Text>
+                        </TouchableOpacity>
+                        {show && (
+                            <DateTimePicker
+                                testID="dateTimePicker"
+                                value={date || new Date()}
+                                mode="date"
+                                display="default"
+                                onChange={onChange}
+                            />
+                        )}
 
+                        {/*{errors.dataNascimento && <Text style={styles.labelError}>{errors.dataNascimento.message}</Text>}*/}
 
-                        {errors.dataNascimento && <Text style={styles.labelError}>{errors.dataNascimento.message}</Text>}
-
-                        <Controller
+                        {/*<Controller
                             control={control}
                             name='cpf'
                             render={({ field: { onChange, onBlur, value } }) =>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder='CPF'
-                                    placeholderTextColor='#000'
-                                    onChange={onChange}
-                                    onBlur={onBlur}
-                                    value={value}
-
-                                />
+                                
                             }
+                        />*/}
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder='CPF'
+                            placeholderTextColor='#000'
+
                         />
 
+                        {/*{errors.cpf && <Text style={styles.labelError}>{errors.cpf.message}</Text>}*/}
 
 
-                        {errors.cpf && <Text style={styles.labelError}>{errors.cpf.message}</Text>}
-
-
-                        <Controller
+                        {/*<Controller
                             control={control}
                             name='tipoSanguineo'
                             render={({ field: { onChange, onBlur, value } }) =>
-                                <SelectList
-                                    setSelected={setSelected}
-                                    fontFamily='DM-Sans'
-                                    data={tipos}
-                                    arrowicon={<FontAwesome name="chevron-down" size={12} color={'black'} />}
-                                    searchicon={<FontAwesome name="search" size={12} color={'black'} />}
-                                    search={false}
-                                    placeholder='Tipo Sanguíneo'
-                                    boxStyles={styles.boxStyles}
-                                    dropdownItemStyles={styles.dropdownItemStyles}
-                                    dropdownStyles={styles.dropdownStyles}
-                                    onChange={onChange}
-                                    onBlur={onBlur}
-                                    value={value}
-                                />
+                                
                             }
+                        />*/}
+                        <SelectList
+                            setSelected={setSelected}
+                            fontFamily='DM-Sans'
+                            data={tipos}
+                            arrowicon={<FontAwesome name="chevron-down" size={12} color={'black'} />}
+                            searchicon={<FontAwesome name="search" size={12} color={'black'} />}
+                            search={false}
+                            placeholder='Tipo Sanguíneo'
+                            boxStyles={styles.boxStyles}
+                            dropdownItemStyles={styles.dropdownItemStyles}
+                            dropdownStyles={styles.dropdownStyles}
                         />
 
-
-                        {errors.tipoSanguineo && <Text style={styles.labelError}>{errors.tipoSanguineo.message}</Text>}
+                        {/*{errors.tipoSanguineo && <Text style={styles.labelError}>{errors.tipoSanguineo.message}</Text>}*/}
 
 
                         <TouchableOpacity style={styles.BtProx} onPress={handleNext}>

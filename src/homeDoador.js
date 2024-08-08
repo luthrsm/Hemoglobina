@@ -14,14 +14,14 @@ const HomeDoador = () => {
             <View style={styles.headerContainer}>
                 <Text style={styles.title}> Bem vindo, doador!</Text>
                 <TouchableOpacity>
-                    <FontAwesome6 name="gear" size={28} color="#EEF0EB" style={styles.config} />
+                    <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
                 </TouchableOpacity>
             </View>
 
             <View style={styles.mainContainer}>
-                <TouchableOpacity style={styles.contagemContainer} onPress={() => navigation.navigate('ProxDoacao')}>
+                <TouchableOpacity style={styles.contagemContainer}>
                     <View style={styles.diasContagem}>
-                        <Text style={styles.diasContagemTxt}> 15 </Text>
+
                     </View>
                     <View style={styles.txtContagemContainer}>
                         <Text style={styles.txtTitle}>Dias para sua próxima doação</Text>
@@ -29,7 +29,7 @@ const HomeDoador = () => {
                     </View>
                 </TouchableOpacity>
                 <View style={styles.questionarioContainer}>
-                    <View style={{marginRight: 20}}>
+                    <View>
                         <Text style={styles.questionarioTxt}>Questionário de triagem</Text>
                         <TouchableOpacity style={styles.botaoTriagem}>
                             <Text style={styles.txtBotao}>Responder agora</Text>
@@ -48,10 +48,11 @@ const HomeDoador = () => {
                     <TouchableOpacity style={styles.botaoDoacao}>
                         <Text style={styles.txtBotao}>Ver histórico de doações</Text>
                     </TouchableOpacity>
+
                 </View>
             </View>
 
-            <MenuDoador/>
+            <MenuDoador />
         </View>
 
     )
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
         height: '9%',
         borderBottomLeftRadius: 8,
         borderBottomRightRadius: 8,
-        paddingVertical: 10,
+        padding: 10,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between"
@@ -85,42 +86,34 @@ const styles = StyleSheet.create({
     title: {
         color: '#EEF0EB',
         marginLeft: 25,
-        marginTop: 15,
+        marginTop: 7,
         fontFamily: 'DM-Sans',
-        letterSpacing: 1.5,
-        fontSize: 20
-
+        letterSpacing: 1.5
     },
     config: {
-        marginTop: 15,
-        marginRight: 20,
+        marginTop: 7,
+        marginRight: 10,
     },
     mainContainer: {
         padding: 32,
-        flex: 1,
-        gap: 20,
+        top: 20,
     },
     contagemContainer: {
-        marginBottom: 20,
-        height: 150,
-        justifyContent: 'center',
-        alignContent: 'center',
-        flexDirection: 'row'
+        marginBottom: 70,
     },
     txtContagemContainer: {
+        alignSelf: 'flex-end',
         gap: 5,
-        width: '55%',
-        justifyContent: 'center',
-        
+        width: '50%'
     },
     txtTitle: {
         fontFamily: 'Poppins-SemiBold',
-        fontSize: 22,
+        fontSize: 18,
     },
     maisTxt: {
         fontFamily: 'DM-Sans',
         color: '#326771',
-        fontSize: 14,
+        fontSize: 9.9,
         fontWeight: '600',
         lineHeight: 12.9,
     },
@@ -133,7 +126,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 10,
         marginBottom: 50,
-        height: 200,
+        height: 170,
+
     },
     botaoTriagem: {
         backgroundColor: '#1E6370',
@@ -147,21 +141,18 @@ const styles = StyleSheet.create({
     txtBotao: {
         color: '#EEF0EB',
         fontFamily: 'DM-Sans',
-        fontSize: 17
     },
     questionarioTxt: {
         fontFamily: 'Poppins-SemiBold',
-        fontSize: 22,
+        fontSize: 15,
         color: '#470404',
-        marginBottom: 20,
-        textAlign: 'center',
-
+        marginBottom: 20
     },
     doacoesTxt: {
         fontFamily: 'Poppins-SemiBold',
-        fontSize: 20,
+        fontSize: 15,
         color: '#470404',
-        marginBottom: 45
+        marginBottom: 20
     },
     botaoDoacao:{
         backgroundColor: '#1E6370',
@@ -172,18 +163,5 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignSelf: 'center',
         marginBottom: 24,
-    },
-    diasContagem:{
-        alignContent: 'center',
-        justifyContent: 'center',
-        marginTop: 5,
-        marginRight: 30,
-        marginLeft: 30
-    },
-    diasContagemTxt:{
-        fontSize: 74,
-        letterSpacing: 10,
-        fontFamily: 'Poppins-SemiBold',
-        
     }
 });
