@@ -1,157 +1,44 @@
-import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity, Platform } from 'react-native';
-import React, { useState, useEffect, Component } from 'react';
-import { useNavigation } from '@react-navigation/native'
-import { useForm, Controller } from 'react-hook-form'; //verificação do formulário
-import { yupResolver } from '@hookform/resolvers/yup'; //verficação do formulário
-import * as yup from 'yup'; //verficação do formulário
-import { SelectList } from 'react-native-dropdown-select-list';  //dropdown tipo sanguineo
-import { format, parse } from 'date-fns'; //manipulação de data
-import DateTimePicker from '@react-native-community/datetimepicker' //input de data
+import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { SelectList } from 'react-native-dropdown-select-list';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import axios from 'axios';
+
+import InputSenhaCad from '../components/inputSenhaCad';
+
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Ionicons } from '@expo/vector-icons';
 
-//components
-import CadastroEscolha from './cadEscolha';
-import InputSenhaCad from '../components/inputSenhaCad';
-
-//testar CPF
-
-// const isValidCPF = (cpf) => {
-//     cpf = cpf.replace(/[^\d]+/g, ''); //remove todos os caracteres não numéricos
-
-//     if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false; //verifica se o cpf tem 11 dígitos e se todos os digitos são iguais
-
-//     //lógica de verificação dos 2 primeiros dígitos e dos dois últimos
-
-//     let sum = 0;
-//     let remainder;
-
-//     for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i - 1, i)) * (11 - i);
-//     remainder = (sum * 10) % 11;
-//     if (remainder === 10 || remainder === 11) remainder = 0;
-//     if (remainder !== parseInt(cpf.substring(9, 10))) return false;
-//     sum = 0;
-//     for (let i = 1; i <= 10; i++) sum += parseInt(cpf.substring(i - 1, i)) * (12 - i);
-//     remainder = (sum * 10) % 11;
-//     if (remainder === 10 || remainder === 11) remainder = 0;
-//     if (remainder !== parseInt(cpf.substring(10, 11))) return false;
-
-//     return true;
-// }
 
 
+
+// Validação CPF
+const isValidCPF = (cpf) => {
+    cpf = cpf.replace(/[^\d]+/g, '');
+    if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+
+    let sum = 0;
+    let remainder;
+    for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cpf.substring(9, 10))) return false;
+    sum = 0;
+    for (let i = 1; i <= 10; i++) sum += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cpf.substring(10, 11))) return false;
+
+    return true;
+};
 
 const CadastroDoador = () => {
-
-    // const tiposValidos= [
-    //     "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Não sei"
-    // ];
-
-    // const schemaPerfilDoador = yup.object({
-    //     nome: yup.string().required("Informe seu nome"),
-    //     sobrenome: yup.string().required("Informe seu sobrenome"),
-    //     dataNascimento: yup.date().required("Informe sua data de nascimento").test(
-    //         "idade-minima",
-    //         "Você deve ter pelo menos 16 anos",
-    //         function (value) {
-    //             //pega a data do dia
-    //             const hoje = new Date();
-    //             //subtrai 16 anos à data do dia
-    //             const data16AnosAtras = new Date(
-    //                 today.getFullYear() - 16,
-    //                 today.getMonth(),
-    //                 today.getDate()
-    //             );
-    //             //verifica se a data de nascimento é anterior à data mínima de 16 anos
-    //             return value <= data16AnosAtras;
-    //         }
-    //     ),
-    //     cpf: yup.string().required("Informe seu CPF").test("is-valid-cpf", "CPF inválido", value => isValidCPF(value)),
-    //     tipoSanguineo: yup.string().oneOf(tiposValidos, "Selecione uma opção válida").required("Selecione um tipo sanguíneo")
-    // })
-
-    // const { control, handleSubmit, formState: { errors }, trigger } = useForm({
-    //     resolver: yupResolver(schemaPerfilDoador)
-    // });
-
-    // const validateStep = async (step) => {
-    //     const result = await trigger();
-    //     if (result) {
-    //         setCurrentStep(step);
-    //     }
-    // };
-
-    //cria navegação
-    const navigation = useNavigation();
-
-    //estado pra saber qual etapa do cadastro está sendo usada
-    const [currentStep, setCurrentStep] = useState(1);
-
-    //avança pra prox etapa
-    const handleNext = () => {
-        setCurrentStep(prevStep => prevStep + 1);
-    };
-    // const handleNext = async () => {
-    //     const result = await trigger();
-    //     if (result) {
-    //         setCurrentStep(prevStep => prevStep + 1);
-    //     }
-    // };
-
-    //volta para a etapa anterior
-    const handleBack = () => {
-        setCurrentStep((prevStep) => prevStep - 1);
-    }
-
-    //é chamado quando a etapa final é concluída
-    const onSubmit = (data) => {
-        alert('Cadastro concluído!');
-        console.log(data);
-    }
-
-    const [value, setValue] = useState('');
-
-    // Função para garantir que o valor é um número
-    const handleChange = (text) => {
-        // Permite apenas números
-        const numericValue = text.replace(/[^0-9]/g, '');
-        setValue(numericValue);
-    };
-
-    //checkbox
-    const [isChecked, setIsChecked] = useState(false);
-
-    const toggleCheckbox = () => {
-        setIsChecked(!isChecked);
-    };
-
-    //datePicker
-    const [date, setDate] = useState();  //atribui a data atual se 'date' estiver vazia
-    const [show, setShow] = useState(false);
-
-    const onChange = (event, selectedDate) => {
-        const currentDate = selectedDate || date;
-        setShow(Platform.OS === 'ios');
-        setDate(currentDate);
-    }
-
-    const showDatepicker = () => {
-        setShow(true);
-    };
-
-    const formatDate = (date) => {
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    };
-
-    //dropdown tipo sanguíneo
-    const [selected, setSelected] = React.useState("");
-
-
     const tipos = [
         { key: "1", value: "Não sei" },
         { key: "2", value: "A+" },
@@ -164,12 +51,120 @@ const CadastroDoador = () => {
         { key: "9", value: "O-" },
     ];
 
+    const schemaPerfilDoador = yup.object().shape({
+        nome: yup.string().required("Informe seu nome"),
+        sobrenome: yup.string().required("Informe seu sobrenome"),
+        dataNascimento: yup.date().required("Informe sua data de nascimento")
+            .test("idade-minima", "Você deve ter pelo menos 16 anos", (value) => {
+                return validateAge(value);
+            }),
+        cpf: yup.string().required("Informe seu CPF"),
+        tipoSanguineo: yup.string().required("Selecione um tipo sanguíneo")
+    });
+
+
+
+    const { control, handleSubmit, formState: { errors }, trigger } = useForm({
+        resolver: yupResolver(schemaPerfilDoador)
+    });
+
+    const navigation = useNavigation();
+    const [currentStep, setCurrentStep] = useState(1);
+    const [date, setDate] = useState(null);
+    const [show, setShow] = useState(false);
+    const [isChecked, setIsChecked] = useState(false);
+
+    const validateStep = async () => {
+        const result = await trigger();
+        if (result) {
+            setCurrentStep(prevStep => prevStep + 1);
+        }
+    };
+
+    const handleBack = () => {
+        setCurrentStep((prevStep) => prevStep - 1);
+    };
+
+    const onSubmit = (data) => {
+        alert('Cadastro concluído!');
+        console.log(data);
+    };
+
+    const onChangeDate = (event, selectedDate) => {
+        setShow(false); // Fecha o DatePicker
+        if (selectedDate) {
+            setDate(selectedDate);
+        }
+    };
+
+    // Formatação da data
+    const formatDate = (date) => {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
+
+    // Função de validação de idade mínima
+    const validateAge = (date) => {
+        if (!date) return false; // Certifique-se de que a data é válida
+        const today = new Date();
+        const minAgeDate = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
+        return date <= minAgeDate;
+    };
+
+    const toggleCheckbox = () => {
+        setIsChecked(!isChecked);
+    };
+
+    const [value, setValue] = useState('');
+
+    // Função para garantir que o valor é um número
+    const handleChange = (text) => {
+        // Permite apenas números
+        const numericValue = text.replace(/[^0-9]/g, '');
+        setValue(numericValue);
+    };
+
+    //encontrar endereço pelo CEP
+    const [cep, setCep] = useState('');
+
+    useEffect(() => {
+        const fetchAddress = async () => {
+            if (cep.length === 8) {
+                try {
+                    const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
+                    const data = response.data;
+                    console.log('Dados obtidos:', data); // Verifique os dados aqui
+                    if (data && !data.erro) {
+                        setValue('endereco', data.logradouro);
+                        setValue('bairro', data.bairro);
+                        setValue('cidade', data.localidade);
+                        setValue('estado', data.uf);
+                        trigger(); // Força a re-renderização do formulário
+                    } else {
+                        setValue('endereco', '');
+                        setValue('bairro', '');
+                        setValue('cidade', '');
+                        setValue('estado', '');
+                        trigger(); // Força a re-renderização do formulário
+                    }
+                } catch (error) {
+                    console.error("Erro ao buscar endereço:", error);
+                    setValue('endereco', '');
+                    setValue('bairro', '');
+                    setValue('cidade', '');
+                    setValue('estado', '');
+                    trigger(); // Força a re-renderização do formulário
+                }
+            }
+        };
+    }, [cep, setValue, trigger]);
 
 
 
     return (
         <SafeAreaView style={styles.container}>
-
             {currentStep === 1 && (
                 <View style={styles.stepContainer}>
                     <View style={styles.voltarContainer}>
@@ -186,112 +181,105 @@ const CadastroDoador = () => {
                     </View>
 
                     <View style={styles.inputContainer}>
-
-                        {/*<Controller
+                        <Controller
                             control={control}
                             name='nome'
                             render={({ field: { onChange, onBlur, value } }) =>
-                                
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder='Nome'
+                                    placeholderTextColor='#000'
+                                    onChangeText={onChange}
+                                    onBlur={onBlur}
+                                    value={value}
+                                />
                             }
-                        />*/}
-                        <TextInput
-                            style={styles.input}
-                            placeholder='Nome'
-                            placeholderTextColor='#000'
-
                         />
-                        {/*{errors.nome && <Text style={styles.labelError}>{errors.nome.message}</Text>}*/}
+                        {errors.nome && <Text style={styles.labelError}>{errors.nome.message}</Text>}
 
-
-
-                        {/*<Controller
+                        <Controller
                             control={control}
                             name='sobrenome'
                             render={({ field: { onChange, onBlur, value } }) =>
-                                
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder='Sobrenome'
+                                    placeholderTextColor='#000'
+                                    onChangeText={onChange}
+                                    onBlur={onBlur}
+                                    value={value}
+                                />
                             }
-                        />*/}
-
-                        <TextInput
-                            style={styles.input}
-                            placeholder='Sobrenome'
-                            placeholderTextColor='#000'
                         />
+                        {errors.sobrenome && <Text style={styles.labelError}>{errors.sobrenome.message}</Text>}
 
-                        {/*{errors.sobrenome && <Text style={styles.labelError}>{errors.sobrenome.message}</Text>}*/}
-
-
-                        {/*<Controller
+                        <Controller
                             control={control}
-                            name='dataNascimento'
-                            render={({ field: { onChange, onBlur, value } }) => (
-                                
+                            name="dataNascimento"
+                            render={({ field: { onChange, value } }) => (
+                                <>
+                                    <TouchableOpacity onPress={() => setShow(true)} style={styles.input}>
+                                        <Text>
+                                            {value ? formatDate(value) : 'Data de Nascimento'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                    {show && (
+                                        <DateTimePicker
+                                            value={value || new Date()}
+                                            mode="date"
+                                            display="default"
+                                            onChange={(event, selectedDate) => {
+                                                setShow(false); // Fecha o DateTimePicker após selecionar a data
+                                                onChange(selectedDate); // Atualiza o valor do Controller
+                                            }}
+                                        />
+                                    )}
+                                </>
                             )}
-                        />*/}
-                        <TouchableOpacity onPress={() => setShow(true)} style={styles.input}>
-                            <Text>
-                                {date ? formatDate(date) : 'Data de Nascimento'}
-                            </Text>
-                        </TouchableOpacity>
-                        {show && (
-                            <DateTimePicker
-                                testID="dateTimePicker"
-                                value={date || new Date()}
-                                mode="date"
-                                display="default"
-                                onChange={onChange}
-                            />
-                        )}
+                        />
+                        {errors.dataNascimento && <Text style={styles.labelError}>{errors.dataNascimento.message}</Text>}
 
-                        {/*{errors.dataNascimento && <Text style={styles.labelError}>{errors.dataNascimento.message}</Text>}*/}
 
-                        {/*<Controller
+                        <Controller
                             control={control}
                             name='cpf'
                             render={({ field: { onChange, onBlur, value } }) =>
-                                
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder='CPF'
+                                    placeholderTextColor='#000'
+                                    onChangeText={onChange}
+                                    onBlur={onBlur}
+                                    value={value}
+                                    keyboardType='numeric'
+                                />
                             }
-                        />*/}
-
-                        <TextInput
-                            style={styles.input}
-                            placeholder='CPF'
-                            placeholderTextColor='#000'
-
                         />
+                        {errors.cpf && <Text style={styles.labelError}>{errors.cpf.message}</Text>}
 
-                        {/*{errors.cpf && <Text style={styles.labelError}>{errors.cpf.message}</Text>}*/}
-
-
-                        {/*<Controller
+                        <Controller
                             control={control}
                             name='tipoSanguineo'
                             render={({ field: { onChange, onBlur, value } }) =>
-                                
+                                <SelectList
+                                    setSelected={onChange}
+                                    onBlur={onBlur}
+                                    value={value}
+                                    data={tipos}
+                                    arrowicon={<FontAwesome name="chevron-down" size={12} color={'black'} />}
+                                    search={false}
+                                    placeholder='Tipo Sanguíneo'
+                                    boxStyles={styles.boxStyles}
+                                    dropdownItemStyles={styles.dropdownItemStyles}
+                                    dropdownStyles={styles.dropdownStyles}
+                                />
                             }
-                        />*/}
-                        <SelectList
-                            setSelected={setSelected}
-                            fontFamily='DM-Sans'
-                            data={tipos}
-                            arrowicon={<FontAwesome name="chevron-down" size={12} color={'black'} />}
-                            searchicon={<FontAwesome name="search" size={12} color={'black'} />}
-                            search={false}
-                            placeholder='Tipo Sanguíneo'
-                            boxStyles={styles.boxStyles}
-                            dropdownItemStyles={styles.dropdownItemStyles}
-                            dropdownStyles={styles.dropdownStyles}
                         />
-
-                        {/*{errors.tipoSanguineo && <Text style={styles.labelError}>{errors.tipoSanguineo.message}</Text>}*/}
-
-
-                        <TouchableOpacity style={styles.BtProx} onPress={handleNext}>
-                            <Text style={styles.txtBtProx}>Próximo</Text>
-                        </TouchableOpacity>
-
+                        {errors.tipoSanguineo && <Text style={styles.labelError}>{errors.tipoSanguineo.message}</Text>}
                     </View>
-
+                    <TouchableOpacity onPress={validateStep} style={styles.BtProx}>
+                        <Text style={styles.txtBtProx}>Avançar</Text>
+                    </TouchableOpacity>
                 </View>
             )}
 
@@ -311,44 +299,11 @@ const CadastroDoador = () => {
                     </View>
 
                     <View style={styles.inputContainer}>
-                        <TextInput
-                            style={styles.input}
-                            placeholder='CEP'
-                            keyboardType='numeric'
-                            placeholderTextColor='#000'
-                            onChangeText={handleChange}
-                            value={value}
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder='Endereço'
-                            placeholderTextColor='#000'
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder='Número'
-                            placeholderTextColor='#000'
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder='Bairro'
-                            placeholderTextColor='#000'
-                        />
-                        <View style={styles.inputBottomContainer}>
-                            <TextInput
-                                style={styles.inputBottom}
-                                placeholder='Cidade'
-                                placeholderTextColor='#000'
-                            />
-                            <TextInput
-                                style={styles.inputBottom}
-                                placeholder='Estado'
-                                placeholderTextColor='#000'
-                            />
-                        </View>
+                        
+                        
 
 
-                        <TouchableOpacity style={styles.BtProx} onPress={handleNext}>
+                        <TouchableOpacity style={styles.BtProx} onPress={() => fetchAddress}>
                             <Text style={styles.txtBtProx}>Próximo</Text>
                         </TouchableOpacity>
 

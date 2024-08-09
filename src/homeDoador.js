@@ -1,4 +1,4 @@
-import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity, Platform } from 'react-native';
+import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native'
 import { FontAwesome6 } from '@expo/vector-icons';
 
@@ -19,7 +19,7 @@ const HomeDoador = () => {
             </View>
 
             <View style={styles.mainContainer}>
-                <TouchableOpacity style={styles.contagemContainer}>
+                <TouchableOpacity style={styles.contagemContainer} onPress={() => navigation.navigate('ProxDoacao')}>
                     <View style={styles.diasContagem}>
 
                     </View>

@@ -12,6 +12,7 @@ import CadastroDoador from './src/cadDoador';
 import LoginEscolha from './src/loginEscolha';
 import LoginDoador from './src/loginDoador';
 import HomeDoador from './src/homeDoador';
+import ProxDoacao from './src/proxDoacao';
 
 const Stack = createNativeStackNavigator();
 
@@ -49,7 +50,7 @@ export default function App() {
         <Stack.Screen name="LoginEscolha" component={LoginEscolha} />
         <Stack.Screen name="LoginDoador" component={LoginDoador} />
         <Stack.Screen name="HomeDoador" component={HomeDoador} />
-
+        <Stack.Screen name="ProxDoacao" component={ProxDoacao} />
 
       </Stack.Navigator>
     </NavigationContainer>
