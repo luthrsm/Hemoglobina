@@ -107,9 +107,9 @@ const WelcomeScreen = () => {
                         <View style={styles.welcomeContainerInfo}>
                             <View style={styles.txtContainer3}>
                                 <Text style={styles.title}> Interaja e descubra</Text>
-                                <Text style={styles.welcomeTxt}> Interaja com o HemoAssistent, crie campanhas e compartilhe com seus amigos!</Text>
+                                <Text style={[styles.welcomeTxt, {width: '100%', fontSize: 16}]}> Interaja com o HemoAssistent, crie campanhas e compartilhe com seus amigos!</Text>
                             </View>
-                            <View style={[styles.bottomContainer, {marginTop: '29%'}]}>
+                            <View style={styles.bottomContainer}>
                                 <View style={styles.paginacao}>
                                     <AnimatedPaginationDot
                                         activeDotColor="#83afb8"
@@ -193,13 +193,13 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginLeft: 5,
         marginRight: 5,
-        fontSize: 18,
+        fontSize: 16,
 
     },
     bottomContainer: {
         flexDirection: "row",
         gap: 150,
-        marginTop: '20%'
+        marginTop: '13%'
     },
     botaoContinue: {
         backgroundColor: '#eef0eb',

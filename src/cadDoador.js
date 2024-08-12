@@ -9,7 +9,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 
 import InputSenhaCad from '../components/inputSenhaCad';
-
+import AddressForm from '../components/cep'
+import PerfilDoador from '../components/perfilDoador';
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -39,332 +40,50 @@ const isValidCPF = (cpf) => {
 };
 
 const CadastroDoador = () => {
-    const tipos = [
-        { key: "1", value: "Não sei" },
-        { key: "2", value: "A+" },
-        { key: "3", value: "A-" },
-        { key: "4", value: "B+" },
-        { key: "5", value: "B-" },
-        { key: "6", value: "AB+" },
-        { key: "7", value: "AB-" },
-        { key: "8", value: "O+" },
-        { key: "9", value: "O-" },
-    ];
-
-    const schemaPerfilDoador = yup.object().shape({
-        nome: yup.string().required("Informe seu nome"),
-        sobrenome: yup.string().required("Informe seu sobrenome"),
-        dataNascimento: yup.date().required("Informe sua data de nascimento")
-            .test("idade-minima", "Você deve ter pelo menos 16 anos", (value) => {
-                return validateAge(value);
-            }),
-        cpf: yup.string().required("Informe seu CPF"),
-        tipoSanguineo: yup.string().required("Selecione um tipo sanguíneo")
-    });
 
 
-
-    const { control, handleSubmit, formState: { errors }, trigger } = useForm({
-        resolver: yupResolver(schemaPerfilDoador)
-    });
+    const [formData, setFormData] = useState({});
+    const [currentStep, setCurrentStep] = useState(1);
 
     const navigation = useNavigation();
-    const [currentStep, setCurrentStep] = useState(1);
-    const [date, setDate] = useState(null);
-    const [show, setShow] = useState(false);
-    const [isChecked, setIsChecked] = useState(false);
 
-    const validateStep = async () => {
-        const result = await trigger();
-        if (result) {
-            setCurrentStep(prevStep => prevStep + 1);
-        }
+    const handleDataChange = (newData) => {
+        setFormData(prevData => ({ ...prevData, ...newData }));
     };
 
-    const handleBack = () => {
-        setCurrentStep((prevStep) => prevStep - 1);
+    const handleSubmit = () => {
+        console.log('Dados finais:', formData);
+        // Enviar dados para o servidor ou realizar outra ação
     };
 
-    const onSubmit = (data) => {
-        alert('Cadastro concluído!');
-        console.log(data);
+    const validateStep = () => {
+        // Aqui você pode adicionar lógica de validação de cada etapa
+        setCurrentStep(prevStep => prevStep + 1);
     };
-
-    const onChangeDate = (event, selectedDate) => {
-        setShow(false); // Fecha o DatePicker
-        if (selectedDate) {
-            setDate(selectedDate);
-        }
-    };
-
-    // Formatação da data
-    const formatDate = (date) => {
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    };
-
-    // Função de validação de idade mínima
-    const validateAge = (date) => {
-        if (!date) return false; // Certifique-se de que a data é válida
-        const today = new Date();
-        const minAgeDate = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
-        return date <= minAgeDate;
-    };
-
-    const toggleCheckbox = () => {
-        setIsChecked(!isChecked);
-    };
-
-    const [value, setValue] = useState('');
-
-    // Função para garantir que o valor é um número
-    const handleChange = (text) => {
-        // Permite apenas números
-        const numericValue = text.replace(/[^0-9]/g, '');
-        setValue(numericValue);
-    };
-
-    //encontrar endereço pelo CEP
-    const [cep, setCep] = useState('');
-
-    useEffect(() => {
-        const fetchAddress = async () => {
-            if (cep.length === 8) {
-                try {
-                    const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
-                    const data = response.data;
-                    console.log('Dados obtidos:', data); // Verifique os dados aqui
-                    if (data && !data.erro) {
-                        setValue('endereco', data.logradouro);
-                        setValue('bairro', data.bairro);
-                        setValue('cidade', data.localidade);
-                        setValue('estado', data.uf);
-                        trigger(); // Força a re-renderização do formulário
-                    } else {
-                        setValue('endereco', '');
-                        setValue('bairro', '');
-                        setValue('cidade', '');
-                        setValue('estado', '');
-                        trigger(); // Força a re-renderização do formulário
-                    }
-                } catch (error) {
-                    console.error("Erro ao buscar endereço:", error);
-                    setValue('endereco', '');
-                    setValue('bairro', '');
-                    setValue('cidade', '');
-                    setValue('estado', '');
-                    trigger(); // Força a re-renderização do formulário
-                }
-            }
-        };
-    }, [cep, setValue, trigger]);
-
-
 
     return (
         <SafeAreaView style={styles.container}>
             {currentStep === 1 && (
-                <View style={styles.stepContainer}>
-                    <View style={styles.voltarContainer}>
-                        <TouchableOpacity onPress={() => navigation.navigate('CadastroEscolha')}>
-                            <AntDesign name="arrowleft" size={24} color="#7A0000" />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.containerImg}>
-                        <Image style={styles.logo} source={require('../assets/img/logoHemoglobina.png')} />
-                    </View>
-                    <View style={styles.txtTopContainer}>
-                        <Text style={styles.txtPrincipal}>Cadastro doador</Text>
-                        <Text style={styles.txtSecundario}>Perfil do doador</Text>
-                    </View>
-
-                    <View style={styles.inputContainer}>
-                        <Controller
-                            control={control}
-                            name='nome'
-                            render={({ field: { onChange, onBlur, value } }) =>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder='Nome'
-                                    placeholderTextColor='#000'
-                                    onChangeText={onChange}
-                                    onBlur={onBlur}
-                                    value={value}
-                                />
-                            }
-                        />
-                        {errors.nome && <Text style={styles.labelError}>{errors.nome.message}</Text>}
-
-                        <Controller
-                            control={control}
-                            name='sobrenome'
-                            render={({ field: { onChange, onBlur, value } }) =>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder='Sobrenome'
-                                    placeholderTextColor='#000'
-                                    onChangeText={onChange}
-                                    onBlur={onBlur}
-                                    value={value}
-                                />
-                            }
-                        />
-                        {errors.sobrenome && <Text style={styles.labelError}>{errors.sobrenome.message}</Text>}
-
-                        <Controller
-                            control={control}
-                            name="dataNascimento"
-                            render={({ field: { onChange, value } }) => (
-                                <>
-                                    <TouchableOpacity onPress={() => setShow(true)} style={styles.input}>
-                                        <Text>
-                                            {value ? formatDate(value) : 'Data de Nascimento'}
-                                        </Text>
-                                    </TouchableOpacity>
-                                    {show && (
-                                        <DateTimePicker
-                                            value={value || new Date()}
-                                            mode="date"
-                                            display="default"
-                                            onChange={(event, selectedDate) => {
-                                                setShow(false); // Fecha o DateTimePicker após selecionar a data
-                                                onChange(selectedDate); // Atualiza o valor do Controller
-                                            }}
-                                        />
-                                    )}
-                                </>
-                            )}
-                        />
-                        {errors.dataNascimento && <Text style={styles.labelError}>{errors.dataNascimento.message}</Text>}
-
-
-                        <Controller
-                            control={control}
-                            name='cpf'
-                            render={({ field: { onChange, onBlur, value } }) =>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder='CPF'
-                                    placeholderTextColor='#000'
-                                    onChangeText={onChange}
-                                    onBlur={onBlur}
-                                    value={value}
-                                    keyboardType='numeric'
-                                />
-                            }
-                        />
-                        {errors.cpf && <Text style={styles.labelError}>{errors.cpf.message}</Text>}
-
-                        <Controller
-                            control={control}
-                            name='tipoSanguineo'
-                            render={({ field: { onChange, onBlur, value } }) =>
-                                <SelectList
-                                    setSelected={onChange}
-                                    onBlur={onBlur}
-                                    value={value}
-                                    data={tipos}
-                                    arrowicon={<FontAwesome name="chevron-down" size={12} color={'black'} />}
-                                    search={false}
-                                    placeholder='Tipo Sanguíneo'
-                                    boxStyles={styles.boxStyles}
-                                    dropdownItemStyles={styles.dropdownItemStyles}
-                                    dropdownStyles={styles.dropdownStyles}
-                                />
-                            }
-                        />
-                        {errors.tipoSanguineo && <Text style={styles.labelError}>{errors.tipoSanguineo.message}</Text>}
-                    </View>
-                    <TouchableOpacity onPress={validateStep} style={styles.BtProx}>
-                        <Text style={styles.txtBtProx}>Avançar</Text>
-                    </TouchableOpacity>
-                </View>
+                <PerfilDoador formData={formData}
+                    onDataChange={handleDataChange}
+                    onNext={validateStep}
+                    onBack={() => setCurrentStep(prevStep => prevStep - 1)} />
             )}
 
             {currentStep === 2 && (
-                <View style={styles.stepContainer}>
-                    <View style={styles.voltarContainer}>
-                        <TouchableOpacity onPress={handleBack}>
-                            <AntDesign name="arrowleft" size={24} color="#7A0000" />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.containerImg}>
-                        <Image style={[styles.logo, { marginTop: '-15%' }]} source={require('../assets/img/logoHemoglobina.png')} />
-                    </View>
-                    <View style={styles.txtTopContainer}>
-                        <Text style={styles.txtPrincipal}>Cadastro doador</Text>
-                        <Text style={styles.txtSecundario}>Editar endereço</Text>
-                    </View>
-
-                    <View style={styles.inputContainer}>
-                        
-                        
-
-
-                        <TouchableOpacity style={styles.BtProx} onPress={() => fetchAddress}>
-                            <Text style={styles.txtBtProx}>Próximo</Text>
-                        </TouchableOpacity>
-
-                    </View>
-
-                </View>
+                <AddressForm
+                    formData={formData}
+                    onDataChange={handleDataChange}
+                    onNext={validateStep}
+                    onBack={() => setCurrentStep(prevStep => prevStep - 1)} />
             )}
 
             {currentStep === 3 && (
-                <View style={styles.stepContainer}>
-                    <View style={styles.voltarContainer}>
-                        <TouchableOpacity onPress={handleBack}>
-                            <AntDesign name="arrowleft" size={24} color="#7A0000" />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.containerImg}>
-                        <Image style={[styles.logo, { marginTop: '-35%' }]} source={require('../assets/img/logoHemoglobina.png')} />
-                    </View>
-                    <View style={styles.txtTopContainer}>
-                        <Text style={styles.txtPrincipal}>Cadastro doador</Text>
-                        <Text style={styles.txtSecundario}>Finalize seu cadastro</Text>
-                    </View>
-
-                    <View style={styles.inputContainer}>
-                        <TextInput
-                            style={styles.input}
-                            placeholder='E-mail'
-                            placeholderTextColor='#000'
-                        />
-                        <InputSenhaCad />
-                        <View style={styles.termos}>
-                            <TouchableOpacity
-                                style={styles.checkboxContainer}
-                                onPress={toggleCheckbox}
-                            >
-                                <Ionicons
-                                    name={isChecked ? 'checkbox' : 'square-outline'}
-                                    size={24}
-                                    color="black"
-                                />
-                                <Text style={styles.label}>
-                                    Declaro que li e concordo com os
-                                    <Text style={styles.link}>
-                                        Termos de Uso
-                                    </Text>
-                                    e com a
-                                    <Text style={styles.link}>
-                                        Política de Privacidade
-                                    </Text>
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-
-
-                        <TouchableOpacity style={styles.BtProx} onPress={() => navigation.navigate('HomeDoador')}>
-                            <Text style={styles.txtBtProx}>Próximo</Text>
-                        </TouchableOpacity>
-
-                    </View>
-
-                </View>
+                <InputSenhaCad
+                    formData={formData}
+                    onDataChange={handleDataChange}
+                    onNext={validateStep}
+                    onBack={() => setCurrentStep(prevStep => prevStep - 1)} />
             )}
         </SafeAreaView>
     )
