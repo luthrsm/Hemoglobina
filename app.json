@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "Hemoglobina",
-    "slug": "Hemoglobina",
+    "name": "telacadastrohemo",
+    "slug": "snack-a3680bcb-4df1-4606-a669-f43de3a4cf99",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/img/icon.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/img/splash.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -16,13 +16,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/img/adaptive-icon.png",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "type": "module"
+    }
   }
 }
