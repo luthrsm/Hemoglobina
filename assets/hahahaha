@@ -1,0 +1,150 @@
+import { Text, SafeAreaView, StyleSheet, TextInput, Image, TouchableOpacity } from 'react-native';
+
+export default function App() {
+  return (
+    <SafeAreaView style={styles.container}>
+      <Image style={styles.logo} source={require('../imagens/hemoglobina.png')}/>
+      <Text style={styles.textoPreto1}>Cadastro Hemocentro</Text>
+      <Text style={styles.textoPreto2}>Perfil Hemocentro</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Nome da instituição/razão social"
+        placeholderTextColor="#000"
+
+        /* segunda página */
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Telefone"
+        placeholderTextColor="#000"
+        
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="CNPJ"
+        placeholderTextColor="#000"
+        secureTextEntry
+        
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Horários de funcionamento"
+        placeholderTextColor="#000"
+        secureTextEntry
+        
+      />
+
+      <TouchableOpacity style={styles.button}>
+        <Text style={styles.buttonText}>Próximo</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 8,
+    alignItems: 'center',
+    backgroundColor: '#EEF0EB',
+  },
+  textoPreto1: {
+    fontSize: 24,
+    marginTop: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  textoPreto2: {
+    fontSize: 17,
+    marginTop: 5,
+    marginBottom: 50,
+    textAlign: 'center',
+  },
+  logo: {
+    width: 60,
+    height: 60,
+    marginTop: 60,
+    marginBottom: 30,
+  },
+  input: {
+    height: 50,
+    padding: 15,
+    width: '80%',
+    fontSize: 13,
+    color: '#000',
+    borderRadius: 7,
+    marginBottom: 20,
+    backgroundColor: '#EEF0EB',
+  },
+  button: {
+    width: 200,
+    height: 50,
+    padding: 15,
+    marginTop: 50,
+    borderRadius: 7,
+    backgroundColor: '#AF2B2B',
+  },
+  buttonText: {
+    color: '#EEF0EB',
+    textAlign: 'center',
+  },
+});
+
+
+
+/*<Image style={[styles.logo, { marginTop: '-35%' }]} source={require('../assets/img/logoHemoglobina.png')} />*/
+
+
+
+
+
+{/*Parte do registro de sangue*/}
+            {currentStepSangue === 1 && (
+                <View style={styles.stepContainer}>
+                    <View style={styles.voltarContainer}>
+                        <TouchableOpacity onPress={handleBack}>
+                            <AntDesign name="arrowleft" size={24} color="#7A0000" />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.containerImg}>
+                        <Image style={[styles.logo, { marginTop: '-35%' }]} source={require('../imagens/hemoglobina.png')} />
+                    </View>
+                    <View style={styles.txtTopContainer}>
+                        <Text style={styles.txtPrincipal}>Atualize seu estoque jqdshdsds</Text>
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        
+                        <View>
+                          <TouchableOpacity style={styles.botaoSangue}>
+                            <Text>A+</Text>
+                          </TouchableOpacity>
+                          <TextInput
+                            style={styles.input}
+                            placeholder='E-mail'
+                            placeholderTextColor='#000'
+                        />
+                        </View>
+                        
+                        <TouchableOpacity style={styles.BtProx} onPress={console.log('Registro Feito')}>
+                            <Text style={styles.txtBtProx}>Salvar</Text>
+                        </TouchableOpacity>
+
+                    </View>
+
+                </View>
+            )}
+
+
+
+
+                        <View>
+                          <TouchableOpacity style={styles.botaoSangue}>
+                            <Text>A+</Text>
+                          </TouchableOpacity>
+                          <TextInput
+                            style={styles.input}
+                            placeholder='E-mail'
+                            placeholderTextColor='#000'
+                        />
+                        </View>
