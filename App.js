@@ -13,6 +13,14 @@ import LoginEscolha from './src/loginEscolha';
 import LoginDoador from './src/loginDoador';
 import HomeDoador from './src/homeDoador';
 import ProxDoacao from './src/proxDoacao';
+import CadastroHemocentro from './components/hemoCad';
+import HomeHemocentro from './components/homeHemocentro';
+import HemocentroLogin from './components/loginHemo';
+
+//estoque
+
+import Apositivo from './assets/componentesEstoqCadHemo/A+'
+
 
 const Stack = createNativeStackNavigator();
 
@@ -51,6 +59,12 @@ export default function App() {
         <Stack.Screen name="LoginDoador" component={LoginDoador} />
         <Stack.Screen name="HomeDoador" component={HomeDoador} />
         <Stack.Screen name="ProxDoacao" component={ProxDoacao} />
+        <Stack.Screen name="HemoTela" component={CadastroHemocentro}/>
+        <Stack.Screen name="HomeHemocentro" component={HomeHemocentro} />
+        <Stack.Screen name="HemocentroLogin" component={HemocentroLogin}/>
+
+        {/*screen pra cada componente do estoque*/}
+        <Stack.Screen name="Apositivo" component={Apositivo}/>
 
       </Stack.Navigator>
     </NavigationContainer>

@@ -18,7 +18,7 @@ const CadastroEscolha = () => {
                     <View styles={styles.ordemTam}>
                         <Text style={styles.textoBranco2}>E faça parte de uma comunidade de doadores e hemocentros</Text>
 
-                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('CadHemocentro')} >
+                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('HemoTela')} >
 
                             <Text style={styles.buttonText}>Hemocentro</Text>
                         </TouchableOpacity>
@@ -57,7 +57,6 @@ const styles = StyleSheet.create({
     textoBranco1: {
         fontSize: 28,
         color: 'white',
-        fontWeight: 'bold',
         textAlign: 'center',
     },
     textoBranco2: {

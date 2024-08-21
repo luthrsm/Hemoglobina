@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, TouchableOpacity, SafeAreaView, StyleSheet } from 'react-native';
+import { View, TextInput, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Ionicons } from '@expo/vector-icons';
+import AntDesign from '@expo/vector-icons/AntDesign';
+
 
 // Definição do esquema de validação com yup
 const schema = yup.object().shape({
@@ -164,9 +166,6 @@ const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
 
 
             </View>
-            <TouchableOpacity style={styles.BtProx} onPress={onNext}>
-                <Text style={styles.txtBtProx}>Cadastrar-se</Text>
-            </TouchableOpacity>
 
         </SafeAreaView>
     );
@@ -240,6 +239,24 @@ const styles = StyleSheet.create({
     txtBtProx: {
         color: '#fff',
         fontSize: 16,
+    },
+    logo: {
+        width: 50,
+        height: 50,
+        marginTop: '-20%',
+    },
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+        padding: 16,
+    },
+    voltarContainer: {
+        position: 'absolute',
+        top: 16,
+        left: 16,
+    },
+    containerImg: {
+        marginBottom: 20,
     },
 })
 

@@ -4,7 +4,7 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 
-import MenuDoador from '../components/menu';
+import MenuDoador from '../components/menuDoador';
 
 const ProxDoacao = () => {
 

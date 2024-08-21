@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native'
 import { FontAwesome6 } from '@expo/vector-icons';
 
 
-import MenuDoador from '../components/menu';
+import MenuDoador from '../components/menuDoador';
 
 const HomeDoador = () => {
 
