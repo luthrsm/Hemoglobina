@@ -7,14 +7,16 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 //navigation
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native'
 import * as React from 'react';
 
 const MenuDoador = () => {
+
+    const navigation = useNavigation();
+
     return (
         <View style={styles.menuContainer}>
-            <TouchableOpacity style={styles.divLink}>
+            <TouchableOpacity style={styles.divLink} onPress={() => navigation.navigate('HomeDoador')}>
                 <FontAwesome name="home" size={28} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Home</Text>
             </TouchableOpacity>

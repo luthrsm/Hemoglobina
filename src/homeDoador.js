@@ -31,7 +31,7 @@ const HomeDoador = () => {
                 <View style={styles.questionarioContainer}>
                     <View>
                         <Text style={styles.questionarioTxt}>Questionário de triagem</Text>
-                        <TouchableOpacity style={styles.botaoTriagem}>
+                        <TouchableOpacity style={styles.botaoTriagem} onPress={() => navigation.navigate('QuestionarioTriagem')}>
                             <Text style={styles.txtBotao}>Responder agora</Text>
                         </TouchableOpacity>
                     </View>

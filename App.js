@@ -16,7 +16,8 @@ import ProxDoacao from './src/proxDoacao';
 import CadastroHemocentro from './components/hemoCad';
 import HomeHemocentro from './components/homeHemocentro';
 import HemocentroLogin from './components/loginHemo';
-
+import QuestionarioTriagem from './src/questionarioTriagem';
+import Perguntas from './components/perguntas';
 //estoque
 
 import Apositivo from './assets/componentesEstoqCadHemo/A+'
@@ -62,6 +63,9 @@ export default function App() {
         <Stack.Screen name="HemoTela" component={CadastroHemocentro}/>
         <Stack.Screen name="HomeHemocentro" component={HomeHemocentro} />
         <Stack.Screen name="HemocentroLogin" component={HemocentroLogin}/>
+        <Stack.Screen name="QuestionarioTriagem" component={QuestionarioTriagem} />
+        <Stack.Screen name="Perguntas" component={Perguntas} />
+
 
         {/*screen pra cada componente do estoque*/}
         <Stack.Screen name="Apositivo" component={Apositivo}/>
