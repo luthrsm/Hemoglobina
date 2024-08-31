@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 //navigation
 import { useNavigation } from '@react-navigation/native';
 
-const MenuDoador = () => {
+const LoginHemo = () => {
 
     const navigation = useNavigation();
 
@@ -16,7 +16,7 @@ const MenuDoador = () => {
         <SafeAreaView style={styles.container}>
             <View style={styles.stepContainer}>
                 <View style={styles.voltarContainer}>
-                    <TouchableOpacity onPress={() => navigation.navigate('EntrarLogin')}>
+                    <TouchableOpacity onPress={() => navigation.navigate('LoginEscolha')}>
                         <AntDesign name="arrowleft" size={24} color="#7A0000" />
                     </TouchableOpacity>
                 </View>
@@ -24,8 +24,8 @@ const MenuDoador = () => {
                     <Image style={[styles.logo, { marginTop: '-35%' }]} source={require('../assets/img/hemoglobina.png')} />
                 </View>
                 <View style={styles.txtTopContainer}>
-                    <Text style={styles.txtPrincipal}>Cadastro hemocentro</Text>
-                    <Text style={styles.txtSecundario}>Finalize seu cadastro</Text>
+                    <Text style={styles.txtPrincipal}>Fazer Login</Text>
+                    <Text style={styles.txtSecundario}>Hemocentro</Text>
                 </View>
 
                 <View style={styles.inputContainer}>
@@ -47,7 +47,7 @@ const MenuDoador = () => {
     )
 }
 
-export default MenuDoador
+export default LoginHemo
 
 const styles = StyleSheet.create({
     container: {

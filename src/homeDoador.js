@@ -14,7 +14,7 @@ const HomeDoador = () => {
             <View style={styles.headerContainer}>
                 <Text style={styles.title}> Bem vindo, doador!</Text>
                 <TouchableOpacity>
-                    <FontAwesome6 name="gear" size={32} color="#EEF0EB" style={styles.config} />
+                    <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
                 </TouchableOpacity>
             </View>
 
@@ -42,10 +42,10 @@ const HomeDoador = () => {
                 </View>
                 <View style={styles.doacoesContainer}>
                     <Text style={styles.doacoesTxt}>Minhas Doações</Text>
-                    <TouchableOpacity style={styles.botaoDoacao}>
+                    <TouchableOpacity style={styles.botaoDoacao} onPress={() => navigation.navigate('SolicitarCarteirinha')}>
                         <Text style={styles.txtBotao}>Solicitar carteirinha</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.botaoDoacao}>
+                    <TouchableOpacity style={styles.botaoDoacao} onPress={() => navigation.navigate('HistoricoDoacoes')}>
                         <Text style={styles.txtBotao}>Ver histórico de doações</Text>
                     </TouchableOpacity>
 

@@ -29,7 +29,7 @@ const MenuDoador = () => {
                 <Text style={styles.txtMenu}> Hemocentros</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.divLink}>
-                <Ionicons name="chatbubbles" size={24} color="#EEF0EB" style={styles.icons} />
+                <Ionicons name="chatbubbles" size={28} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Campanhas</Text>
             </TouchableOpacity>
         </View>

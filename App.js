@@ -18,6 +18,10 @@ import HomeHemocentro from './components/homeHemocentro';
 import HemocentroLogin from './components/loginHemo';
 import QuestionarioTriagem from './src/questionarioTriagem';
 import Perguntas from './components/perguntas';
+import SolicitarCarteirinha from './components/ScolicitarCar';
+import HistoricoDoacoes from './components/historico';
+import LoginHemo from './components/loginHemo';
+
 //estoque
 
 import Apositivo from './assets/componentesEstoqCadHemo/A+'
@@ -38,7 +42,12 @@ export default function App() {
         'Poppins-Regular': require('./assets/fonts/Poppins-Regular.ttf'),
         'Poppins-Medium': require('./assets/fonts/Poppins-Medium.ttf'),
         'Poppins-SemiBold': require('./assets/fonts/Poppins-SemiBold.ttf'),
-        'DM-Sans': require('./assets/fonts/DMSans-VariableFont_opsz,wght.ttf'),
+        'DM-Sans': {
+        uri: require('./assets/fonts/DMSans-VariableFont_opsz,wght.ttf'),
+        fontVariationSettings: {
+          'wght': [300, 400, 500, 600, 700] // adjust the weights as needed
+        }
+      }
       });
       setFontsLoaded(true);
     };
@@ -65,6 +74,10 @@ export default function App() {
         <Stack.Screen name="HemocentroLogin" component={HemocentroLogin}/>
         <Stack.Screen name="QuestionarioTriagem" component={QuestionarioTriagem} />
         <Stack.Screen name="Perguntas" component={Perguntas} />
+        <Stack.Screen name="SolicitarCarteirinha" component={SolicitarCarteirinha} />
+        <Stack.Screen name="HistoricoDoacoes" component={HistoricoDoacoes} />
+        <Stack.Screen name="LoginHemo" component={LoginHemo} />
+
 
 
         {/*screen pra cada componente do estoque*/}

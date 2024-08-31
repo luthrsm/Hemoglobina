@@ -491,7 +491,7 @@ const Perguntas = () => {
             <View style={styles.headerContainer}>
                 <Text style={styles.title}> Questionário de Triagem</Text>
                 <TouchableOpacity>
-                    <FontAwesome6 name="gear" size={28} color="#EEF0EB" style={styles.config} />
+                    <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
                 </TouchableOpacity>
             </View>
             <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -508,7 +508,7 @@ const Perguntas = () => {
                             </View>
                         ) : (  // Caso contrário, continua exibindo as perguntas
                             <View>
-                                <Text style={styles.contagemTxt}> Pergunta {questions[currentQuestion].id}/24</Text>
+                                <Text style={styles.contagemTxt}> Pergunta {questions[currentQuestion].id}/{questions.length}</Text>
                                 <Text style={styles.questionTxt}>{questions[currentQuestion].question}</Text>
                                 {questions[currentQuestion].answers.map((answer, index) => (
                                     <TouchableOpacity

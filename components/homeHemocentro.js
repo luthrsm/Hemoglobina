@@ -2,7 +2,7 @@ import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacit
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome6 } from '@expo/vector-icons';
 
-import MenuDoador from './menuDoador';
+import MenuHemocentro from './menuHemocentro';
 
 
 const HomeDoador = () => {
@@ -17,17 +17,17 @@ const HomeDoador = () => {
 
             <View style={styles.mainContainer}>
 
-                <View style={styles.txtFotoContainer}>
+                <TouchableOpacity style={styles.txtFotoContainer}>
                     <Text style={styles.txtTitle}>Gerencie o nível do banco de sangue do seu hemocentro</Text>
                     <View style={styles.fotoCont}>
                         <Image style={styles.image} source={require('../assets/img/grafico.png')} />
                     </View>
-                </View>
+                </TouchableOpacity>
 
                 <View style={styles.doacoesContainer}>
                     <Text style={styles.doacoesTxt}>Adicionar nova doação:</Text>
                     <TouchableOpacity style={styles.botaoAdDoacao}>
-                        <Text style={styles.txtBotao}>Adicionar nova doaçãoa</Text>
+                        <Text style={styles.txtBotao}>Adicionar nova doação</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.botaoAdDoacao}>
                         <Text style={styles.txtBotao}>Gerenciar banco de sangue</Text>
@@ -36,7 +36,7 @@ const HomeDoador = () => {
                 </View>
             </View>
 
-            <MenuDoador />
+            <MenuHemocentro/>
         </View>
 
     )
@@ -80,26 +80,28 @@ const styles = StyleSheet.create({
 
     txtTitle: {
         fontFamily: 'Poppins-SemiBold',
-        fontSize: 18,
+        fontSize: 16,
+        color: '#470404'
     },
     maisTxt: {
         fontFamily: 'DM-Sans',
         color: '#326771',
         fontSize: 9.9,
-        fontWeight: 600,
+        fontWeight: '600',
         lineHeight: 12.9,
     },
 
     txtFotoContainer: {
         marginBottom: 90,
+        
     },
     txtBotao: {
         color: '#EEF0EB',
         fontFamily: 'DM-Sans',
     },
     image: {
-        width: '90%',
-        height: 300,
+        height: 250,
+        width: 300,
     },
     fotoCont: {
         alignItems: 'center',
@@ -116,7 +118,7 @@ const styles = StyleSheet.create({
         fontSize: 17,
         color: '#470404',
         marginBottom: 30,
-        fontWeight: 500,
+        fontWeight: '500',
     },
     botaoAdDoacao: {
         backgroundColor: '#1E6370',
