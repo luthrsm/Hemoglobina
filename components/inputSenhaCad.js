@@ -8,46 +8,19 @@ import { Ionicons } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 
-// Definição do esquema de validação com yup
-const schema = yup.object().shape({
-    email: yup
-        .string()
-        .email('Endereço de email inválido')
-        .required('O email é obrigatório'),
-    senha: yup
-        .string()
-        .min(8, 'A senha deve ter pelo menos 8 caracteres')
-        .required('A senha é obrigatória'),
-    confirmarSenha: yup
-        .string()
-        .oneOf([yup.ref('senha'), null], 'As senhas devem corresponder')
-        .required('A confirmação da senha é obrigatória'),
-    isChecked: yup
-        .boolean()
-        .oneOf([true], 'Você deve concordar com os Termos de Uso e Política de Privacidade'),
-});
 
-const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
+const InputSenhaCad = ({ control, errors, formData, onDataChange, onNext, onBack }) => {
     const navigation = useNavigation();
     const [isPasswordVisible1, setIsPasswordVisible1] = useState(false);
     const [isPasswordVisible2, setIsPasswordVisible2] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
 
-    const { control, handleSubmit, formState: { errors }, getValues, trigger } = useForm({
-        resolver: yupResolver(schema),
-    });
-
     const handleCheckboxToggle = () => {
         setIsChecked(prev => !prev);
     };
 
-    const validateStep = async () => {
-        const result = await trigger(); // Valida todos os campos
-        if (result) {
-            const formData = getValues(); // Coleta os dados do formulário
-            console.log('Dados do formulário:', formData); // Exibe os dados no console
-            navigation.navigate('HomeDoador');
-        }
+    const handleValueChange = (field, value) => {
+        onDataChange({ [field]: value });
     };
 
     return (
@@ -74,9 +47,12 @@ const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
                             style={styles.inputEmail}
                             placeholder='E-mail'
                             placeholderTextColor='#000'
-                            onChangeText={onChange}
-                            onBlur={onBlur}
+                            onChangeText={text => {
+                                onChange(text);
+                                handleValueChange('email', text)
+                            }}
                             value={value}
+                            onBlur={onBlur}
                         />
                     )}
                 />
@@ -90,7 +66,10 @@ const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
                             <TextInput
                                 style={styles.input}
                                 value={value}
-                                onChangeText={onChange}
+                                onChangeText={text => {
+                                    onChange(text);
+                                    handleValueChange('senha', text)
+                                }}
                                 placeholder="Senha"
                                 secureTextEntry={!isPasswordVisible1}
                                 placeholderTextColor="#000"
@@ -164,6 +143,9 @@ const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
                     {errors.isChecked && <Text style={styles.labelError}>{errors.isChecked.message}</Text>}
                 </View>
 
+                <TouchableOpacity style={styles.BtProx} onPress={onNext}>
+                    <Text style={styles.txtBtProx}>Finalizar Cadastro</Text>
+                </TouchableOpacity>
 
             </View>
 
@@ -174,58 +156,46 @@ export default InputSenhaCad;
 
 const styles = StyleSheet.create({
     container: {
-        padding: 5
-    },
-    containerBotao: {
-        flexDirection: 'row',
-        height: 50,
-        width: '100%',
-        backgroundColor: '#EEF0EB',
-        marginBottom: '6%',
-        paddingHorizontal: 8,
-        borderRadius: 7,
-        paddingLeft: 20,
-        alignItems: 'center',
-    },
-    input: {
         flex: 1,
-        height: 40,
-        fontFamily: 'DM-Sans',
+        backgroundColor: '#fff',
+        padding: 16,
     },
-    iconContainer: {
-        paddingHorizontal: 5,
-    },
-    termos: {
-        flexDirection: 'row',
+    stepContainer: {
+        flex: 1,
+        justifyContent: 'center',
         alignItems: 'center',
     },
-    checkboxContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    voltarContainer: {
+        position: 'absolute',
+        top: 25,
+        left: 16,
     },
-    label: {
-        marginLeft: 8,
-
+    containerImg: {
+        marginBottom: 20,
     },
-    link: {
-        textDecorationLine: 'underline',
-        color: '#326771',
-    },
-    labelError: {
-        alignSelf: 'flex-start',
-        color: '#AF2B2B',
-        marginBottom: 8,
-    },
-    inputEmail: {
+    logo: {
+        width: 50,
         height: 50,
-        width: '100%',
-        backgroundColor: '#EEF0EB',
-        marginBottom: '6%',
-        paddingHorizontal: 8,
-        borderRadius: 7,
-        paddingLeft: 20,
-        fontFamily: 'DM-Sans',
-        justifyContent: 'center'
+        marginTop: '-20%',
+    },
+    txtTopContainer: {
+        marginBottom: 20,
+    },
+    txtPrincipal: {
+        fontSize: 24,
+        color: '#470404',
+        fontFamily: 'Poppins-Medium',
+        textAlign: 'center'
+    },
+    txtSecundario: {
+        fontSize: 16,
+        color: '#470404',
+        fontFamily: 'Poppins-Regular',
+        textAlign: 'center'
+    },
+    inputContainer: {
+        marginTop: '5%',
+        width: '95%',
     },
     BtProx: {
         backgroundColor: '#AF2B2B',
@@ -240,24 +210,76 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
     },
-    logo: {
-        width: 50,
+    inputBottomContainer: {
+        flexDirection: "row",
+        gap: 20,
+    },
+    inputBottom: {
         height: 50,
-        marginTop: '-20%',
+        width: '47%',
+        backgroundColor: '#EEF0EB',
+        marginBottom: '6%',
+        paddingHorizontal: 8,
+        borderRadius: 7,
+        paddingLeft: 20,
+        fontFamily: 'DM-Sans'
     },
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        padding: 16,
+    termos: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
-    voltarContainer: {
-        position: 'absolute',
-        top: 16,
-        left: 16,
+    checkboxContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
-    containerImg: {
-        marginBottom: 20,
+    label: {
+        marginLeft: 8,
     },
-})
+    link: {
+        textDecorationLine: 'underline',
+        color: '#326771',
+    },
+    labelError: {
+        alignSelf: 'flex-start',
+        color: '#AF2B2B',
+        marginBottom: 8,
+    },
+    boxStyles: {
+        borderColor: '#EEF0EB',
+        borderRadius: 7,
+        backgroundColor: '#EEF0EB',
+
+    },
+    dropdownStyles: {
+        borderColor: '#EEF0EB',
+        borderRadius: 7,
+        backgroundColor: '#EEF0EB',
+        marginTop: '',
+        marginBottom: '5%'
+    },
+    containerBotao: {
+        flexDirection: 'row',
+        height: 50,
+        width: '100%',
+        backgroundColor: '#EEF0EB',
+        marginBottom: '6%',
+        paddingHorizontal: 8,
+        borderRadius: 7,
+        paddingLeft: 20,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    inputEmail:{
+        height: 50,
+        width: '100%',
+        backgroundColor: '#EEF0EB',
+        marginBottom: '6%',
+        paddingHorizontal: 8,
+        borderRadius: 7,
+        paddingLeft: 20,
+        fontFamily: 'DM-Sans',
+        justifyContent: 'center'
+    }
+});
 
 

@@ -162,17 +162,17 @@ const styles = StyleSheet.create({
         gap: 10,
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
-        marginTop: '10%',
+        marginTop: '15%',
     },
     txtContainer: {
         gap: 12,
-        marginTop: 45,
+        marginTop: 80,
         width: 260,
 
     },
     txtContainer3: {
         gap: 12,
-        marginTop: 45,
+        marginTop: 80,
         width: 260,      
     },
     title: {
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     bottomContainer: {
         flexDirection: "row",
         gap: 150,
-        marginTop: '13%'
+        marginTop: '18%'
     },
     botaoContinue: {
         backgroundColor: '#eef0eb',

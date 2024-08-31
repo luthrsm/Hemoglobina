@@ -14,7 +14,7 @@ const HomeDoador = () => {
             <View style={styles.headerContainer}>
                 <Text style={styles.title}> Bem vindo, doador!</Text>
                 <TouchableOpacity>
-                    <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
+                    <FontAwesome6 name="gear" size={32} color="#EEF0EB" style={styles.config} />
                 </TouchableOpacity>
             </View>
 
@@ -75,10 +75,10 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         backgroundColor: '#AF2B2B',
-        height: '9%',
+        height: '10%',
         borderBottomLeftRadius: 8,
         borderBottomRightRadius: 8,
-        padding: 10,
+        paddingVertical: 10,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between"
@@ -86,13 +86,14 @@ const styles = StyleSheet.create({
     title: {
         color: '#EEF0EB',
         marginLeft: 25,
-        marginTop: 7,
+        marginTop: 15,
         fontFamily: 'DM-Sans',
-        letterSpacing: 1.5
+        letterSpacing: 1.5,
+        fontSize: 22
     },
     config: {
-        marginTop: 7,
-        marginRight: 10,
+        marginTop: 15,
+        marginRight: 20,
     },
     mainContainer: {
         padding: 32,

@@ -8,15 +8,17 @@ import { SelectList } from 'react-native-dropdown-select-list';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 
-import InputSenhaCad from '../components/inputSenhaCad';
-import AddressForm from '../components/cep'
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Ionicons } from '@expo/vector-icons';
 
-const PerfilDoador = ({ formData, onDataChange, onNext, onBack }) => {
 
+
+
+
+const PerfilDoador = ({ control, errors, formData, onDataChange, onNext, onBack }) => {
+    
     const tipos = [
         { key: "1", value: "Não sei" },
         { key: "2", value: "A+" },
@@ -29,22 +31,6 @@ const PerfilDoador = ({ formData, onDataChange, onNext, onBack }) => {
         { key: "9", value: "O-" },
     ];
 
-    const schemaPerfilDoador = yup.object().shape({
-        nome: yup.string().required("Informe seu nome"),
-        sobrenome: yup.string().required("Informe seu sobrenome"),
-        dataNascimento: yup.date().required("Informe sua data de nascimento")
-            .test("idade-minima", "Você deve ter pelo menos 16 anos", (value) => {
-                return validateAge(value);
-            }),
-        cpf: yup.string().required("Informe seu CPF"),
-        tipoSanguineo: yup.string().required("Selecione um tipo sanguíneo"),
-
-    });
-
-
-    const { control, handleSubmit, formState: { errors }, trigger } = useForm({
-        resolver: yupResolver(schemaPerfilDoador)
-    });
     const [date, setDate] = useState(null);
     const [show, setShow] = useState(false);
 
@@ -63,29 +49,16 @@ const PerfilDoador = ({ formData, onDataChange, onNext, onBack }) => {
         return `${day}/${month}/${year}`;
     };
 
-    // Função de validação de idade mínima
-    const validateAge = (date) => {
-        if (!date) return false; // Certifique-se de que a data é válida
-        const today = new Date();
-        const minAgeDate = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
-        return date <= minAgeDate;
+    const handleValueChange = (field, value) => {
+        onDataChange({ [field]: value });
     };
-
-    
 
     const [value, setValue] = useState('');
-
-    // Função para garantir que o valor é um número
-    const handleChange = (text) => {
-        // Permite apenas números
-        const numericValue = text.replace(/[^0-9]/g, '');
-        setValue(numericValue);
-    };
 
     return (
         <View style={styles.stepContainer}>
             <View style={styles.voltarContainer}>
-                <TouchableOpacity onPress={() => navigation.navigate('CadastroEscolha')}>
+                <TouchableOpacity onPress={onBack}>
                     <AntDesign name="arrowleft" size={24} color="#7A0000" />
                 </TouchableOpacity>
             </View>
@@ -106,7 +79,10 @@ const PerfilDoador = ({ formData, onDataChange, onNext, onBack }) => {
                             style={styles.input}
                             placeholder='Nome'
                             placeholderTextColor='#000'
-                            onChangeText={text => handleChange('nome', text)}
+                            onChangeText={text => {
+                                onChange(text);
+                                handleValueChange('nome', text)
+                            }}
                             onBlur={onBlur}
                             value={formData.nome || ''}
                         />
@@ -122,7 +98,10 @@ const PerfilDoador = ({ formData, onDataChange, onNext, onBack }) => {
                             style={styles.input}
                             placeholder='Sobrenome'
                             placeholderTextColor='#000'
-                            onChangeText={text => handleChange('sobrenome', text)}
+                            onChangeText={text => {
+                                onChange(text);
+                                handleValueChange('sobrenome', text)
+                            }}
                             value={formData.sobrenome || ''}
                             onBlur={onBlur}
                         />
@@ -142,12 +121,15 @@ const PerfilDoador = ({ formData, onDataChange, onNext, onBack }) => {
                             </TouchableOpacity>
                             {show && (
                                 <DateTimePicker
-                                    value={formData.dataNascimento || ''}
+                                    value={value ? new Date(value) : new Date()} // Assegura que 'value' seja uma data válida
                                     mode="date"
                                     display="default"
                                     onChange={(event, selectedDate) => {
                                         setShow(false); // Fecha o DateTimePicker após selecionar a data
-                                        onChange(selectedDate); // Atualiza o valor do Controller
+                                        if (selectedDate) {
+                                            onChange(selectedDate); // Atualiza o valor do Controller com a nova data
+                                            handleValueChange('dataNascimento', selectedDate); // Atualiza o estado geral do formulário
+                                        }
                                     }}
                                 />
                             )}
@@ -167,7 +149,10 @@ const PerfilDoador = ({ formData, onDataChange, onNext, onBack }) => {
                             placeholderTextColor='#000'
                             onBlur={onBlur}
                             keyboardType='numeric'
-                            onChangeText={text => handleChange('cpf', text)}
+                            onChangeText={text => {
+                                onChange(text);
+                                handleValueChange('cpf', text)
+                            }}
                             value={formData.cpf || ''}
                         />
                     }

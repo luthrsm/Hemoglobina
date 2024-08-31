@@ -1,29 +1,18 @@
-import { Text, View, StyleSheet, TextInput } from 'react-native';
+import { Text, View, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import axios from 'axios';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
-// Definindo o esquema de validação usando Yup
-const schemaCEP = yup.object().shape({
-    cep: yup.string().required("Informe seu CEP").length(8, "O CEP deve ter 8 dígitos"),
-    endereco: yup.string(),
-    bairro: yup.string(),
-    cidade: yup.string(),
-    estado: yup.string(),
-});
 
-const AddressForm = ({ formData, onDataChange, onNext, onBack }) => {
-    const handleChange = (field, value) => {
+const AddressForm = ({ control, errors, formData, onDataChange, onNext, onBack, setValue, trigger }) => {
+    const handleValueChange = (field, value) => {
         onDataChange({ [field]: value });
     };
-    
-    const { control, handleSubmit, formState: { errors }, setValue, trigger } = useForm({
-        resolver: yupResolver(schemaCEP),
-    });
 
-    const [cep, setCep] = useState('');
+    const [cep, setCep] = useState(formData.cep || '');
 
     const fetchAddress = async () => {
         if (cep.length === 8) {
@@ -32,25 +21,36 @@ const AddressForm = ({ formData, onDataChange, onNext, onBack }) => {
                 const data = response.data;
 
                 if (data && !data.erro) {
-                    setValue('endereco', data.logradouro || '');
+                    setValue('rua', data.logradouro || '');
                     setValue('bairro', data.bairro || '');
                     setValue('cidade', data.localidade || '');
                     setValue('estado', data.uf || '');
+
+                    // Atualize o formData para refletir as mudanças
+                    onDataChange({
+                        rua: data.logradouro || '',
+                        bairro: data.bairro || '',
+                        cidade: data.localidade || '',
+                        estado: data.uf || '',
+                    });
                 } else {
-                    setValue('endereco', '');
+                    setValue('rua', '');
                     setValue('bairro', '');
                     setValue('cidade', '');
                     setValue('estado', '');
                 }
 
-                trigger(['endereco', 'bairro', 'cidade', 'estado']);
+                // Valide os campos após a atualização
+                trigger(['rua', 'bairro', 'cidade', 'estado']);
             } catch (error) {
                 console.error("Erro ao buscar endereço:", error);
-                setValue('endereco', '');
+                setValue('rua', '');
                 setValue('bairro', '');
                 setValue('cidade', '');
                 setValue('estado', '');
-                trigger(['endereco', 'bairro', 'cidade', 'estado']);
+
+                // Valide os campos após a falha
+                trigger(['rua', 'bairro', 'cidade', 'estado']);
             }
         }
     };
@@ -60,7 +60,6 @@ const AddressForm = ({ formData, onDataChange, onNext, onBack }) => {
     }, [cep]);
 
     return (
-
         <View style={styles.stepContainer}>
             <View style={styles.voltarContainer}>
                 <TouchableOpacity onPress={onBack}>
@@ -86,9 +85,10 @@ const AddressForm = ({ formData, onDataChange, onNext, onBack }) => {
                             keyboardType="numeric"
                             onBlur={onBlur}
                             maxLength={8}
-                            value={value || ''}
+                            value={cep}
                             onChangeText={(text) => {
                                 setCep(text);
+                                handleValueChange('cep', text);
                                 onChange(text);
                             }}
                             placeholderTextColor="#000"
@@ -99,12 +99,12 @@ const AddressForm = ({ formData, onDataChange, onNext, onBack }) => {
 
                 <Controller
                     control={control}
-                    name="endereco"
+                    name="rua"
                     render={({ field: { value } }) => (
                         <TextInput
                             style={styles.input}
-                            placeholder="Endereço"
-                            value={value || ''}
+                            placeholder="Rua"
+                            value={formData.rua || value || ''}
                             editable={false}
                             placeholderTextColor="#000"
                         />
@@ -117,7 +117,7 @@ const AddressForm = ({ formData, onDataChange, onNext, onBack }) => {
                         <TextInput
                             style={styles.input}
                             placeholder="Bairro"
-                            value={value || ''}
+                            value={formData.bairro || value || ''}
                             editable={false}
                             placeholderTextColor="#000"
                         />
@@ -130,7 +130,7 @@ const AddressForm = ({ formData, onDataChange, onNext, onBack }) => {
                         <TextInput
                             style={styles.input}
                             placeholder="Cidade"
-                            value={value || ''}
+                            value={formData.cidade || value || ''}
                             editable={false}
                             placeholderTextColor="#000"
                         />
@@ -143,7 +143,7 @@ const AddressForm = ({ formData, onDataChange, onNext, onBack }) => {
                         <TextInput
                             style={styles.input}
                             placeholder="Estado"
-                            value={value || ''}
+                            value={formData.estado || value || ''}
                             editable={false}
                             placeholderTextColor="#000"
                         />
