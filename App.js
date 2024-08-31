@@ -2,32 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Font from 'expo-font'
-import {StyleSheet} from 'react-native';
+import {StyleSheet, View, Text, StatusBar} from 'react-native';
 
-
-//telas
-import WelcomeScreen from './src/pagBemVindo';
-import CadastroEscolha from "./src/cadEscolha";
-import CadastroDoador from './src/cadDoador';
-import LoginEscolha from './src/loginEscolha';
-import LoginDoador from './src/loginDoador';
-import HomeDoador from './src/homeDoador';
-import ProxDoacao from './src/proxDoacao';
-import CadastroHemocentro from './components/hemoCad';
-import HomeHemocentro from './components/homeHemocentro';
-import HemocentroLogin from './components/loginHemo';
-
-//estoque
-
-import Apositivo from './assets/componentesEstoqCadHemo/A+'
-
-
-const Stack = createNativeStackNavigator();
-
-
-
+import QuestionarioTriagem from './src/questionarioTriagem';
+import Perguntas from './components/perguntas';
 
 export default function App() {
+
+  const Stack = createNativeStackNavigator();
 
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
@@ -51,31 +33,17 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
-        <Stack.Screen name="CadastroEscolha" component={CadastroEscolha} />
-        {/* <Stack.Screen name="cadHemocentro" component={CadHemocentro} /> */}
-        <Stack.Screen name="CadastroDoador" component={CadastroDoador} />
-        <Stack.Screen name="LoginEscolha" component={LoginEscolha} />
-        <Stack.Screen name="LoginDoador" component={LoginDoador} />
-        <Stack.Screen name="HomeDoador" component={HomeDoador} />
-        <Stack.Screen name="ProxDoacao" component={ProxDoacao} />
-        <Stack.Screen name="HemoTela" component={CadastroHemocentro}/>
-        <Stack.Screen name="HomeHemocentro" component={HomeHemocentro} />
-        <Stack.Screen name="HemocentroLogin" component={HemocentroLogin}/>
-
-        {/*screen pra cada componente do estoque*/}
-        <Stack.Screen name="Apositivo" component={Apositivo}/>
-
+        <Stack.Screen name="QuestionarioTriagem" component={QuestionarioTriagem} />
+        <Stack.Screen name="Perguntas" component={Perguntas} />
       </Stack.Navigator>
     </NavigationContainer>
-
-
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
