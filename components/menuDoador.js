@@ -28,7 +28,7 @@ const MenuDoador = () => {
                 <MaterialCommunityIcons name="hospital-marker" size={28} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Hemocentros</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.divLink}>
+            <TouchableOpacity style={styles.divLink} onPress={() => navigation.navigate('CampanhaMain')}>
                 <Ionicons name="chatbubbles" size={28} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Campanhas</Text>
             </TouchableOpacity>
