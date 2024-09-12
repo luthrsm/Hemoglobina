@@ -32,7 +32,6 @@ const HomeDoador = () => {
                     <TouchableOpacity style={styles.botaoAdDoacao}>
                         <Text style={styles.txtBotao}>Gerenciar banco de sangue</Text>
                     </TouchableOpacity>
-
                 </View>
             </View>
 

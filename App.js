@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Font from 'expo-font'
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 
 
 //telas
+import CampanhaMain from './src/campanha/index';
+import CriarCampanha from './src/campanha/criarCampanha';
+import CampaignDetails from './src/campanha/index'
 import WelcomeScreen from './src/pagBemVindo';
 import CadastroEscolha from "./src/cadEscolha";
 import CadastroDoador from './src/cadDoador';
@@ -21,7 +24,6 @@ import Perguntas from './components/perguntas';
 import SolicitarCarteirinha from './components/ScolicitarCar';
 import HistoricoDoacoes from './components/historico';
 import LoginHemo from './components/loginHemo';
-
 //estoque
 
 import Apositivo from './assets/componentesEstoqCadHemo/A+'
@@ -42,24 +44,17 @@ export default function App() {
         'Poppins-Regular': require('./assets/fonts/Poppins-Regular.ttf'),
         'Poppins-Medium': require('./assets/fonts/Poppins-Medium.ttf'),
         'Poppins-SemiBold': require('./assets/fonts/Poppins-SemiBold.ttf'),
-        'DM-Sans': {
-        uri: require('./assets/fonts/DMSans-VariableFont_opsz,wght.ttf'),
-        fontVariationSettings: {
-          'wght': [300, 400, 500, 600, 700] // adjust the weights as needed
-        }
-      }
+        'DM-Sans': require('./assets/fonts/DMSans-VariableFont_opsz,wght.ttf'),
       });
       setFontsLoaded(true);
     };
 
     loadFonts();
   }, []);
-  if (!fontsLoaded) {
-    return console.log('fontes carregadas');
-  }
 
   return (
     <NavigationContainer>
+
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
         <Stack.Screen name="CadastroEscolha" component={CadastroEscolha} />
@@ -69,19 +64,24 @@ export default function App() {
         <Stack.Screen name="LoginDoador" component={LoginDoador} />
         <Stack.Screen name="HomeDoador" component={HomeDoador} />
         <Stack.Screen name="ProxDoacao" component={ProxDoacao} />
-        <Stack.Screen name="HemoTela" component={CadastroHemocentro}/>
+        <Stack.Screen name="HemoTela" component={CadastroHemocentro} />
         <Stack.Screen name="HomeHemocentro" component={HomeHemocentro} />
-        <Stack.Screen name="HemocentroLogin" component={HemocentroLogin}/>
+        <Stack.Screen name="HemocentroLogin" component={HemocentroLogin} />
         <Stack.Screen name="QuestionarioTriagem" component={QuestionarioTriagem} />
         <Stack.Screen name="Perguntas" component={Perguntas} />
         <Stack.Screen name="SolicitarCarteirinha" component={SolicitarCarteirinha} />
         <Stack.Screen name="HistoricoDoacoes" component={HistoricoDoacoes} />
         <Stack.Screen name="LoginHemo" component={LoginHemo} />
-
+        <Stack.Screen name="CampanhaMain" component={CampanhaMain} />
+        <Stack.Screen name="CriarCampanha" component={CriarCampanha} />
+        <Stack.Screen name="CampaignDetails" component={CampaignDetails} />
 
 
         {/*screen pra cada componente do estoque*/}
-        <Stack.Screen name="Apositivo" component={Apositivo}/>
+        <Stack.Screen name="Apositivo" component={Apositivo} />
+
+
+
 
       </Stack.Navigator>
     </NavigationContainer>
@@ -89,11 +89,3 @@ export default function App() {
 
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
