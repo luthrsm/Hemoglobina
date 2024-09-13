@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView } from 'react-na
 import { FontAwesome5 } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import MenuHemo from '../../components/GerenciarEstoqueHemo/menuHemo';
+import MenuHemocentro from '../../components/menuHemocentro';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const SangueChart = ({ navigation }) => {
@@ -120,7 +120,7 @@ const SangueChart = ({ navigation }) => {
         </View>
       </View>
 
-        <MenuHemo />
+        <MenuHemocentro />
     </View>
   );
 };

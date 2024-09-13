@@ -9,7 +9,8 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
-import MenuHemo from '../../components/elementosHemocentro/menuHemo';
+import MenuHemocentro from '../../components/menuHemocentro';
+
 
 const ConfigHemo = () => {
 
@@ -23,17 +24,7 @@ const ConfigHemo = () => {
   const [loggedOut, setLoggedOut] = useState(false);
   
   const handleLogout = async () => {
-    try {
-      // Remova as informações de autenticação
-      await AsyncStorage.clearStorage();
-
-      // Redirecione o usuário para a página de login
-      navigation.navigate('Login');
-
-      setLoggedOut(true);
-    } catch (error) {
-      console.error(error);
-    }
+    navigation.navigate('WelcomeScreen')
   };
 
     // const route = useRoute();
@@ -47,7 +38,7 @@ const ConfigHemo = () => {
 
             <View style={styles.mainContainer}>
               <View style={styles.voltarContainer}>
-                <TouchableOpacity onPress={() => navigation.navigate('mudarparaohome')}>
+                <TouchableOpacity onPress={() => navigation.navigate('HomeHemocentro')}>
                   <AntDesign name="arrowleft" size={24} color="#7A0000" />
                 </TouchableOpacity>
               </View>
@@ -61,13 +52,13 @@ const ConfigHemo = () => {
 
               <View style={styles.options}>
 
-                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('PerfilHemo')}> 
+                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('PerfilConfigHemo')}> 
                   <Image source={require('../../assets/img/configImages/lapis.png')} style={styles.imageBotoes} />
                   <Text style={styles.optionText}>Editar perfil</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.option} onPress={handleLogout}>
-                  <Image source={require('../../assets/img/configImages/sairConta.png')} style={styles.imageBotoes} />
+                  <Image source={require('../../assets/img/configImages/sairConta.png')} style={styles.imageBotoes}/>
                   <Text style={styles.optionText}>Sair da conta</Text>
                 </TouchableOpacity>
 
@@ -76,7 +67,7 @@ const ConfigHemo = () => {
                   <Text style={styles.optionText}>Fale conosco</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('ProliticasDeSegurancaHemo')}>
+                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('PoliticasDeSegurancaHemo')}>
                   <Image source={require('../../assets/img/configImages/politicas.png')} style={styles.imageBotoes} />
                   <Text style={styles.optionText}>Políticas de segurança</Text>
                 </TouchableOpacity>
@@ -94,7 +85,7 @@ const ConfigHemo = () => {
               </View>      
             </View>
 
-            <MenuHemo />
+            <MenuHemocentro />
         </View>
 
     )

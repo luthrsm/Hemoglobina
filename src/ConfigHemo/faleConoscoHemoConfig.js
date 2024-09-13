@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
-import MenuHemo from '../../components/elementosHemocentro/menuHemo';
+import MenuHemocentro from '../../components/menuHemocentro';
+
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -103,7 +104,7 @@ const FaleConoscoH = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
 
-      <MenuHemo />
+      <MenuHemocentro />
     </View>
   );
 };

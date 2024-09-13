@@ -31,27 +31,6 @@ const donationsData = [
     bloodType: 'A+',
     cpf: '09876474029',
   },
-  {
-    id: '4',
-    date: '14/10/2023',
-    location: 'Banco de sangue paulista',
-    bloodType: 'A+',
-    cpf: '09876474029',
-  },
-  {
-    id: '5',
-    date: '14/10/2023',
-    location: 'Banco de sangue paulista',
-    bloodType: 'A+',
-    cpf: '09876474029',
-  },
-  {
-    id: '6',
-    date: '14/10/2023',
-    location: 'Banco de sangue paulista',
-    bloodType: 'A+',
-    cpf: '09876474029',
-  },
 ];
 
 const DonationItem = ({ donation }) => {
@@ -91,7 +70,7 @@ const HistoricoDoacoes = () => {
         <View style={styles.container}>
             <View style={styles.headerContainer}>
                 <Text style={styles.title}>Histórico de doações</Text>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('ConfiguracoesDoador')}>
                     <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
                 </TouchableOpacity>
             </View>

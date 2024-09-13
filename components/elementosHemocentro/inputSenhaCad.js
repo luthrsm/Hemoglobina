@@ -28,7 +28,7 @@ const schema = yup.object().shape({
 });
 
 const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
-    
+
     const navigation = useNavigation();
 
     const [isPasswordVisible1, setIsPasswordVisible1] = useState(false);
@@ -45,27 +45,28 @@ const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
     };
 
     const validateStep = async () => {
-        const result = await trigger(); // Valida todos os campos
-        if (result) {
-            const formData = getValues(); // Coleta os dados do formulário
-            console.log('Dados do formulário:', formData); // Exibe os dados no console
-            navigation.navigate('HomeHemocentro');
-        }
+        //const result = await trigger(); // Valida todos os campos
+        //if (result) {
+            //const formData = getValues(); // Coleta os dados do formulário
+            //console.log('Dados do formulário:', formData); // Exibe os dados no console
+            
+        //}
+        navigation.navigate('HomeHemocentro');
     };
 
     return (
         <View style={styles.stepContainer}>
-          <View style={styles.voltarContainer}>
-            <TouchableOpacity onPress={onBack}>
-                <AntDesign name="arrowleft" size={24} color="#7A0000" />
-            </TouchableOpacity>
+            <View style={styles.voltarContainer}>
+                <TouchableOpacity onPress={onBack}>
+                    <AntDesign name="arrowleft" size={24} color="#7A0000" />
+                </TouchableOpacity>
             </View>
             <View style={styles.containerImg}>
-              <Image style={[styles.logo, { marginTop: '-15%' }]} source={require('../../assets/img/hemoCadImages/logoHemoglobina.png')} />
+                <Image style={[styles.logo, { marginTop: '-15%' }]} source={require('../../assets/img/hemoCadImages/logoHemoglobina.png')} />
             </View>
             <View style={styles.txtTopContainer}>
-              <Text style={styles.txtPrincipal}>Cadastro hemocentro</Text>
-              <Text style={styles.txtSecundario}>Finalize seu cadastro</Text>
+                <Text style={styles.txtPrincipal}>Cadastro hemocentro</Text>
+                <Text style={styles.txtSecundario}>Finalize seu cadastro</Text>
             </View>
 
             <View style={styles.inputContainer}>
@@ -167,11 +168,11 @@ const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
                     {errors.isChecked && <Text style={styles.labelError}>{errors.isChecked.message}</Text>}
                 </View>
 
-            <TouchableOpacity style={styles.BtProx} onPress={() => navigation.navigate('HomeHemocentro')}>
-              <Text style={styles.txtBtProx}>Próximo</Text>
-            </TouchableOpacity>
+                <TouchableOpacity style={styles.BtProx} onPress={validateStep}>
+                    <Text style={styles.txtBtProx}>Finalizar Cadastro</Text>
+                </TouchableOpacity>
 
-          </View>
+            </View>
 
         </View>
     );

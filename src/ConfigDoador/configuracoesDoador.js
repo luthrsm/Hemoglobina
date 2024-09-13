@@ -22,7 +22,7 @@ const ConfigGeralDoador = () => {
   const navigation = useNavigation();
 
   const [loggedOut, setLoggedOut] = useState(false);
-  
+
   const handleLogout = async () => {
     try {
       // Remova as informações de autenticação
@@ -37,73 +37,75 @@ const ConfigGeralDoador = () => {
     }
   };
 
-    // const route = useRoute();
-    // const { profilePic } = route.params;
+  // const route = useRoute();
+  // const { profilePic } = route.params;
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.headerContainer}>
-                <Text style={styles.title}> Configurações</Text>
-            </View>
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.title}> Configurações</Text>
+      </View>
 
-            <View style={styles.mainContainer}>
-              <View style={styles.voltarContainer}>
-                <TouchableOpacity onPress={() => navigation.navigate('mudarparaohome')}>
-                  <AntDesign name="arrowleft" size={24} color="#7A0000" />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.profile}>
-                
-                <Image source={require('../../assets/img/configImages/userimage.png')} style={styles.profileImage} />
-                <Text style={styles.profileName}>{userData.name}</Text>
-                <Text style={styles.profileEmail}>{userData.email}</Text>
-              </View>
-
-              <View style={styles.options}>
-
-                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('PerfilDoador')}> 
-                  <Image source={require('../../assets/img/configImages/lapis.png')} style={styles.imageBotoes} />
-                  <Text style={styles.optionText}>Editar perfil</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.option} onPress={handleLogout}>
-                  <Image source={require('../../assets/img/configImages/sairConta.png')} style={styles.imageBotoes} />
-                  <Text style={styles.optionText}>Sair da conta</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('FaleConoscoDoa')}>
-                  <Image source={require('../../assets/img/configImages/faleConosco.png')} style={styles.imageBotoes} />
-                  <Text style={styles.optionText}>Fale conosco</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.option}>
-                  <Image source={require('../../assets/img/configImages/resgatarCarte.png')} style={styles.imageBotoes} />
-                  <Text style={styles.optionText}>Resgatar sua carteirinha</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('ProliticasDeSegurancaDoador')}>
-                  <Image source={require('../../assets/img/configImages/politicas.png')} style={styles.imageBotoes} />
-                  <Text style={styles.optionText}>Políticas de segurança</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('TermosDeUsoDoador')}>
-                  <Image source={require('../../assets/img/configImages/termos.png')} style={styles.imageBotoes} />
-                  <Text style={styles.optionText}>Termos de uso</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('SobreDoador')}>
-                  <Image source={require('../../assets/img/configImages/sobre.png')} style={styles.imageBotoes} />
-                  <Text style={styles.optionText}>Sobre</Text>
-                </TouchableOpacity>
-
-              </View>      
-            </View>
-
-            <MenuDoador />
+      <View style={styles.mainContainer}>
+        <View style={styles.voltarContainer}>
+          <TouchableOpacity onPress={() => navigation.navigate('HomeDoador')}>
+            <AntDesign name="arrowleft" size={24} color="#7A0000" />
+          </TouchableOpacity>
         </View>
 
-    )
+        <ScrollView>
+          <View style={styles.profile}>
+
+            <Image source={require('../../assets/img/configImages/userimage.png')} style={styles.profileImage} />
+            <Text style={styles.profileName}>{userData.name}</Text>
+            <Text style={styles.profileEmail}>{userData.email}</Text>
+          </View>
+
+          <View style={styles.options}>
+
+            <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('PerfilConfigDoador')}>
+              <Image source={require('../../assets/img/configImages/lapis.png')} style={styles.imageBotoes} />
+              <Text style={styles.optionText}>Editar perfil</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.option} onPress={handleLogout}>
+              <Image source={require('../../assets/img/configImages/sairConta.png')} style={styles.imageBotoes} />
+              <Text style={styles.optionText}>Sair da conta</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('FaleConoscoDoador')}>
+              <Image source={require('../../assets/img/configImages/faleConosco.png')} style={styles.imageBotoes} />
+              <Text style={styles.optionText}>Fale conosco</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('SolicitarCarteirinha')}>
+              <Image source={require('../../assets/img/configImages/resgatarCarte.png')} style={styles.imageBotoes} />
+              <Text style={styles.optionText}>Resgatar sua carteirinha</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('PoliticasDeSegurancaDoador')}>
+              <Image source={require('../../assets/img/configImages/politicas.png')} style={styles.imageBotoes} />
+              <Text style={styles.optionText}>Políticas de segurança</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('TermosDeUsoDoador')}>
+              <Image source={require('../../assets/img/configImages/termos.png')} style={styles.imageBotoes} />
+              <Text style={styles.optionText}>Termos de uso</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('SobreDoador')}>
+              <Image source={require('../../assets/img/configImages/sobre.png')} style={styles.imageBotoes} />
+              <Text style={styles.optionText}>Sobre</Text>
+            </TouchableOpacity>
+
+          </View>
+        </ScrollView>
+      </View>
+
+      <MenuDoador />
+    </View>
+
+  )
 }
 
 export default ConfigGeralDoador;
@@ -156,7 +158,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     fontSize: 18,
   },
-   profile: {
+  profile: {
     alignItems: 'center',
     marginTop: 20,
   },

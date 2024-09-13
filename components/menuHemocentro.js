@@ -12,7 +12,6 @@ import { useNavigation } from '@react-navigation/native'
 import * as React from 'react';
 
 const MenuHemocentro = () => {
-
     const navigation = useNavigation();
 
     return (
@@ -21,19 +20,18 @@ const MenuHemocentro = () => {
                 <FontAwesome name="home" size={28} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Home</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.divLink}>
-            <MaterialIcons name="bloodtype" size={28} color="#EEF0EB" />
+            <TouchableOpacity style={styles.divLink} >
+                <MaterialIcons name="bloodtype" size={28} color="#EEF0EB"/>
                 <Text style={styles.txtMenu}> Doações</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.divLink}>
+            <TouchableOpacity style={styles.divLink} onPress={() => navigation.navigate('CampanhaMainHemocentro')}>
                 <Ionicons name="chatbubbles" size={28} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Campanhas</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.divLink}>
-            <FontAwesome6 name="gear" size={28} color="#EEF0EB" style={styles.icons} />
+            <TouchableOpacity style={styles.divLink} onPress={() => navigation.navigate('ConfiguracoesHemo')}>
+                <FontAwesome6 name="gear" size={28} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Configurações</Text>
             </TouchableOpacity>
-            
         </View>
     )
 }
@@ -52,6 +50,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         gap: 35,
         marginTop: 'auto',
+        
     },
     divLink: {
         alignItems: "center",

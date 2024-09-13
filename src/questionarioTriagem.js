@@ -13,8 +13,8 @@ const QuestionarioTriagem = () => {
         <SafeAreaView style={styles.container}>
             <View style={styles.headerContainer}>
                 <Text style={styles.title}>Questionário de Triagem</Text>
-                <TouchableOpacity>
-                    <FontAwesome6 name="gear" size={32} color="#EEF0EB" style={styles.config} />
+                <TouchableOpacity onPress={() => navigation.navigate('ConfiguracoesDoador')}>
+                    <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
                 </TouchableOpacity>
             </View>
             <View style={styles.mainContainer}>

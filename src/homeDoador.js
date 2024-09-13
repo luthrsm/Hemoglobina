@@ -1,7 +1,7 @@
 import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native'
 import { FontAwesome6 } from '@expo/vector-icons';
-
+import { SvgXml } from 'react-native-svg';
 
 import MenuDoador from '../components/menuDoador';
 
@@ -13,21 +13,23 @@ const HomeDoador = () => {
         <View style={styles.container}>
             <View style={styles.headerContainer}>
                 <Text style={styles.title}> Bem vindo, doador!</Text>
-                <TouchableOpacity >
+                <TouchableOpacity onPress={() => navigation.navigate('ConfiguracoesDoador')}>
                     <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
                 </TouchableOpacity>
             </View>
 
             <View style={styles.mainContainer}>
-                <TouchableOpacity style={styles.contagemContainer} onPress={() => navigation.navigate('ProxDoacao')}>
+                <View style={styles.contagemContainer} >
                     <View style={styles.diasContagem}>
-
+                        <Image source={require('../assets/img/Vector.png')} />
                     </View>
                     <View style={styles.txtContagemContainer}>
-                        <Text style={styles.txtTitle}>Dias para sua próxima doação</Text>
-                        <Text style={styles.maisTxt}>mais detalhes</Text>
+                        <Text style={styles.txtTitle}>Verifique quando será sua próxima doação!</Text>
+                        <TouchableOpacity style={styles.btDetalhes} onPress={() => navigation.navigate('ProxDoacao')}>
+                            <Text style={styles.maisTxt}>Descobrir</Text>
+                        </TouchableOpacity>
                     </View>
-                </TouchableOpacity>
+                </View>
                 <View style={styles.questionarioContainer}>
                     <View>
                         <Text style={styles.questionarioTxt}>Questionário de triagem</Text>
@@ -101,22 +103,36 @@ const styles = StyleSheet.create({
     },
     contagemContainer: {
         marginBottom: 70,
+        flexDirection: 'row',
+        gap: 50,
+        alignSelf: 'center'
     },
     txtContagemContainer: {
         alignSelf: 'flex-end',
         gap: 5,
-        width: '50%'
+        width: '50%',
+        
     },
     txtTitle: {
         fontFamily: 'Poppins-SemiBold',
-        fontSize: 18,
+        fontSize: 15,
+        textAlign: 'center'
     },
     maisTxt: {
         fontFamily: 'DM-Sans',
-        color: '#326771',
-        fontSize: 9.9,
+        color: '#fff',
+        fontSize: 12.28,
         fontWeight: '600',
         lineHeight: 12.9,
+    },
+    btDetalhes:{
+        backgroundColor: '#326771',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 25,
+        width: 104,
+        borderRadius: 8,
+        alignSelf: 'center'
     },
     questionarioContainer: {
         backgroundColor: '#EEF0EB',
@@ -155,7 +171,7 @@ const styles = StyleSheet.create({
         color: '#470404',
         marginBottom: 20
     },
-    botaoDoacao:{
+    botaoDoacao: {
         backgroundColor: '#1E6370',
         height: 37,
         width: 235,

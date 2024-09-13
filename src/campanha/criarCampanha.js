@@ -135,7 +135,7 @@ const CriarCampanha = () => {
             </View>
             <View style={styles.mainContainer}>
                 <View style={styles.voltarContainer}>
-                    <TouchableOpacity onPress={() => navigation.navigate('CampanhaMain')}>
+                    <TouchableOpacity onPress={()=> navigation.navigate('CampanhaDoador')}>
                         <AntDesign name="arrowleft" size={28} color="#326771" />
                     </TouchableOpacity>
                 </View>

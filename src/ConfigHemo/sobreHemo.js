@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect} from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import * as ImagePicker from 'expo-image-picker';
-import MenuHemo from '../../components/elementosHemocentro/menuHemo';
+import MenuHemocentro from '../../components/menuHemocentro';
+
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -36,14 +37,14 @@ const SobreHemo = ({ navigation }) => {
         <View style={styles.mainSection}>
           <Text style={styles.textoFale}>Sobre o App</Text>
 
-          <Image style={styles.Image} source={require('../../assets/img/configImages/hemocentro.png')} />
+          <Image style={styles.Image} source={require('../../assets/img/configImages/sobreApp.png')} />
 
           <Text style={styles.textoPoliticas}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam pharetra ac dolor at commodo. Maecenas vitae blandit massa. In id odio arcu. In varius felis justo, vehicula tempus sem tempus ut. Morbi in fringilla est, nec consequat ante. Duis egestas, purus ut egestas congue, nisl mi imperdiet eros, quis semper turpis augue quis massa. Sed interdum purus quis justo interdum condimentum. Vivamus suscipit mauris eget mollis malesuada. Cras et ex sem. Praesent viverra in dui vel aliquam. Fusce vel lacinia augue. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam pharetra ac dolor at commodo. Maecenas vitae blandit massa. In id odio arcu. In varius felis justo, vehicula tempus sem tempus ut. Morbi in fringilla est, nec consequat ante. Duis egestas, purus ut egestas congue, nisl mi imperdiet eros, quis semper turpis augue quis massa. Sed interdum purus quis justo interdum condimentum. Vivamus suscipit mauris eget mollis malesuada. </Text>
         <Text style={styles.textoPoliticas}>Cras et ex sem. Praesent viverra in dui vel aliquam. Fusce vel lacinia augue. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam pharetra ac dolor at commodo. Maecenas vitae blandit massa. In id odio arcu. In varius felis justo, vehicula tempus sem tempus ut. Morbi in fringilla est, nec consequat ante. Duis egestas, purus ut egestas congue, nisl mi imperdiet eros, quis semper turpis augue quis massa. Sed interdum purus quis justo interdum condimentum. Vivamus suscipit mauris eget mollis malesuada. Cras et ex sem. Praesent viverra in dui vel aliquam. Fusce vel lacinia augue. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam pharetra ac dolor at commodo. Maecenas vitae blandit massa. In id odio arcu. In varius felis justo, vehicula tempus sem tempus ut. Morbi in fringilla est, nec consequat ante. Duis egestas, purus ut egestas congue, nisl mi imperdiet eros, quis semper turpis augue quis massa. Sed interdum purus quis justo interdum condimentum. Vivamus suscipit mauris eget mollis malesuada. Cras et ex sem. Praesent viverra in dui vel aliquam. Fusce vel lacinia augue. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam pharetra ac dolor at commodo. Maecenas vitae blandit massa. In id odio arcu. In varius felis justo, vehicula tempus sem tempus ut. Morbi in fringilla est, nec consequat ante. Duis egestas, purus ut egestas congue, nisl mi imperdiet eros, quis semper turpis augue quis massa. Sed interdum purus quis justo interdum condimentum. Vivamus suscipit mauris eget mollis malesuada. Cras et ex sem. Praesent viverra in dui vel aliquam. Fusce vel lacinia augue. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam pharetra ac dolor at commodo. Maecenas vitae blandit massa. In id odio arcu. In varius felis justo, vehicula tempus sem tempus ut. Morbi in fringilla est, nec consequat ante. Duis egestas, purus ut egestas congue, nisl mi imperdiet eros, quis semper turpis augue quis massa. Sed interdum purus quis justo interdum condimentum. Vivamus suscipit mauris eget mollis malesuada. Cras et ex sem. Praesent viverra in dui vel aliquam. Fusce vel lacinia augue.</Text>
         </View>
         
       </ScrollView>
-    <MenuHemo />
+    <MenuHemocentro />
   </View>
   );
 };
@@ -86,7 +87,6 @@ const styles = StyleSheet.create({
   },
   Image: {
     width: '100%',
-    height: 190,
     marginBottom: 25,
   },
   textoFale: {

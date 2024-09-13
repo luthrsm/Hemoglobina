@@ -7,22 +7,32 @@
     "icon": "./assets/img/logoHemoglobina.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/img/logoHemoglobina.png",
+      "image": "./assets/img/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.HemoglobinaLTDA.Hemoglobina",
+      "buildNumber": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/img/logoHemoglobina.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#ffffff",
+        "package": "com.HemoglobinaLTDA.Hemoglobina",
+        "versionCode": 1
+      },
+      "package": "com.HemoglobinaLTDA.Hemoglobina"
     },
     "web": {
       "favicon": "./assets/img/icon.png"
     },
-    "type": "module"
+    "type": "module",
+    "extra": {
+      "eas": {
+        "projectId": "34750e71-023f-4d29-9ec3-da11d4c19823"
+      }
+    }
   }
 }

@@ -38,6 +38,14 @@ const data = [
     doacoes: '3',
     fotoPerfil: 'https://media.istockphoto.com/id/1482199015/pt/foto/happy-puppy-welsh-corgi-14-weeks-old-dog-winking-panting-and-sitting-isolated-on-white.jpg?s=612x612&w=0&k=20&c=XI-fFXTXEU4UbQtGwM_vWzBB4F17W4dlPtXL4wr2dmE='
   },
+  {
+    cpf: '54587664820',
+    name: 'Nicolas dos Santos',
+    birthDate: '22/10/06',
+    bloodType: 'O+',
+    doacoes: '3',
+    fotoPerfil: 'https://media.istockphoto.com/id/1482199015/pt/foto/happy-puppy-welsh-corgi-14-weeks-old-dog-winking-panting-and-sitting-isolated-on-white.jpg?s=612x612&w=0&k=20&c=XI-fFXTXEU4UbQtGwM_vWzBB4F17W4dlPtXL4wr2dmE='
+  },
 ];
 
 const SolicitarCarteirinha = () => {
@@ -77,7 +85,7 @@ const SolicitarCarteirinha = () => {
       <View style={styles.headerContainer}>
         <Text style={styles.titlePrin}> Solicitar carteirinha</Text>
 
-        <TouchableOpacity >
+        <TouchableOpacity onPress={() => navigation.navigate('ConfiguracoesDoador')}>
           <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
         </TouchableOpacity>
       </View>

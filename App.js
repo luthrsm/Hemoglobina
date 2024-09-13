@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Font from 'expo-font'
-import { StyleSheet } from 'react-native';
 
 
 //telas
-import CampanhaMain from './src/campanha/index';
+import CampanhaDoador from './src/campanha/campanhaMainDoador';
+import CampanhaHemo from './src/campanha/campanhaMainHemo'
 import CriarCampanha from './src/campanha/criarCampanha';
-import CampaignDetails from './src/campanha/index'
+import CampaignDetailsDoador from './src/campanha/campanhaMainDoador'
+
+
 import WelcomeScreen from './src/pagBemVindo';
 import CadastroEscolha from "./src/cadEscolha";
 import CadastroDoador from './src/cadDoador';
@@ -23,7 +25,6 @@ import Perguntas from './components/perguntas';
 import SolicitarCarteirinha from './components/ScolicitarCar';
 import HistoricoDoacoes from './components/historico';
 import LoginHemo from './components/loginHemo';
-
 
 //cadastro Hemo
 
@@ -42,7 +43,7 @@ import PoliticasDeSegurancaDoador from './src/ConfigDoador/politicSeguranDoador'
 
 import ConfigHemo from './src/ConfigHemo/configuracoesHemo';
 import FaleConoscoH from './src/ConfigHemo/faleConoscoHemoConfig';
-import  ProfileScreenHemo from './src/ConfigHemo/perfilConfigHemo';
+import ProfileScreenHemo from './src/ConfigHemo/perfilConfigHemo';
 import SobreHemo from './src/ConfigHemo/sobreHemo';
 import TermosDeUsoHemo from './src/ConfigHemo/termosUsoHemo'
 import PoliticasDeSegurancaHemo from './src/ConfigHemo/politicasDeSegurancaHemo'
@@ -75,12 +76,14 @@ export default function App() {
     };
 
     loadFonts();
-  }, []);
+  }, []); if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <NavigationContainer>
 
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="WelcomeScreen">
         <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
         <Stack.Screen name="CadastroEscolha" component={CadastroEscolha} />
         {/* <Stack.Screen name="cadHemocentro" component={CadHemocentro} /> */}
@@ -97,24 +100,31 @@ export default function App() {
         <Stack.Screen name="SolicitarCarteirinha" component={SolicitarCarteirinha} />
         <Stack.Screen name="HistoricoDoacoes" component={HistoricoDoacoes} />
         <Stack.Screen name="LoginHemo" component={LoginHemo} />
-        <Stack.Screen name="CampanhaMain" component={CampanhaMain} />
+
+        <Stack.Screen name="CampanhaDoador" component={CampanhaDoador} />
+        <Stack.Screen name="CampanhaMainHemocentro" component={CampanhaHemo}/>
         <Stack.Screen name="CriarCampanha" component={CriarCampanha} />
-        <Stack.Screen name="CampaignDetails" component={CampaignDetails} />
-    
-        <Stack.Screen name="ConfiguraçõesDoador" component={ConfigGeralDoador}/>
-        <Stack.Screen name="FaleConoscoDoador" component={FaleConoscoD}/>
-        <Stack.Screen name="PerfilConfigDoador" component={ProfileScreen}/>
-        <Stack.Screen name="TermosDeUsoDoador" component={TermosDeUsoDoador}/>
-        <Stack.Screen name="PoliticasDeSegurancaDoador" component={PoliticasDeSegurancaDoador}/>
-        <Stack.Screen name="SobreDoador" component={SobreDoador}/>
+        <Stack.Screen name="CampaignDetailsDoador" component={CampaignDetailsDoador} />
+
+        <Stack.Screen name="ConfiguracoesDoador" component={ConfigGeralDoador} />
+        <Stack.Screen name="FaleConoscoDoador" component={FaleConoscoD} />
+        <Stack.Screen name="PerfilConfigDoador" component={ProfileScreen} />
+        <Stack.Screen name="TermosDeUsoDoador" component={TermosDeUsoDoador} />
+        <Stack.Screen name="PoliticasDeSegurancaDoador" component={PoliticasDeSegurancaDoador} />
+        <Stack.Screen name="SobreDoador" component={SobreDoador} />
 
 
-        <Stack.Screen name="ConfiguraçõesHemo" component={ConfigHemo}/>
-        <Stack.Screen name="FaleConoscoHemo" component={FaleConoscoH}/>
-        <Stack.Screen name="PoliticasDeSegurancaHemo" component={PoliticasDeSegurancaHemo}/>
-        <Stack.Screen name="TermosDeUsoHemo" component={TermosDeUsoHemo}/>
-        <Stack.Screen name="PerfilConfigHemo" component={ProfileScreenHemo}/>
-        <Stack.Screen name="SobreHemo" component={SobreHemo}/>
+        <Stack.Screen name="ConfiguracoesHemo" component={ConfigHemo} />
+        <Stack.Screen name="FaleConoscoHemo" component={FaleConoscoH} />
+        <Stack.Screen name="PoliticasDeSegurancaHemo" component={PoliticasDeSegurancaHemo} />
+        <Stack.Screen name="TermosDeUsoHemo" component={TermosDeUsoHemo} />
+        <Stack.Screen name="PerfilConfigHemo" component={ProfileScreenHemo} />
+        <Stack.Screen name="SobreHemo" component={SobreHemo} />
+
+        <Stack.Screen name="Estoque" component={EstoqueBancoDeSangue} />
+        <Stack.Screen name="GraficosEstoque" component={SangueChart} />
+
+
 
 
 

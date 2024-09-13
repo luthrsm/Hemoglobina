@@ -3,7 +3,8 @@ import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView} from 'react-nat
 import { FontAwesome5 } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
-import MenuHemo from '../../components/GerenciarEstoqueHemo/menuHemo';
+import MenuHemocentro from '../../components/menuHemocentro';
+
 
 const sangueData1 = [
   { name: 'A+', liters: 43 },
@@ -36,8 +37,7 @@ const EstoqueBancoDeSangue = ({ navigation }) => {
 
       <View style={styles.mainContainer}>
         <View style={styles.voltarContainer}> 
-          {/* COLOCAR PARA O HOME DO HEMOCENTRO NAVO=IGATION */}
-          <TouchableOpacity onPress={() => navigation.navigate('LoginEscolha')}>
+          <TouchableOpacity onPress={() => navigation.navigate('HomeHemocentro')}>
               <AntDesign name="arrowleft" size={24} color="#7A0000" />
           </TouchableOpacity>
         </View>
@@ -60,14 +60,14 @@ const EstoqueBancoDeSangue = ({ navigation }) => {
             </View>
           ))}
         </View>
-          <TouchableOpacity onPress={() => navigation.navigate('SangueChart')} style={styles.verGrafico}>
+          <TouchableOpacity onPress={() => navigation.navigate('GraficosEstoque')} style={styles.verGrafico}>
             <FontAwesome5 name="chart-bar" size={20} color="white" />
             <Text style={styles.verGraficoText}>Ver gráfico</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      <MenuHemo/>
+      <MenuHemocentro/>
     </SafeAreaView>
   );
 };
