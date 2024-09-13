@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import MenuDoador from '../../components/menuDoador';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
-const ProliticasDeSegurancaDoador = ({ navigation }) => {
+const PoliticasDeSegurancaDoador = ({ navigation }) => {
 
   const scrollViewRef = useRef(null);
   // const navigation = useNavigation();
@@ -89,4 +89,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProliticasDeSegurancaDoador;
+export default PoliticasDeSegurancaDoador;

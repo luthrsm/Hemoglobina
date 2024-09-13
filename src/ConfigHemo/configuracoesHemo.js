@@ -9,7 +9,7 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
-import MenuHemo from '../../components/menuHemo';
+import MenuHemo from '../../components/elementosHemocentro/menuHemo';
 
 const ConfigHemo = () => {
 

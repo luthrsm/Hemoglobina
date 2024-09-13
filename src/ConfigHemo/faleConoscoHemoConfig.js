@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
+import MenuHemo from '../../components/elementosHemocentro/menuHemo';
 
-import MenuHemo from '../../components/menuHemo';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { FontAwesome6 } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -10,7 +10,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 
-const FaleConosco = ({ navigation, route }) => {
+const FaleConoscoH = ({ navigation, route }) => {
   const { control, handleSubmit } = useForm();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -182,4 +182,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FaleConosco;
+export default FaleConoscoH;

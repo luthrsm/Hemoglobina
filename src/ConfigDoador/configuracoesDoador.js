@@ -12,7 +12,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MenuDoador from '../../components/menuDoador';
 
 
-const HomeDoador = () => {
+const ConfigGeralDoador = () => {
 
   const [userData] = useState({
     name: 'Juliana Ferreira',
@@ -106,7 +106,7 @@ const HomeDoador = () => {
     )
 }
 
-export default HomeDoador;
+export default ConfigGeralDoador;
 
 //Cores do App
 //#AF2B2B Vermelho principal

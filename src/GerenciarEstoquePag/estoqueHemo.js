@@ -17,7 +17,7 @@ const sangueData1 = [
 ];
 
 
-const BloodBankScreen = ({ navigation }) => {
+const EstoqueBancoDeSangue = ({ navigation }) => {
 
   const [selectedType, setSelectedType] = useState(null);
 
@@ -162,4 +162,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BloodBankScreen;
+export default EstoqueBancoDeSangue;

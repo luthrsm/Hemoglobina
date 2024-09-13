@@ -6,7 +6,7 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import MenuHemo from '../../components/elementosHemocentro/menuHemo';
 
 
-const HomeDoador = () => {
+const HomeHemocentro = () => {
 
     const navigation = useNavigation();
 
@@ -43,7 +43,7 @@ const HomeDoador = () => {
     )
 }
 
-export default HomeDoador;
+export default HomeHemocentro;
 
 //Cores do App
 //#AF2B2B Vermelho principal

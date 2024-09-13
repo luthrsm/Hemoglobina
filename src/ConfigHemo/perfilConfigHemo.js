@@ -2,12 +2,13 @@ import React, { useState, useRef, useEffect} from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import * as ImagePicker from 'expo-image-picker';
-import MenuHemo from '../../components/menuHemo';
+import MenuHemo from '../../components/elementosHemocentro/menuHemo';
+
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 
-const ProfileScreen = ({ navigation, route }) => {
+const ProfileScreenHemo = ({ navigation, route }) => {
   
   const { control, handleSubmit, errors } = useForm({
   defaultValues: userData,
@@ -383,4 +384,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen;
+export default ProfileScreenHemo;

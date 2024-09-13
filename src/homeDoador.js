@@ -13,7 +13,7 @@ const HomeDoador = () => {
         <View style={styles.container}>
             <View style={styles.headerContainer}>
                 <Text style={styles.title}> Bem vindo, doador!</Text>
-                <TouchableOpacity>
+                <TouchableOpacity >
                     <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
                 </TouchableOpacity>
             </View>

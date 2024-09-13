@@ -10,7 +10,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 
-const FaleConosco = ({ navigation, route }) => {
+const FaleConoscoD = ({ navigation, route }) => {
   const { control, handleSubmit } = useForm();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -183,4 +183,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FaleConosco;
+export default FaleConoscoD;
