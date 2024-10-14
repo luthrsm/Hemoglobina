@@ -497,7 +497,7 @@ const Perguntas = () => {
             <ScrollView contentContainerStyle={styles.scrollContainer}>
                 <View styles={styles.mainContainer}>
                     <View style={styles.voltarContainer}>
-                        <TouchableOpacity onPress={() => navigation.navigate('QuestionarioTriagem')}>
+                        <TouchableOpacity onPress={() => navigation.goBack()}>
                             <AntDesign name="arrowleft" size={24} color="#326771" />
                         </TouchableOpacity>
                     </View>

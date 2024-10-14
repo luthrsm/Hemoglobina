@@ -38,7 +38,7 @@ const ConfigHemo = () => {
 
             <View style={styles.mainContainer}>
               <View style={styles.voltarContainer}>
-                <TouchableOpacity onPress={() => navigation.navigate('HomeHemocentro')}>
+                <TouchableOpacity  onPress={() => navigation.goBack()}>
                   <AntDesign name="arrowleft" size={24} color="#7A0000" />
                 </TouchableOpacity>
               </View>

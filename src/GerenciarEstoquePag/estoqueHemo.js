@@ -4,6 +4,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 import MenuHemocentro from '../../components/menuHemocentro';
+import GerenciarEstoqueHemo from '../../components/GerenciarEstoqueHemo/gerenciarEstoqueHemo';
 
 
 const sangueData1 = [

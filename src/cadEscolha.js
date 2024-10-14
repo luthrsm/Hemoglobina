@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     textoBranco2: {
-        fontSize: 10,
+        fontSize: 13,
         marginTop: 20,
         color: 'white',
         marginBottom: 20,
@@ -93,8 +93,8 @@ const styles = StyleSheet.create({
     dentroCad: {
         top: 70,
         padding: 20,
-        width: 270,
-        height: 298,
+        width: '75%',
+        height: '57%',
         color: 'white',
         borderRadius: 15,
         alignItems: 'center',

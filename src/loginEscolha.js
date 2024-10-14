@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     textoBranco2: {
-        fontSize: 10,
+        fontSize: 13,
         marginTop: 20,
         color: 'white',
         marginBottom: 20,

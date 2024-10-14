@@ -14,7 +14,7 @@ const ProxDoacao = () => {
         <View style={styles.container}>
             <View style={styles.headerContainer}>
                 <Text style={styles.title}> Próxima Doação</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('ConfiguracoesDoador')}>
+                <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
                     <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
                 </TouchableOpacity>
             </View>
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         backgroundColor: '#AF2B2B',
-        height: '10%',
+        height: '7%',
         borderBottomLeftRadius: 8,
         borderBottomRightRadius: 8,
         paddingVertical: 10,
@@ -80,14 +80,12 @@ const styles = StyleSheet.create({
     title: {
         color: '#EEF0EB',
         marginLeft: 25,
-        marginTop: 15,
         fontFamily: 'DM-Sans',
         letterSpacing: 1.5,
-        fontSize: 22
-
+        fontSize: 16
     },
-    config: {
-        marginTop: 15,
+    
+    btConfig: {
         marginRight: 20,
     },
     mainContainer: {

@@ -14,16 +14,22 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.HemoglobinaLTDA.Hemoglobina",
-      "buildNumber": "1.0.0"
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "O aplicativo precisa da sua localização para mostrar os hemocentros próximos."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/img/logoHemoglobina.png",
-        "backgroundColor": "#ffffff",
-        "package": "com.HemoglobinaLTDA.Hemoglobina",
-        "versionCode": 1
+        "backgroundColor": "#ffffff"
       },
-      "package": "com.HemoglobinaLTDA.Hemoglobina"
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
+      "package": "com.HemoglobinaLTDA.Hemoglobina",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/img/icon.png"

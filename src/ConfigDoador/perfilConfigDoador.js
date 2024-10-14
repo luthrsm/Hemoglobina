@@ -50,7 +50,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
   const scrollViewRef = useRef(null);
 
-  const [image, setImage] = useState('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStm9QkXhJ3ezCgn6NXmZev8tryGGIJvDiPvg&s');
+  const [image, setImage] = useState(require('../../assets/img/configImages/userimage.png'));
 
     const handleImagePicker = async () => {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -74,7 +74,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
       <View style={styles.mainContainer}>
         <View style={styles.voltarContainer}>
-          <TouchableOpacity onPress={() => navigation.navigate('ConfiguracoesDoador')}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
             <AntDesign name="arrowleft" size={24} color="#7A0000" />
           </TouchableOpacity>
         </View>
@@ -86,7 +86,7 @@ const ProfileScreen = ({ navigation, route }) => {
         >
           <View style={styles.profileSection}>
            
-            <Image source={{ uri: image }} style={styles.profileImage} />
+            <Image source={image} style={styles.profileImage} />
 
             <Text style={styles.profileName}>{userData.name}</Text>
             <Text style={styles.profileEmail}>{userData.email}</Text>

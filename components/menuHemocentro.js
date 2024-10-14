@@ -20,7 +20,7 @@ const MenuHemocentro = () => {
                 <FontAwesome name="home" size={28} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Home</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.divLink} >
+            <TouchableOpacity style={styles.divLink} onPress={() => navigation.navigate('HistoricoHemocentro')}>
                 <MaterialIcons name="bloodtype" size={28} color="#EEF0EB"/>
                 <Text style={styles.txtMenu}> Doações</Text>
             </TouchableOpacity>

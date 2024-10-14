@@ -18,6 +18,11 @@ const CampanhaDoador = () => {
     const agulhaImage = require('./../../assets/img/agulha.jpg');
     const coracaoDoacaoImage = require('./../../assets/img/coracaoDoacao.jpg');
     const sangueImage = require('./../../assets/img/sangue.jpg');
+    const campanha1 = require('./../../assets/img/earth-4861456_1280.jpg');
+    const campanha2 = require('./../../assets/img/corona-6200014_1280.jpg');
+    const campanha3=  require('./../../assets/img/blood-5053760_1280.jpg');
+    const campanha4 = require('./../../assets/img/blood-donation-2603649_640.jpg')
+
 
     // Estados para armazenar tipo de doação, tipo sanguíneo e seleção de filtros
     const [tipoDoacao, setTipoDoacao] = useState('');
@@ -97,6 +102,10 @@ const CampanhaDoador = () => {
         { id: 1, uri: agulhaImage },
         { id: 2, uri: coracaoDoacaoImage },
         { id: 3, uri: sangueImage },
+        {id: 4, uri: campanha1},
+        {id: 5, uri: campanha2},
+        {id: 6,  uri: campanha3},
+        {id: 7,  uri: campanha4},
     ];
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -225,8 +234,8 @@ const CampanhaDoador = () => {
         <SafeAreaView style={styles.container}>
             <View style={styles.headerContainer}>
                 <Text style={styles.title}>Campanhas</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('ConfiguracoesDoador')}>
-                    <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
+                <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
+                    <FontAwesome6 name="gear" size={24} color="#EEF0EB"  />
                 </TouchableOpacity>
             </View>
             <View style={styles.mainContainer}>
@@ -318,7 +327,7 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         backgroundColor: '#AF2B2B',
-        height: '10%',
+        height: '7%',
         borderBottomLeftRadius: 8,
         borderBottomRightRadius: 8,
         paddingVertical: 10,
@@ -329,14 +338,12 @@ const styles = StyleSheet.create({
     title: {
         color: '#EEF0EB',
         marginLeft: 25,
-        marginTop: 28,
         fontFamily: 'DM-Sans',
         letterSpacing: 1.5,
-        fontSize: 22
-
+        fontSize: 16
     },
-    config: {
-        marginTop: 28,
+    
+    btConfig: {
         marginRight: 20,
     },
     mainContainer: {

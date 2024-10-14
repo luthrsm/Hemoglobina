@@ -29,7 +29,7 @@ const ConfigGeralDoador = () => {
       await AsyncStorage.clearStorage();
 
       // Redirecione o usuário para a página de login
-      navigation.navigate('Login');
+      navigation.navigate('WelcomeScreen');
 
       setLoggedOut(true);
     } catch (error) {
@@ -48,7 +48,7 @@ const ConfigGeralDoador = () => {
 
       <View style={styles.mainContainer}>
         <View style={styles.voltarContainer}>
-          <TouchableOpacity onPress={() => navigation.navigate('HomeDoador')}>
+          <TouchableOpacity  onPress={() => navigation.goBack()}>
             <AntDesign name="arrowleft" size={24} color="#7A0000" />
           </TouchableOpacity>
         </View>

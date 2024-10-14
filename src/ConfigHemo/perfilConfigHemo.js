@@ -36,7 +36,7 @@ const ProfileScreenHemo = ({ navigation, route }) => {
 
   const scrollViewRef = useRef(null);
 
-  const [image, setImage] = useState('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStm9QkXhJ3ezCgn6NXmZev8tryGGIJvDiPvg&s');
+  const [image, setImage] = useState(require('../../assets/img/configImages/hemocentro.png'));
 
     const handleImagePicker = async () => {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -77,7 +77,7 @@ const ProfileScreenHemo = ({ navigation, route }) => {
           showsVerticalScrollIndicator={true}
         >
           <View style={styles.profileSection}>
-            <Image source={{ uri: image }} style={styles.profileImage} />
+            <Image source={image} style={styles.profileImage} />
               
             <Text style={styles.profileName}>{userData.name}</Text>
             <Text style={styles.profileEmail}>{userData.email}</Text>

@@ -20,11 +20,11 @@ const MenuDoador = () => {
                 <FontAwesome name="home" size={28} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Home</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.divLink}>
+            <TouchableOpacity style={styles.divLink} onPress={() => navigation.navigate('InfoMain')}>
                 <Ionicons name="information-circle-outline" size={28} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Informações</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.divLink}>
+            <TouchableOpacity style={styles.divLink} onPress={() => navigation.navigate('HemocentrosMap')}>
                 <MaterialCommunityIcons name="hospital-marker" size={28} color="#EEF0EB" style={styles.icons} />
                 <Text style={styles.txtMenu}> Hemocentros</Text>
             </TouchableOpacity>

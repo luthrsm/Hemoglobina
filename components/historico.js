@@ -70,8 +70,8 @@ const HistoricoDoacoes = () => {
         <View style={styles.container}>
             <View style={styles.headerContainer}>
                 <Text style={styles.title}>Histórico de doações</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('ConfiguracoesDoador')}>
-                    <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
+                <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
+                    <FontAwesome6 name="gear" size={24} color="#EEF0EB"  />
                 </TouchableOpacity>
             </View>
 
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: '#AF2B2B',
-    height: '9%',
+    height: '7%',
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
     padding: 10,
@@ -139,22 +139,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 16,
   },
-  titlePrin: {
-    color: '#fff',
-    marginTop: 7,
-    fontFamily: 'DM-Sans',
-    letterSpacing: 1.5,      
-  },
-  config: {
-    marginTop: 7,
-    marginRight: 10,
+  btConfig: {
+    marginRight: 20,
   },
   title: {
     color: '#EEF0EB',
     marginLeft: 25,
     marginTop: 7,
     fontFamily: 'DM-Sans',
-    letterSpacing: 1.5
+    letterSpacing: 1.5,
+    fontSize: 16
   },
   scrollView: {
     flex: 1,

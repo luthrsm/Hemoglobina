@@ -234,7 +234,7 @@ const CampanhaHemo = () => {
 
 
                     <View style={styles.campanhaCriar}>
-                        <TouchableOpacity style={styles.criarBt} onPress={() => navigation.navigate('CriarCampanha')}>
+                        <TouchableOpacity style={styles.criarBt} onPress={() => navigation.navigate('CriarCampanhaHemo')}>
                             <AntDesign name="pluscircleo" size={64} color="black" style={styles.iconCriar} />
                         </TouchableOpacity>
                     </View>
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         backgroundColor: '#AF2B2B',
-        height: '10%',
+        height: '7%',
         borderBottomLeftRadius: 8,
         borderBottomRightRadius: 8,
         paddingVertical: 10,
@@ -283,15 +283,13 @@ const styles = StyleSheet.create({
     title: {
         color: '#EEF0EB',
         marginLeft: 25,
-        marginTop: 28,
         fontFamily: 'DM-Sans',
         letterSpacing: 1.5,
-        fontSize: 22
+        fontSize: 16
 
     },
     config: {
-        marginTop: 28,
-        marginRight: 20,
+        marginRight: 27,
     },
     mainContainer: {
         padding: 32,

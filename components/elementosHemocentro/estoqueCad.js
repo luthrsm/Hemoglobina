@@ -15,7 +15,7 @@ const HemocentroScreen = ({ formData, onDataChange, onNext, onBack }) => {
   const handleTypePress = (type) => {
     setSelectedType(type);
     // Navegar para a tela de estoque com o tipo selecionado
-    navigation.navigate('EstoqueHemo', { type }); // Implemente a navegação
+    navigation.navigate('EstoqueScreen', { type }); // Implemente a navegação
   };
 
   return (

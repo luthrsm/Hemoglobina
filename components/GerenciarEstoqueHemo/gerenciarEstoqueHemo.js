@@ -14,7 +14,7 @@ const GerenciarEstoqueHemo = ({ route }) => {
 
   const handleVoltar = () => {
     // Navegar para a tela anterior
-    navigation.goBack(); // Implemente a navegação
+    navigation.goBack();
   };
 
   const handleSalvar = () => {

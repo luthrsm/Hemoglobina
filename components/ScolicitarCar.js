@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert, } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
 // import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 //import { faHome, faInfoCircle, faMapMarkerAlt, faHandPaper } from '@fortawesome/free-solid-svg-icons';
 //import QRCode from 'react-native-qrcode-svg';
@@ -57,26 +57,35 @@ const SolicitarCarteirinha = () => {
     setCpf(text);
   };
 
-  const handleSubmit = () => {
-    setIsLoading(true);
-    const foundData = data.find((item) => item.cpf === cpf);
-    const foundDataDoacoes = data.find((item) => item.doacoes >= 3);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-    if (foundData) {
-      // setIsLoading(false);
-      if (foundData.doacoes >= 3) {
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    setIsProcessing(true);
+    try {
+      setTimeout(() => {
+        const foundData = data.find((item) => item.cpf === cpf);
+        const foundDataDoacoes = data.find((item) => item.doacoes >= 3);
+
+        if (foundData) {
+          if (foundData.doacoes >= 3) {
+            setCarteirinhaData(foundData);
+          } else {
+            Alert.alert('Número de doações inválido', 'Para solicitar sua carteirinha, você precisa ter realizado 3 ou mais doações. Verifique seu histórico de doações...');
+          }
+        } else {
+          Alert.alert('CPF não encontrado', 'Por favor, verifique o CPF informado.');
+        }
+        setIsProcessing(false);
         setIsLoading(false);
-        setCarteirinhaData(foundData);
-      }
-      else {
-        Alert.alert('Número de doações inválido', 'Para solicitar sua carteirinha, você precisa ter realizado 3 ou mais doações. Verifique seu histórico de doações...');
-        setIsLoading(false);
-      }
-    } else {
-      Alert.alert('CPF não encontrado', 'Por favor, verifique o CPF informado.');
-      setIsLoading(false);
+      }, 2000); // simula um atraso de 2 segundos
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false); // garante que o carregamento pare em caso de erro
+      setIsProcessing(false);
     }
   };
+
 
   const navigation = useNavigation();
 
@@ -85,8 +94,8 @@ const SolicitarCarteirinha = () => {
       <View style={styles.headerContainer}>
         <Text style={styles.titlePrin}> Solicitar carteirinha</Text>
 
-        <TouchableOpacity onPress={() => navigation.navigate('ConfiguracoesDoador')}>
-          <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
+        <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
+          <FontAwesome6 name="gear" size={24} color="#EEF0EB" />
         </TouchableOpacity>
       </View>
 
@@ -114,7 +123,7 @@ const SolicitarCarteirinha = () => {
       </View>
 
       <View>
-        
+
         <TextInput
           style={styles.input}
           placeholder="Digite seu CPF"
@@ -132,24 +141,28 @@ const SolicitarCarteirinha = () => {
   );
 
   const renderProcessingScreen = () => (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={styles.containerLoading}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.titlePrin}> Solicitar carteirinha</Text>
 
+        <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
+          <FontAwesome6 name="gear" size={24} color="#EEF0EB" />
+        </TouchableOpacity>
       </View>
-      <Text style={styles.text}>
-        Isso pode demorar alguns minutos
-      </Text>
-      <Image
-        source={require('../assets/img/carteirinhaLoad.png')}
-        style={styles.processingImage}
-      />
-      <Text style={styles.text}>
-        Estamos verificando seus dados e gerando sua carteirinha
-      </Text>
-
-      <View style={styles.footer}>
-
+      <View style={{justifyContent: 'center', alignItems: 'center', marginTop: 'auto'}}>
+        <Text style={styles.textLoading}>
+          Isso pode demorar alguns minutos
+        </Text>
+        <Image
+          source={require('../assets/img/carteirinhaLoad.png')}
+          style={styles.processingImage}
+        />
+        <Text style={styles.textLoading}>
+          Estamos verificando seus dados e gerando sua carteirinha
+        </Text>
       </View>
+
+      <MenuDoador />
     </View>
   );
 
@@ -222,7 +235,7 @@ const SolicitarCarteirinha = () => {
 
   return (
     <View style={styles.container}>
-      {isLoading ? (
+      {isLoading && isProcessing ? (
         renderProcessingScreen()
       ) : carteirinhaData ? (
         renderCarteirinhaScreen()
@@ -241,7 +254,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: '#AF2B2B',
-    height: '9%',
+    height: '7%',
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
     padding: 10,
@@ -258,7 +271,8 @@ const styles = StyleSheet.create({
     marginLeft: 25,
     marginTop: 7,
     fontFamily: 'DM-Sans',
-    letterSpacing: 1.5
+    letterSpacing: 1.5,
+    fontSize: 16
   },
   title: {
     color: '#000',
@@ -287,7 +301,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 25
   },
-  txtInput:{
+  txtInput: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 15,
     marginLeft: 10,
@@ -297,14 +311,14 @@ const styles = StyleSheet.create({
     padding: 32,
     top: 20,
   },
-  config: {
-    marginTop: 7,
-    marginRight: 10,
+  btConfig: {
+    marginRight: 20,
   },
   text: {
     padding: 15,
-    fontSize: 13,
-    fontFamily: 'Poppins-Regular'
+    fontSize: 17,
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'justify'
   },
   buttonText: {
     color: '#fff',
@@ -320,9 +334,24 @@ const styles = StyleSheet.create({
     width: '60%',
     alignSelf: 'center'
   },
+
+  //loading
+  containerLoading: {
+    flex: 1,
+  },
+  textLoading: {
+    fontSize: 21,
+    fontFamily: 'Poppins-Medium',
+    textAlign: 'center',
+    marginBottom: 40,
+    marginTop: 40,
+    width: '80%',
+    alignSelf: 'center'
+  },
+
   processingImage: {
-    width: 200,
-    height: 200,
+    width: '70%',
+    height: '40%',
     alignSelf: 'center',
     marginTop: 20,
   },

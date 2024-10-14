@@ -1,8 +1,9 @@
-import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity } from 'react-native';
+import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome6 } from '@expo/vector-icons';
 
 import MenuHemocentro from './menuHemocentro';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 const HomeDoador = () => {
@@ -15,7 +16,7 @@ const HomeDoador = () => {
                 <Text style={styles.title}> Bem vindo, hemocentro!</Text>
             </View>
 
-            <View style={styles.mainContainer}>
+            <ScrollView style={styles.mainContainer}>
 
                 <TouchableOpacity style={styles.txtFotoContainer}>
                     <Text style={styles.txtTitle}>Gerencie o nível do banco de sangue do seu hemocentro</Text>
@@ -33,7 +34,7 @@ const HomeDoador = () => {
                         <Text style={styles.txtBotao}>Gerenciar banco de sangue</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </ScrollView>
 
             <MenuHemocentro/>
         </View>

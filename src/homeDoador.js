@@ -1,7 +1,6 @@
 import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native'
 import { FontAwesome6 } from '@expo/vector-icons';
-import { SvgXml } from 'react-native-svg';
 
 import MenuDoador from '../components/menuDoador';
 
@@ -10,10 +9,10 @@ const HomeDoador = () => {
     const navigation = useNavigation();
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View style={styles.headerContainer}>
                 <Text style={styles.title}> Bem vindo, doador!</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('ConfiguracoesDoador')}>
+                <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
                     <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
                 </TouchableOpacity>
             </View>
@@ -55,7 +54,7 @@ const HomeDoador = () => {
             </View>
 
             <MenuDoador />
-        </View>
+        </SafeAreaView>
 
     )
 }
@@ -77,7 +76,7 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         backgroundColor: '#AF2B2B',
-        height: '10%',
+        height: '7%',
         borderBottomLeftRadius: 8,
         borderBottomRightRadius: 8,
         paddingVertical: 10,
@@ -88,13 +87,12 @@ const styles = StyleSheet.create({
     title: {
         color: '#EEF0EB',
         marginLeft: 25,
-        marginTop: 15,
         fontFamily: 'DM-Sans',
         letterSpacing: 1.5,
-        fontSize: 22
+        fontSize: 16
     },
-    config: {
-        marginTop: 15,
+    
+    btConfig: {
         marginRight: 20,
     },
     mainContainer: {

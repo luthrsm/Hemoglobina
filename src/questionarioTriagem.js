@@ -13,13 +13,13 @@ const QuestionarioTriagem = () => {
         <SafeAreaView style={styles.container}>
             <View style={styles.headerContainer}>
                 <Text style={styles.title}>Questionário de Triagem</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('ConfiguracoesDoador')}>
-                    <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
+                <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
+                    <FontAwesome6 name="gear" size={24} color="#EEF0EB"  />
                 </TouchableOpacity>
             </View>
             <View style={styles.mainContainer}>
                 <View style={styles.voltarContainer}>
-                    <TouchableOpacity onPress={() => navigation.navigate('HomeDoador')}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
                         <AntDesign name="arrowleft" size={28} color="#326771" />
                     </TouchableOpacity>
                 </View>
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         backgroundColor: '#AF2B2B',
-        height: '10%',
+        height: '7%',
         borderBottomLeftRadius: 8,
         borderBottomRightRadius: 8,
         paddingVertical: 10,
@@ -71,14 +71,12 @@ const styles = StyleSheet.create({
     title: {
         color: '#EEF0EB',
         marginLeft: 25,
-        marginTop: 28,
         fontFamily: 'DM-Sans',
         letterSpacing: 1.5,
-        fontSize: 22
-
+        fontSize: 16
     },
-    config: {
-        marginTop: 28,
+    
+    btConfig: {
         marginRight: 20,
     },
     mainContainer: {
@@ -89,7 +87,7 @@ const styles = StyleSheet.create({
     },
     titleMain: {
         fontFamily: 'DM-Sans',
-        fontSize: 32,
+        fontSize: 28,
     },
     contentContainer: {
         marginTop: '-10%',
