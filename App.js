@@ -4,73 +4,65 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Font from 'expo-font'
 import { StatusBar } from 'react-native';
 
-//telas
-import CampanhaDoador from './src/campanha/campanhaMainDoador';
-import CampanhaHemo from './src/campanha/campanhaMainHemo'
-import CriarCampanha from './src/campanha/criarCampanha';
-import CampaignDetailsDoador from './src/campanha/campanhaMainDoador'
-import CriarCampanhaHemo from './src/campanha/criarCampanhaHemo';
-
+//telas gerais
 import WelcomeScreen from './src/pagBemVindo';
-import CadastroEscolha from "./src/cadEscolha";
-import CadastroDoador from './src/cadDoador';
-import LoginEscolha from './src/loginEscolha';
-import LoginDoador from './src/loginDoador';
-import HomeDoador from './src/homeDoador';
-import ProxDoacao from './src/proxDoacao';
-import HomeHemocentro from './src/HomeHemocentro/homeHemocentro';
-import HemocentroLogin from './components/loginHemo';
-import QuestionarioTriagem from './src/questionarioTriagem';
-import Perguntas from './components/perguntas';
-import SolicitarCarteirinha from './components/ScolicitarCar';
-import HistoricoDoacoes from './components/historico';
-import LoginHemo from './components/loginHemo';
+import CadastroEscolha from "./src/cadastro/cadEscolha";
+import LoginEscolha from './src/login/loginEscolha';
 
-//cadastro Hemo
-
-import CadastroHemocentro from './src/HemoCad/cadHemocentro';
-import EstoqueScreen from './components/elementosHemocentro/estoqueCadContinuacao';
-
+//telas doador
+import CampanhaDoador from './src/doador/campanha doador/campanhaMainDoador';
+import CriarCampanha from './src/doador/campanha doador/criarCampanha';
+import CampaignDetailsDoador from './src/doador/campanha doador/campanhaMainDoador'
+import CadastroDoador from './src/doador/cadDoador/cadDoador';
+import LoginDoador from './src/doador/loginDoador';
+import HomeDoador from './src/doador/loginDoador';
+import ProxDoacao from './src/doador/proxDoacao';
+import QuestionarioTriagem from './src/doador/questionarioTriagem';
+import Perguntas from './src/doador/perguntas';
+import SolicitarCarteirinha from './src/doador/ScolicitarCar';
+import HistoricoDoacoes from './src/doador/historico';
 //configurações doador
-
-import ConfigGeralDoador from './src/ConfigDoador/configuracoesDoador';
-import FaleConoscoD from './src/ConfigDoador/faleConoscoDoadConfig';
-import ProfileScreen from './src/ConfigDoador/perfilConfigDoador';
-import SobreDoador from './src/ConfigDoador/sobreDoador';
-import TermosDeUsoDoador from './src/ConfigDoador/termosDeUsoDoador';
-import PoliticasDeSegurancaDoador from './src/ConfigDoador/politicSeguranDoador';
-
-//configurações hemocentro
-
-import ConfigHemo from './src/ConfigHemo/configuracoesHemo';
-import FaleConoscoH from './src/ConfigHemo/faleConoscoHemoConfig';
-import ProfileScreenHemo from './src/ConfigHemo/perfilConfigHemo';
-import SobreHemo from './src/ConfigHemo/sobreHemo';
-import TermosDeUsoHemo from './src/ConfigHemo/termosUsoHemo'
-import PoliticasDeSegurancaHemo from './src/ConfigHemo/politicasDeSegurancaHemo'
-
-
-//estoque
-
-import EstoqueBancoDeSangue from './src/GerenciarEstoquePag/estoqueHemo';
-import SangueChart from './src/GerenciarEstoquePag/grafico';
-import GerenciarEstoqueHemo from './components/GerenciarEstoqueHemo/gerenciarEstoqueHemo';
-
+import ConfigGeralDoador from './src/doador/ConfigDoador/configuracoesDoador';
+import FaleConoscoD from './src/doador/ConfigDoador/faleConoscoDoadConfig';
+import ProfileScreen from './src/doador/ConfigDoador/perfilConfigDoador';
+import SobreDoador from './src/doador/ConfigDoador/sobreDoador';
+import TermosDeUsoDoador from './src/doador/ConfigDoador/termosDeUsoDoador';
+import PoliticasDeSegurancaDoador from './src/doador/ConfigDoador/politicSeguranDoador';
 //informações 
-
-import InfoCardContent from './src/Informações/InfoCardContent';
-import InfoMain from './src/Informações/infoMain';
-
+import InfoCardContent from './src/doador/Informações/InfoCardContent';
+import InfoMain from './src/doador/Informações/infoMain';
 //mapa
-import HemocentrosMap from './src/mapDoador';
+import HemocentrosMap from './src/doador/mapDoador';
 
 
+
+//telas hemocentro
+import CampanhaHemo from './src/hemocentro/campanha hemocentro/campanhaMainHemo';
+import CriarCampanhaHemo from './src/hemocentro/campanha hemocentro/criarCampanhaHemo';
+import HomeHemocentro from './src/hemocentro/homeHemocentro';
+import LoginHemo from './src/hemocentro/loginHemo';
+//cadastro Hemo
+import CadastroHemocentro from './src/hemocentro/HemoCad/cadHemocentro';
+import EstoqueScreen from './components/elementosHemocentro/estoqueCadContinuacao';
+//configurações hemocentro
+import ConfigHemo from './src/hemocentro/ConfigHemo/configuracoesHemo';
+import FaleConoscoH from './src/hemocentro/ConfigHemo/faleConoscoHemoConfig';
+import ProfileScreenHemo from './src/hemocentro/ConfigHemo/perfilConfigHemo';
+import SobreHemo from './src/hemocentro/ConfigHemo/sobreHemo';
+import TermosDeUsoHemo from './src/hemocentro/ConfigHemo/termosUsoHemo'
+import PoliticasDeSegurancaHemo from './src/hemocentro/ConfigHemo/politicasDeSegurancaHemo'
+//estoque
+import EstoqueBancoDeSangue from './src/hemocentro/GerenciarEstoquePag/estoqueHemo';
+import SangueChart from './src/hemocentro/GerenciarEstoquePag/grafico';
+import GerenciarEstoqueHemo from './components/GerenciarEstoqueHemo/gerenciarEstoqueHemo';
 //adc doacao
-import HistoricoHemocentro from './src/adcDoacaoHemo/historicoDoacaoHemo';
-import AdcDoacao from './src/adcDoacaoHemo/adcDoacao';
-import AtencaoScreen from './src/adcDoacaoHemo/telaAtencao';
-import RegistrosPendentes from './src/adcDoacaoHemo/registrosPendentes';
-import EdicaoDoacao from './src/adcDoacaoHemo/editInfo';
+import HistoricoHemocentro from './src/hemocentro/adcDoacaoHemo/historicoDoacaoHemo';
+import AdcDoacao from './src/hemocentro/adcDoacaoHemo/adcDoacao';
+import AtencaoScreen from './src/hemocentro/adcDoacaoHemo/telaAtencao';
+import RegistrosPendentes from './src/hemocentro/adcDoacaoHemo/registrosPendentes';
+import EdicaoDoacao from './src/hemocentro/adcDoacaoHemo/editInfo';
+
+
 
 
 const Stack = createNativeStackNavigator();
