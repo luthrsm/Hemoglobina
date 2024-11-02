@@ -5,72 +5,71 @@ import * as Font from 'expo-font'
 import { StatusBar } from 'react-native';
 
 //telas
-import CampanhaDoador from './src/campanha/campanhaMainDoador';
-import CampanhaHemo from './src/campanha/campanhaMainHemo'
-import CriarCampanha from './src/campanha/criarCampanha';
-import CampaignDetailsDoador from './src/campanha/campanhaMainDoador'
-import CriarCampanhaHemo from './src/campanha/criarCampanhaHemo';
+import CampanhaDoador from './src/Screen/doador/campanha/campanhaMainDoador';
+import CampanhaHemo from './src/Screen/hemocentro/campanha/campanhaMainHemo'
+import CriarCampanha from './src/Screen/doador/campanha/criarCampanha';
+import CampanhaDetalhes from './components/campanha/campanhaDetails'
+import CriarCampanhaHemo from './src/Screen/hemocentro/campanha/criarCampanhaHemo';
 
-import WelcomeScreen from './src/pagBemVindo';
-import CadastroEscolha from "./src/cadEscolha";
-import CadastroDoador from './src/cadDoador';
-import LoginEscolha from './src/loginEscolha';
-import LoginDoador from './src/loginDoador';
-import HomeDoador from './src/homeDoador';
-import ProxDoacao from './src/proxDoacao';
-import HomeHemocentro from './src/HomeHemocentro/homeHemocentro';
-import HemocentroLogin from './components/loginHemo';
-import QuestionarioTriagem from './src/questionarioTriagem';
-import Perguntas from './components/perguntas';
-import SolicitarCarteirinha from './components/ScolicitarCar';
-import HistoricoDoacoes from './components/historico';
-import LoginHemo from './components/loginHemo';
+import WelcomeScreen from './src/Screen/geral/pagBemVindo';
+import CadastroEscolha from "./src/Screen/geral/cadEscolha";
+import CadastroDoador from './src/Screen/doador/cadDoador';
+import LoginEscolha from './src/Screen/geral/loginEscolha';
+import LoginDoador from './src/Screen/doador/loginDoador';
+import HomeDoador from './src/Screen/doador/homeDoador';
+import ProxDoacao from './src/Screen/doador/proxDoacao';  
+import HomeHemocentro from './src/Screen/hemocentro/HomeHemocentro/homeHemocentro';
+import QuestionarioTriagem from './src/Screen/doador/questionarioTriagem';
+import Perguntas from './src/Screen/doador/perguntas';
+import SolicitarCarteirinha from './src/Screen/doador/ScolicitarCar';
+import HistoricoDoacoes from './src/Screen/doador/historico';
+import LoginHemo from './src/Screen/hemocentro/loginHemo';
 
 //cadastro Hemo
 
-import CadastroHemocentro from './src/HemoCad/cadHemocentro';
+import CadastroHemocentro from './src/Screen/hemocentro/HemoCad/cadHemocentro';
 import EstoqueScreen from './components/elementosHemocentro/estoqueCadContinuacao';
 
 //configurações doador
 
-import ConfigGeralDoador from './src/ConfigDoador/configuracoesDoador';
-import FaleConoscoD from './src/ConfigDoador/faleConoscoDoadConfig';
-import ProfileScreen from './src/ConfigDoador/perfilConfigDoador';
-import SobreDoador from './src/ConfigDoador/sobreDoador';
-import TermosDeUsoDoador from './src/ConfigDoador/termosDeUsoDoador';
-import PoliticasDeSegurancaDoador from './src/ConfigDoador/politicSeguranDoador';
+import ConfigGeralDoador from './src/Screen/doador/ConfigDoador/configuracoesDoador';
+import FaleConoscoD from './src/Screen/doador/ConfigDoador/faleConoscoDoadConfig';
+import ProfileScreen from './src/Screen/doador/ConfigDoador/perfilConfigDoador';
+import SobreDoador from './src/Screen/doador/ConfigDoador/sobreDoador';
+import TermosDeUsoDoador from './src/Screen/doador/ConfigDoador/termosDeUsoDoador';
+import PoliticasDeSegurancaDoador from './src/Screen/doador/ConfigDoador/politicSeguranDoador';
 
 //configurações hemocentro
 
-import ConfigHemo from './src/ConfigHemo/configuracoesHemo';
-import FaleConoscoH from './src/ConfigHemo/faleConoscoHemoConfig';
-import ProfileScreenHemo from './src/ConfigHemo/perfilConfigHemo';
-import SobreHemo from './src/ConfigHemo/sobreHemo';
-import TermosDeUsoHemo from './src/ConfigHemo/termosUsoHemo'
-import PoliticasDeSegurancaHemo from './src/ConfigHemo/politicasDeSegurancaHemo'
+import ConfigHemo from './src/Screen/hemocentro/ConfigHemo/configuracoesHemo';
+import FaleConoscoH from './src/Screen/hemocentro/ConfigHemo/faleConoscoHemoConfig';
+import ProfileScreenHemo from './src/Screen/hemocentro/ConfigHemo/perfilConfigHemo';
+import SobreHemo from './src/Screen/hemocentro/ConfigHemo/sobreHemo';
+import TermosDeUsoHemo from './src/Screen/hemocentro/ConfigHemo/termosUsoHemo'
+import PoliticasDeSegurancaHemo from './src/Screen/hemocentro/ConfigHemo/politicasDeSegurancaHemo'
 
 
 //estoque
 
-import EstoqueBancoDeSangue from './src/GerenciarEstoquePag/estoqueHemo';
-import SangueChart from './src/GerenciarEstoquePag/grafico';
+import EstoqueBancoDeSangue from './src/Screen/hemocentro/GerenciarEstoquePag/estoqueHemo';
+import SangueChart from './src/Screen/hemocentro/GerenciarEstoquePag/grafico';
 import GerenciarEstoqueHemo from './components/GerenciarEstoqueHemo/gerenciarEstoqueHemo';
 
 //informações 
 
-import InfoCardContent from './src/Informações/InfoCardContent';
-import InfoMain from './src/Informações/infoMain';
+import InfoCardContent from './src/Screen/doador/Informações/InfoCardContent';
+import InfoMain from './src/Screen/doador/Informações/infoMain';
 
 //mapa
-import HemocentrosMap from './src/mapDoador';
+import HemocentrosMap from './src/Screen/doador/mapDoador';
 
 
 //adc doacao
-import HistoricoHemocentro from './src/adcDoacaoHemo/historicoDoacaoHemo';
-import AdcDoacao from './src/adcDoacaoHemo/adcDoacao';
-import AtencaoScreen from './src/adcDoacaoHemo/telaAtencao';
-import RegistrosPendentes from './src/adcDoacaoHemo/registrosPendentes';
-import EdicaoDoacao from './src/adcDoacaoHemo/editInfo';
+import HistoricoHemocentro from './src/Screen/hemocentro/adcDoacaoHemo/historicoDoacaoHemo';
+import AdcDoacao from './src/Screen/hemocentro/adcDoacaoHemo/adcDoacao';
+import AtencaoScreen from './src/Screen/hemocentro/adcDoacaoHemo/telaAtencao';
+import RegistrosPendentes from './src/Screen/hemocentro/adcDoacaoHemo/registrosPendentes';
+import EdicaoDoacao from './src/Screen/hemocentro/adcDoacaoHemo/editInfo';
 
 
 const Stack = createNativeStackNavigator();
@@ -128,7 +127,6 @@ export default function App() {
           <Stack.Screen name="ProxDoacao" component={ProxDoacao} />
           <Stack.Screen name="HemoTela" component={CadastroHemocentro} />
           <Stack.Screen name="HomeHemocentro" component={HomeHemocentro} />
-          <Stack.Screen name="HemocentroLogin" component={HemocentroLogin} />
           <Stack.Screen name="QuestionarioTriagem" component={QuestionarioTriagem} />
           <Stack.Screen name="Perguntas" component={Perguntas} />
           <Stack.Screen name="SolicitarCarteirinha" component={SolicitarCarteirinha} />
@@ -139,7 +137,7 @@ export default function App() {
           <Stack.Screen name="CampanhaMainHemocentro" component={CampanhaHemo} />
           <Stack.Screen name="CriarCampanha" component={CriarCampanha} />
           <Stack.Screen name="CriarCampanhaHemo" component={CriarCampanhaHemo} />
-          <Stack.Screen name="CampaignDetailsDoador" component={CampaignDetailsDoador} />
+          <Stack.Screen name="CampanhaDetalhes" component={CampanhaDetalhes} />
 
 
           <Stack.Screen name="ConfiguracoesDoador" component={ConfigGeralDoador} />
