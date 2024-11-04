@@ -84,7 +84,7 @@ A empresa Hemoglobina LTDA reserva o direito de modificar os Termos de Uso a qua
 
   <Text style={styles.textSubTop}>1.8.2 Acordo Integral </Text>
           <Text style={styles.textoPoliticas}>
-Esses Termos de Uso supracitados constituem o acordo integral entre você usuário e a empresa Hemoglobina LTDA em relação ao uso da aplicação e substituem-se todos os entendimentos ou acordos anteriores, escritos ou orais, relativos ao assunto.  </Text>
+Esses Termos de Uso supracitados constituem o acordo integral entre o usuário e a empresa Hemoglobina LTDA em relação ao uso da aplicação e substituem-se todos os entendimentos ou acordos anteriores, escritos ou orais, relativos ao assunto.  </Text>
 
   <Text style={styles.textSubTop}>1.9 Contato </Text>
           <Text style={styles.textoPoliticas}>
