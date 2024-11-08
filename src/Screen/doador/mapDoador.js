@@ -1,42 +1,127 @@
-import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import * as Location from 'expo-location';
+import { useNavigation } from '@react-navigation/native';
+import { db } from '../../Services/firebaseConfig';
+import { collection, getDocs } from 'firebase/firestore';
+import axios from 'axios';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native'
 
 
 import MenuDoador from '../../../components/menu/menuDoador';
 
+const GOOGLE_MAPS_API_KEY = 'AIzaSyAoKrjxoAFNaQLZdnVEqd2npM2bRQ-xmQE';
+
+
 const HemocentrosMap = () => {
+    const navigation = useNavigation();
+    const [location, setLocation] = useState(null);
+    const [hemocentros, setHemocentros] = useState([]);
     const [selectedHemocentro, setSelectedHemocentro] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
 
-    const navigation =  useNavigation();
 
-
-    const hemocentros = [
-        {
-            id: 1,
-            name: 'Hospital Geral',
-            latitude: -23.60488889090432,
-            longitude: -46.76314845503553,
-            endereco: 'Rua 1, 123',
-        },
-        {
-            id: 2,
-            name: 'Hospital Aldeota',
-            latitude: -23.604146637826567,
-            longitude: -46.76351859985018,
-            endereco: 'Rua do Hospital, 123',
-        },
-    ];
 
     const handleMarkerPress = (hemocentro) => {
         setSelectedHemocentro(hemocentro);
         setModalVisible(true);
     };
+
+    // Função para buscar hemocentros no Firestore
+    const fetchHemocentros = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, 'Hemocentro'));
+            const hemocentrosData = await Promise.all(
+                querySnapshot.docs.map(async (doc) => {
+                    const data = doc.data();
+                    const endereco = data.Endereço;
+
+                    if (!endereco) {
+                        console.error("Erro: Endereço não encontrado para o documento", doc.id);
+                        return null; // Ignora este documento se não tiver o endereço
+                    }
+
+                    // Verifica cada campo e define um valor padrão se estiver ausente
+                    const rua = endereco.Rua || '';
+                    const numero = endereco.Numero || '';
+                    const bairro = endereco.Bairro || '';
+                    const cidade = endereco.Cidade || '';
+                    const estado = endereco.Estado || '';
+                    const cep = endereco.CEP || '';
+
+                    const fullAddress = `${rua}, ${numero}, ${bairro}, ${cidade} - ${estado}, ${cep}`;
+                    console.log("Endereço completo:", fullAddress);
+
+                    const coords = await geocodeAddress(fullAddress);
+
+                    return {
+                        id: doc.id,
+                        name: data.Nome || 'Nome do Hemocentro',
+                        fullAddress,
+                        ...coords
+
+                    };
+                })
+            );
+
+            // Filtra para remover documentos nulos (sem endereço)
+            setHemocentros(hemocentrosData.filter(Boolean));
+        } catch (error) {
+            console.error("Erro ao buscar hemocentros: ", error);
+        }
+    };
+
+    // Função que usa a API do Google para geocodificar um endereço
+    const geocodeAddress = async (address) => {
+        try {
+            const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
+                params: {
+                    address: address,
+                    key: GOOGLE_MAPS_API_KEY
+                }
+            });
+
+            console.log("Resposta da geocodificação:", response.data);
+
+            // Verifica se a resposta tem resultados válidos
+            if (response.data.status === "OK" && response.data.results.length > 0) {
+                const location = response.data.results[0].geometry.location;
+
+                // Verifica se o resultado é uma correspondência parcial
+                if (response.data.results[0].partial_match) {
+                    console.warn("Endereço parcialmente correspondido:", address);
+                }
+
+                return { latitude: location.lat, longitude: location.lng };
+            } else {
+                console.error("Erro ao geocodificar o endereço:", address, response.data.status);
+                return { latitude: 0, longitude: 0 }; // Retorna coordenadas padrão em caso de falha
+            }
+        } catch (error) {
+            console.error("Erro ao geocodificar o endereço: ", error);
+            return { latitude: 0, longitude: 0 };
+        }
+    };
+
+
+    useEffect(() => {
+        fetchHemocentros();
+    }, []);
+
+    // Função para obter a localização atual
+    useEffect(() => {
+        (async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Permissão negada', 'Permissão para acessar a localização foi negada.');
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            setLocation(location.coords);
+        })();
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -47,31 +132,33 @@ const HemocentrosMap = () => {
                 </TouchableOpacity>
             </View>
 
-            <MapView
-                style={{ flex: 1 }}
-                initialRegion={{
-                    latitude: -23.60481024177061,
-                    longitude: -46.763733176554325,
-                    latitudeDelta: 0.005,
-                    longitudeDelta: 0.005,
-                }}
-            >
-                {hemocentros.map((hemocentro) => (
-                    <Marker
-                        key={hemocentro.id}
-                        coordinate={{
-                            latitude: hemocentro.latitude,
-                            longitude: hemocentro.longitude,
-                        }}
-                        title={hemocentro.name}
-                        onPress={() => handleMarkerPress(hemocentro)}
-                        pinColor='#af2b2b'
-                        style={styles.marker}
-                    />
-                ))}
-            </MapView>
+            {location && (
+                <MapView
+                    style={{ flex: 1 }}
+                    initialRegion={{
+                        latitude: location.latitude,
+                        longitude: location.longitude,
+                        latitudeDelta: 0.09,
+                        longitudeDelta: 0.09,
+                    }}
+                    showsUserLocation={true}
+                >
+                    {hemocentros.map((hemocentro) => (
+                        <Marker
+                            key={hemocentro.id}
+                            coordinate={{
+                                latitude: hemocentro.latitude,
+                                longitude: hemocentro.longitude,
+                            }}
+                            title={hemocentro.name}
+                            onPress={() => handleMarkerPress(hemocentro)}
+                            pinColor='#af2b2b'
+                            style={styles.marker}
+                        />
+                    ))}
+                </MapView>
+            )}
 
-            {/* Modal para exibir detalhes do hemocentro */}
             <Modal
                 visible={modalVisible}
                 transparent={true}
@@ -89,7 +176,7 @@ const HemocentrosMap = () => {
                                     />
                                     <Text style={styles.popupTitle}>{selectedHemocentro.name}</Text>
                                 </View>
-                                <Text style={styles.popupDescription}>{selectedHemocentro.endereco}</Text>
+                                <Text style={styles.popupDescription}>{selectedHemocentro.fullAddress}</Text>
                                 <TouchableOpacity
                                     onPress={() => setModalVisible(false)}
                                     style={styles.closeButton}
@@ -101,7 +188,7 @@ const HemocentrosMap = () => {
                     </View>
                 </View>
             </Modal>
-            <MenuDoador/>
+            <MenuDoador />
         </View>
     );
 };
