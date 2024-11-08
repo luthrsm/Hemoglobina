@@ -6,27 +6,64 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Ionicons } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { auth, db } from '../../src/Services/firebaseConfig';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
+const schema = yup.object().shape({
+    email: yup.string().email("Digite um email válido").required("Email é obrigatório"),
+    senha: yup.string().min(6, "A senha deve ter pelo menos 6 caracteres").required("Senha é obrigatória"),
+    confirmarSenha: yup.string().oneOf([yup.ref('senha'), null], "As senhas devem coincidir")
+});
 
-
-const InputSenhaCad = ({ control, errors, formData, onDataChange, onNext, onBack }) => {
+const InputSenhaCadDoador = () => {
     const navigation = useNavigation();
     const [isPasswordVisible1, setIsPasswordVisible1] = useState(false);
     const [isPasswordVisible2, setIsPasswordVisible2] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
 
+    const { control, handleSubmit, formState: { errors } } = useForm({
+        resolver: yupResolver(schema)
+    });
+
     const handleCheckboxToggle = () => {
         setIsChecked(prev => !prev);
     };
 
-    const handleValueChange = (field, value) => {
-        onDataChange({ [field]: value });
+    const handleSignUp = async (data) => {
+        if (!isChecked) {
+            alert("Por favor, aceite os termos de uso e a política de privacidade.");
+            return;
+        }
+
+        const { email, senha } = data;
+
+        try {
+            // Cria a conta com e-mail e senha no Firebase Auth
+            const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+            const { uid } = userCredential.user;
+
+            // Obtendo referência para o documento na coleção "doador"
+            const doadorRef = doc(collection(db, 'doador'), uid);
+
+            // Criando o documento no Firestore
+            await setDoc(doadorRef, {
+                email: email,
+                createdAt: serverTimestamp(),
+            });
+
+            // Navega para a próxima página com o UID do usuário
+            navigation.navigate('PerfilDoador', { uid });
+        } catch (error) {
+            console.error("Erro ao criar conta:", error);
+            alert("Erro ao criar conta: " + error.message);
+        }
     };
 
     return (
         <SafeAreaView style={styles.stepContainer}>
             <View style={styles.voltarContainer}>
-                <TouchableOpacity onPress={onBack}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
                     <AntDesign name="arrowleft" size={24} color="#7A0000" />
                 </TouchableOpacity>
             </View>
@@ -35,7 +72,7 @@ const InputSenhaCad = ({ control, errors, formData, onDataChange, onNext, onBack
             </View>
             <View style={styles.txtTopContainer}>
                 <Text style={styles.txtPrincipal}>Cadastro doador</Text>
-                <Text style={styles.txtSecundario}>Finalize seu cadastro</Text>
+                <Text style={styles.txtSecundario}> </Text>
             </View>
 
             <View style={styles.inputContainer}>
@@ -47,12 +84,9 @@ const InputSenhaCad = ({ control, errors, formData, onDataChange, onNext, onBack
                             style={styles.inputEmail}
                             placeholder='E-mail'
                             placeholderTextColor='#000'
-                            onChangeText={text => {
-                                onChange(text);
-                                handleValueChange('email', text)
-                            }}
-                            value={value}
+                            onChangeText={onChange}
                             onBlur={onBlur}
+                            value={value}
                         />
                     )}
                 />
@@ -66,10 +100,7 @@ const InputSenhaCad = ({ control, errors, formData, onDataChange, onNext, onBack
                             <TextInput
                                 style={styles.input}
                                 value={value}
-                                onChangeText={text => {
-                                    onChange(text);
-                                    handleValueChange('senha', text)
-                                }}
+                                onChangeText={onChange}
                                 placeholder="Senha"
                                 secureTextEntry={!isPasswordVisible1}
                                 placeholderTextColor="#000"
@@ -143,16 +174,18 @@ const InputSenhaCad = ({ control, errors, formData, onDataChange, onNext, onBack
                     {errors.isChecked && <Text style={styles.labelError}>{errors.isChecked.message}</Text>}
                 </View>
 
-                <TouchableOpacity style={styles.BtProx} onPress={onNext}>
-                    <Text style={styles.txtBtProx}>Finalizar Cadastro</Text>
+                <TouchableOpacity style={styles.BtProx} onPress={handleSubmit(handleSignUp)}>
+                    <Text style={styles.txtBtProx}>Próximo</Text>
                 </TouchableOpacity>
-
             </View>
-
         </SafeAreaView>
     );
 };
-export default InputSenhaCad;
+
+export default InputSenhaCadDoador;
+
+
+
 
 const styles = StyleSheet.create({
     container: {
@@ -269,7 +302,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
     },
-    inputEmail:{
+    inputEmail: {
         height: 50,
         width: '100%',
         backgroundColor: '#EEF0EB',
@@ -279,7 +312,7 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         fontFamily: 'DM-Sans',
         justifyContent: 'center'
-    }
+    },
 });
 
 

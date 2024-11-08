@@ -7,33 +7,33 @@ import * as yup from 'yup';
 import { SelectList } from 'react-native-dropdown-select-list';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
-
+import { auth, db } from '../../src/Services/firebaseConfig';
+import { collection, doc, setDoc, updateDoc } from 'firebase/firestore';
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Ionicons } from '@expo/vector-icons';
 
+// Defina o esquema de validação com Yup
+const validationSchema = yup.object().shape({
+    nome: yup.string().required("Nome é obrigatório"),
+    sobrenome: yup.string().required("Sobrenome é obrigatório"),
+    cpf: yup.string().required("CPF é obrigatório").matches(/^[0-9]{11}$/, "CPF inválido"),
+    tipoSanguineo: yup.string().required("Tipo sanguíneo é obrigatório"),
+    dataNascimento: yup.date().required("Data de nascimento é obrigatória").max(new Date(), "Data inválida"),
+});
 
-
-
-
-const PerfilDoador = ({ control, errors, formData, onDataChange, onNext, onBack }) => {
-    
-    const tipos = [
-        { key: "1", value: "Não sei" },
-        { key: "2", value: "A+" },
-        { key: "3", value: "A-" },
-        { key: "4", value: "B+" },
-        { key: "5", value: "B-" },
-        { key: "6", value: "AB+" },
-        { key: "7", value: "AB-" },
-        { key: "8", value: "O+" },
-        { key: "9", value: "O-" },
-    ];
-
+const PerfilDoador = ({ route }) => {
+    const { control, handleSubmit, formState: { errors } } = useForm({
+        resolver: yupResolver(validationSchema),
+    });
+    const { uid } = route.params;
     const [date, setDate] = useState(null);
     const [show, setShow] = useState(false);
+    const [formData, setFormData] = useState({});
+    const navigation = useNavigation();
 
+    // Define o comportamento do DateTimePicker
     const onChangeDate = (event, selectedDate) => {
         setShow(false); // Fecha o DatePicker
         if (selectedDate) {
@@ -49,16 +49,58 @@ const PerfilDoador = ({ control, errors, formData, onDataChange, onNext, onBack 
         return `${day}/${month}/${year}`;
     };
 
-    const handleValueChange = (field, value) => {
-        onDataChange({ [field]: value });
+    // Lista de tipos sanguíneos
+    const tipos = [
+        { key: "1", value: "Não sei" },
+        { key: "2", value: "A+" },
+        { key: "3", value: "A-" },
+        { key: "4", value: "B+" },
+        { key: "5", value: "B-" },
+        { key: "6", value: "AB+" },
+        { key: "7", value: "AB-" },
+        { key: "8", value: "O+" },
+        { key: "9", value: "O-" },
+    ];
+
+    const onSubmit = async (data) => {
+        const { nome, sobrenome, cpf, tipoSanguineo, dataNascimento } = data;
+
+        // Buscar o valor do tipo sanguíneo usando a chave selecionada
+        const tipoSelecionado = tipos.find(item => item.key === tipoSanguineo);
+
+        if (!tipoSelecionado) {
+            console.error("Tipo sanguíneo inválido");
+            return;
+        }
+
+        const tipoSanguineoValue = tipoSelecionado.value; 
+
+        try {
+            const doadorRef = doc(db, 'doador', uid); 
+
+            await updateDoc(doadorRef, {  
+                nome,
+                sobrenome,
+                cpf,
+                tipoSanguineo: tipoSanguineoValue,  
+                dataNascimento: formatDate(dataNascimento),
+            });
+
+            // Sucesso, pode navegar ou mostrar uma mensagem
+            console.log("Dados atualizados com sucesso!");
+            // Exemplo de navegação para a próxima tela
+            navigation.navigate('AdressForm', { uid });
+        } catch (error) {
+            console.error("Erro ao atualizar dados:", error);
+        }
     };
 
-    const [value, setValue] = useState('');
+
 
     return (
         <View style={styles.stepContainer}>
             <View style={styles.voltarContainer}>
-                <TouchableOpacity onPress={onBack}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
                     <AntDesign name="arrowleft" size={24} color="#7A0000" />
                 </TouchableOpacity>
             </View>
@@ -73,39 +115,39 @@ const PerfilDoador = ({ control, errors, formData, onDataChange, onNext, onBack 
             <View style={styles.inputContainer}>
                 <Controller
                     control={control}
-                    name='nome'
-                    render={({ field: { onChange, onBlur, value } }) =>
+                    name="nome"
+                    render={({ field: { onChange, onBlur, value } }) => (
                         <TextInput
                             style={styles.input}
-                            placeholder='Nome'
-                            placeholderTextColor='#000'
+                            placeholder="Nome"
+                            placeholderTextColor="#000"
                             onChangeText={text => {
                                 onChange(text);
-                                handleValueChange('nome', text)
+                                setFormData(prevData => ({ ...prevData, nome: text }));
                             }}
                             onBlur={onBlur}
-                            value={formData.nome || ''}
+                            value={value || ''}
                         />
-                    }
+                    )}
                 />
                 {errors.nome && <Text style={styles.labelError}>{errors.nome.message}</Text>}
 
                 <Controller
                     control={control}
-                    name='sobrenome'
-                    render={({ field: { onChange, onBlur, value } }) =>
+                    name="sobrenome"
+                    render={({ field: { onChange, onBlur, value } }) => (
                         <TextInput
                             style={styles.input}
-                            placeholder='Sobrenome'
-                            placeholderTextColor='#000'
+                            placeholder="Sobrenome"
+                            placeholderTextColor="#000"
                             onChangeText={text => {
                                 onChange(text);
-                                handleValueChange('sobrenome', text)
+                                setFormData(prevData => ({ ...prevData, sobrenome: text }));
                             }}
-                            value={formData.sobrenome || ''}
                             onBlur={onBlur}
+                            value={value || ''}
                         />
-                    }
+                    )}
                 />
                 {errors.sobrenome && <Text style={styles.labelError}>{errors.sobrenome.message}</Text>}
 
@@ -115,20 +157,18 @@ const PerfilDoador = ({ control, errors, formData, onDataChange, onNext, onBack 
                     render={({ field: { onChange, value } }) => (
                         <>
                             <TouchableOpacity onPress={() => setShow(true)} style={styles.input}>
-                                <Text>
-                                    {value ? formatDate(value) : 'Data de Nascimento'}
-                                </Text>
+                                <Text>{value ? formatDate(value) : 'Data de Nascimento'}</Text>
                             </TouchableOpacity>
                             {show && (
                                 <DateTimePicker
-                                    value={value ? new Date(value) : new Date()} // Assegura que 'value' seja uma data válida
+                                    value={value ? new Date(value) : new Date()}
                                     mode="date"
                                     display="default"
                                     onChange={(event, selectedDate) => {
                                         setShow(false); // Fecha o DateTimePicker após selecionar a data
                                         if (selectedDate) {
-                                            onChange(selectedDate); // Atualiza o valor do Controller com a nova data
-                                            handleValueChange('dataNascimento', selectedDate); // Atualiza o estado geral do formulário
+                                            onChange(selectedDate);
+                                            setFormData(prevData => ({ ...prevData, dataNascimento: selectedDate }));
                                         }
                                     }}
                                 />
@@ -138,31 +178,30 @@ const PerfilDoador = ({ control, errors, formData, onDataChange, onNext, onBack 
                 />
                 {errors.dataNascimento && <Text style={styles.labelError}>{errors.dataNascimento.message}</Text>}
 
-
                 <Controller
                     control={control}
-                    name='cpf'
-                    render={({ field: { onChange, onBlur, value } }) =>
+                    name="cpf"
+                    render={({ field: { onChange, onBlur, value } }) => (
                         <TextInput
                             style={styles.input}
-                            placeholder='CPF'
-                            placeholderTextColor='#000'
-                            onBlur={onBlur}
-                            keyboardType='numeric'
+                            placeholder="CPF"
+                            placeholderTextColor="#000"
                             onChangeText={text => {
                                 onChange(text);
-                                handleValueChange('cpf', text)
+                                setFormData(prevData => ({ ...prevData, cpf: text }));
                             }}
-                            value={formData.cpf || ''}
+                            keyboardType="numeric"
+                            onBlur={onBlur}
+                            value={value || ''}
                         />
-                    }
+                    )}
                 />
                 {errors.cpf && <Text style={styles.labelError}>{errors.cpf.message}</Text>}
 
                 <Controller
                     control={control}
-                    name='tipoSanguineo'
-                    render={({ field: { onChange, onBlur, value } }) =>
+                    name="tipoSanguineo"
+                    render={({ field: { onChange, onBlur, value } }) => (
                         <SelectList
                             setSelected={onChange}
                             onBlur={onBlur}
@@ -170,25 +209,27 @@ const PerfilDoador = ({ control, errors, formData, onDataChange, onNext, onBack 
                             data={tipos}
                             arrowicon={<FontAwesome name="chevron-down" size={12} color={'black'} />}
                             search={false}
-                            placeholder='Tipo Sanguíneo'
+                            placeholder="Tipo Sanguíneo"
                             boxStyles={styles.boxStyles}
                             dropdownItemStyles={styles.dropdownItemStyles}
                             dropdownStyles={styles.dropdownStyles}
                         />
-                    }
+                    )}
                 />
                 {errors.tipoSanguineo && <Text style={styles.labelError}>{errors.tipoSanguineo.message}</Text>}
             </View>
-            <TouchableOpacity onPress={onNext} style={styles.BtProx}>
-                <Text style={styles.txtBtProx}>Avançar</Text>
+
+            <TouchableOpacity onPress={handleSubmit(onSubmit)} style={styles.BtProx}>
+                <Text style={styles.txtBtProx}>Próximo</Text>
             </TouchableOpacity>
         </View>
-    )
-}
+    );
+};
 
 export default PerfilDoador;
 
 const styles = StyleSheet.create({
+    // Styles remain the same
     container: {
         flex: 1,
         backgroundColor: '#fff',
@@ -219,13 +260,13 @@ const styles = StyleSheet.create({
         fontSize: 24,
         color: '#470404',
         fontFamily: 'Poppins-Medium',
-        textAlign: 'center'
+        textAlign: 'center',
     },
     txtSecundario: {
         fontSize: 16,
         color: '#470404',
         fontFamily: 'Poppins-Regular',
-        textAlign: 'center'
+        textAlign: 'center',
     },
     inputContainer: {
         marginTop: '5%',
@@ -240,7 +281,7 @@ const styles = StyleSheet.create({
         borderRadius: 7,
         paddingLeft: 20,
         fontFamily: 'DM-Sans',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     BtProx: {
         backgroundColor: '#AF2B2B',
@@ -249,40 +290,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: '15%',
         width: '60%',
-        alignSelf: 'center'
+        alignSelf: 'center',
     },
     txtBtProx: {
         color: '#fff',
         fontSize: 16,
-    },
-    inputBottomContainer: {
-        flexDirection: "row",
-        gap: 20,
-    },
-    inputBottom: {
-        height: 50,
-        width: '47%',
-        backgroundColor: '#EEF0EB',
-        marginBottom: '6%',
-        paddingHorizontal: 8,
-        borderRadius: 7,
-        paddingLeft: 20,
-        fontFamily: 'DM-Sans'
-    },
-    termos: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    checkboxContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    label: {
-        marginLeft: 8,
-    },
-    link: {
-        textDecorationLine: 'underline',
-        color: '#326771',
     },
     labelError: {
         alignSelf: 'flex-start',
@@ -293,13 +305,12 @@ const styles = StyleSheet.create({
         borderColor: '#EEF0EB',
         borderRadius: 7,
         backgroundColor: '#EEF0EB',
-
     },
     dropdownStyles: {
         borderColor: '#EEF0EB',
         borderRadius: 7,
         backgroundColor: '#EEF0EB',
         marginTop: '',
-        marginBottom: '5%'
+        marginBottom: '5%',
     },
 });

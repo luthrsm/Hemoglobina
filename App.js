@@ -13,7 +13,7 @@ import CriarCampanhaHemo from './src/Screen/hemocentro/campanha/criarCampanhaHem
 
 import WelcomeScreen from './src/Screen/geral/pagBemVindo';
 import CadastroEscolha from "./src/Screen/geral/cadEscolha";
-import CadastroDoador from './src/Screen/doador/cadDoador';
+
 import LoginEscolha from './src/Screen/geral/loginEscolha';
 import LoginDoador from './src/Screen/doador/loginDoador';
 import HomeDoador from './src/Screen/doador/homeDoador';
@@ -24,6 +24,9 @@ import Perguntas from './src/Screen/doador/perguntas';
 import SolicitarCarteirinha from './src/Screen/doador/ScolicitarCar';
 import HistoricoDoacoes from './src/Screen/doador/historico';
 import LoginHemo from './src/Screen/hemocentro/loginHemo';
+import PerfilDoador from './components/cadDoador/perfilDoador';
+import AddressForm from './components/cadDoador/cep';
+import InputSenhaCadDoador from './components/cadDoador/inputSenhaCad';
 
 //cadastro Hemo
 
@@ -120,7 +123,7 @@ export default function App() {
           <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
           <Stack.Screen name="CadastroEscolha" component={CadastroEscolha} />
           {/* <Stack.Screen name="cadHemocentro" component={CadHemocentro} /> */}
-          <Stack.Screen name="CadastroDoador" component={CadastroDoador} />
+          
           <Stack.Screen name="LoginEscolha" component={LoginEscolha} />
           <Stack.Screen name="LoginDoador" component={LoginDoador} />
           <Stack.Screen name="HomeDoador" component={HomeDoador} />
@@ -132,6 +135,10 @@ export default function App() {
           <Stack.Screen name="SolicitarCarteirinha" component={SolicitarCarteirinha} />
           <Stack.Screen name="HistoricoDoacoes" component={HistoricoDoacoes} />
           <Stack.Screen name="LoginHemo" component={LoginHemo} />
+          <Stack.Screen name="PerfilDoador" component={PerfilDoador} />
+          <Stack.Screen name="AdressForm" component={AddressForm} />
+          <Stack.Screen name="InputSenhaCadDoador" component={InputSenhaCadDoador} />
+
 
           <Stack.Screen name="CampanhaDoador" component={CampanhaDoador} />
           <Stack.Screen name="CampanhaMainHemocentro" component={CampanhaHemo} />

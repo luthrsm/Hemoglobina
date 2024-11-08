@@ -1,17 +1,43 @@
 import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native'
 import { FontAwesome6 } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
+import { db } from '../../Services/firebaseConfig';
+import { getAuth } from 'firebase/auth';
+import { getDoc, doc } from 'firebase/firestore';
 
 import MenuDoador from '../../../components/menu/menuDoador';
 
 const HomeDoador = () => {
-
+    const [userName, setUserName] = useState('');
     const navigation = useNavigation();
+
+    useEffect(() => {
+        // Pegue o ID do usuário autenticado
+        const auth = getAuth();
+        const user = auth.currentUser;
+
+        if (user) {
+            // Busque os dados do usuário no Firestore
+            const userRef = doc(db, 'doador', user.uid); // Aqui, 'doador' é o nome da coleção onde você armazena os dados do usuário
+            getDoc(userRef).then((docSnap) => {
+                if (docSnap.exists()) {
+                    // Supondo que o nome esteja armazenado no campo 'nome'
+                    setUserName(docSnap.data().nome);
+                } else {
+                    console.log('No such document!');
+                }
+            }).catch((error) => {
+                console.error("Error getting document:", error);
+            });
+        }
+    }, []);
+
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.headerContainer}>
-                <Text style={styles.title}> Bem vindo, doador!</Text>
+                <Text style={styles.title}>Bem-vindo, {userName}!</Text>
                 <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
                     <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
                 </TouchableOpacity>
@@ -91,7 +117,7 @@ const styles = StyleSheet.create({
         letterSpacing: 1.5,
         fontSize: 16
     },
-    
+
     btConfig: {
         marginRight: 20,
     },
@@ -109,7 +135,7 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         gap: 5,
         width: '50%',
-        
+
     },
     txtTitle: {
         fontFamily: 'Poppins-SemiBold',
@@ -123,7 +149,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         lineHeight: 12.9,
     },
-    btDetalhes:{
+    btDetalhes: {
         backgroundColor: '#326771',
         justifyContent: 'center',
         alignItems: 'center',

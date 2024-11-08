@@ -23,7 +23,7 @@ const CadastroEscolha = () => {
                             <Text style={styles.buttonText}>Hemocentro</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('CadastroDoador')} >
+                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('InputSenhaCadDoador')} >
 
                             <Text style={styles.buttonText}>Doador</Text>
                         </TouchableOpacity>

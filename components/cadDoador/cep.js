@@ -5,14 +5,43 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import axios from 'axios';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { auth, db } from '../../src/Services/firebaseConfig';
+import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { useNavigation } from '@react-navigation/native';
 
+// Definindo o esquema de validação usando Yup
+const schemaCEP = yup.object().shape({
+    cep: yup.string().required("Informe seu CEP").length(8, "O CEP deve ter 8 dígitos"),
+    endereco: yup.string(),
+    bairro: yup.string(),
+    cidade: yup.string(),
+    estado: yup.string(),
+});
 
-const AddressForm = ({ control, errors, formData, onDataChange, onNext, onBack, setValue, trigger }) => {
-    const handleValueChange = (field, value) => {
-        onDataChange({ [field]: value });
+const AddressForm = ({ route }) => {
+    const { uid } = route.params; // Captura o UID da navegação
+    const [formData, setFormData] = useState({});
+    const [cep, setCep] = useState(formData.cep || '');
+    const navigation = useNavigation();
+    const { control, handleSubmit, formState: { errors } } = useForm({
+        resolver: yupResolver(schemaCEP),
+    });
+    const fetchData = async () => {
+        try {
+            const db = getFirestore();
+            const docRef = doc(db, 'doador', uid); // Referência ao documento
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                setFormData(docSnap.data()); // Atualiza o estado com os dados do Firestore
+            }
+        } catch (error) {
+            console.error("Erro ao buscar dados:", error);
+        }
     };
 
-    const [cep, setCep] = useState(formData.cep || '');
+    const handleValueChange = (field, value) => {
+        setFormData((prevData) => ({ ...prevData, [field]: value }));
+    };
 
     const fetchAddress = async () => {
         if (cep.length === 8) {
@@ -21,48 +50,52 @@ const AddressForm = ({ control, errors, formData, onDataChange, onNext, onBack, 
                 const data = response.data;
 
                 if (data && !data.erro) {
-                    setValue('rua', data.logradouro || '');
-                    setValue('bairro', data.bairro || '');
-                    setValue('cidade', data.localidade || '');
-                    setValue('estado', data.uf || '');
-
-                    // Atualize o formData para refletir as mudanças
-                    onDataChange({
-                        rua: data.logradouro || '',
-                        bairro: data.bairro || '',
-                        cidade: data.localidade || '',
-                        estado: data.uf || '',
-                    });
+                    handleValueChange('rua', data.logradouro || '');
+                    handleValueChange('bairro', data.bairro || '');
+                    handleValueChange('cidade', data.localidade || '');
+                    handleValueChange('estado', data.uf || '');
                 } else {
-                    setValue('rua', '');
-                    setValue('bairro', '');
-                    setValue('cidade', '');
-                    setValue('estado', '');
+                    handleValueChange('rua', '');
+                    handleValueChange('bairro', '');
+                    handleValueChange('cidade', '');
+                    handleValueChange('estado', '');
                 }
-
-                // Valide os campos após a atualização
-                trigger(['rua', 'bairro', 'cidade', 'estado']);
             } catch (error) {
                 console.error("Erro ao buscar endereço:", error);
-                setValue('rua', '');
-                setValue('bairro', '');
-                setValue('cidade', '');
-                setValue('estado', '');
-
-                // Valide os campos após a falha
-                trigger(['rua', 'bairro', 'cidade', 'estado']);
             }
         }
     };
 
     useEffect(() => {
+        fetchData();
+    }, []);
+
+    useEffect(() => {
         fetchAddress();
     }, [cep]);
+
+    const updateAddress = async () => {
+        try {
+            const db = getFirestore();
+            const docRef = doc(db, 'doador', uid); // Referência ao documento
+            await updateDoc(docRef, {
+                cep: formData.cep,
+                rua: formData.rua,
+                bairro: formData.bairro,
+                cidade: formData.cidade,
+                estado: formData.estado,
+            });
+            console.log('Dados de endereço atualizados!');
+            navigation.navigate('HomeDoador')
+        } catch (error) {
+            console.error("Erro ao atualizar dados:", error);
+        }
+    };
 
     return (
         <View style={styles.stepContainer}>
             <View style={styles.voltarContainer}>
-                <TouchableOpacity onPress={onBack}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
                     <AntDesign name="arrowleft" size={24} color="#7A0000" />
                 </TouchableOpacity>
             </View>
@@ -150,14 +183,16 @@ const AddressForm = ({ control, errors, formData, onDataChange, onNext, onBack, 
                     )}
                 />
             </View>
-            <TouchableOpacity style={styles.BtProx} onPress={onNext}>
-                <Text style={styles.txtBtProx}>Próximo</Text>
+
+            <TouchableOpacity style={styles.BtProx} onPress={updateAddress}>
+                <Text style={styles.txtBtProx}>Finalizar Cadastro</Text>
             </TouchableOpacity>
         </View>
     );
 };
 
 export default AddressForm;
+
 
 
 const styles = StyleSheet.create({

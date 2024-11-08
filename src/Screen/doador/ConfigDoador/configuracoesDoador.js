@@ -1,8 +1,12 @@
 import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AsyncStorage } from 'react-native';
+
+import { db } from '../../../Services/firebaseConfig';
+import { getAuth, signOut } from 'firebase/auth';
+import { getDoc, doc } from 'firebase/firestore';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -13,32 +17,49 @@ import MenuDoador from '../../../../components/menu/menuDoador';
 
 
 const ConfigGeralDoador = () => {
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
 
-  const [userData] = useState({
-    name: 'Juliana Ferreira',
-    email: 'juferreira27@gmail.com',
-  });
+  useEffect(() => {
+    // Pegue o ID do usuário autenticado
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (user) {
+        // Busque os dados do usuário no Firestore
+        const userRef = doc(db, 'doador', user.uid); // Aqui, 'doador' é o nome da coleção onde você armazena os dados do usuário
+        getDoc(userRef).then((docSnap) => {
+            if (docSnap.exists()) {
+                // Supondo que o nome esteja armazenado no campo 'nome'
+                setUserName(docSnap.data().nome);
+                setUserEmail(docSnap.data().email);
+
+            } else {
+                console.log('No such document!');
+            }
+        }).catch((error) => {
+            console.error("Error getting document:", error);
+        });
+    }
+}, []);
 
   const navigation = useNavigation();
 
   const [loggedOut, setLoggedOut] = useState(false);
 
   const handleLogout = async () => {
+    const auth = getAuth();
+    
     try {
-      // Remova as informações de autenticação
-      await AsyncStorage.clearStorage();
-
-      // Redirecione o usuário para a página de login
-      navigation.navigate('WelcomeScreen');
-
-      setLoggedOut(true);
+      await signOut(auth);  
+      console.log('Usuário deslogado com sucesso!');
+      
+      navigation.navigate('WelcomeScreen'); 
     } catch (error) {
-      console.error(error);
+      console.error('Erro ao fazer logout:', error.message);
     }
   };
 
-  // const route = useRoute();
-  // const { profilePic } = route.params;
 
   return (
     <View style={styles.container}>
@@ -56,9 +77,9 @@ const ConfigGeralDoador = () => {
         <ScrollView>
           <View style={styles.profile}>
 
-            <Image source={require('../../../../assets/img/configImages/userimage.png')} style={styles.profileImage} />
-            <Text style={styles.profileName}>{userData.name}</Text>
-            <Text style={styles.profileEmail}>{userData.email}</Text>
+            <Image source={require('../../../../assets/img/iconUser.png')} style={styles.profileImage} />
+            <Text style={styles.profileName}>{userName}</Text>
+            <Text style={styles.profileEmail}>{userEmail}</Text>
           </View>
 
           <View style={styles.options}>
