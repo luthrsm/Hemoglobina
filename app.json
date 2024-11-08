@@ -3,8 +3,10 @@
     "name": "Hemoglobina",
     "slug": "Hemoglobina",
     "version": "1.0.0",
+    "privacy": "public",
+    "plataforms": ["ios", "android"],
     "orientation": "portrait",
-    "icon": "./assets/img/logoHemoglobina.png",
+    "icon": "./assets/img/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/img/splash.png",
@@ -17,11 +19,16 @@
       "buildNumber": "1.0.0",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "O aplicativo precisa da sua localização para mostrar os hemocentros próximos."
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAoKrjxoAFNaQLZdnVEqd2npM2bRQ-xmQE"
+        }
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/img/logoHemoglobina.png",
+        "foregroundImage": "./assets/img/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [
@@ -29,7 +36,12 @@
         "ACCESS_COARSE_LOCATION"
       ],
       "package": "com.HemoglobinaLTDA.Hemoglobina",
-      "versionCode": 1
+      "versionCode": 1,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAoKrjxoAFNaQLZdnVEqd2npM2bRQ-xmQE"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/img/icon.png"

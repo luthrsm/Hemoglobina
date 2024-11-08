@@ -18,14 +18,14 @@ const HomeDoador = () => {
         const user = auth.currentUser;
 
         if (user) {
-            // Busque os dados do usuário no Firestore
-            const userRef = doc(db, 'doador', user.uid); // Aqui, 'doador' é o nome da coleção onde você armazena os dados do usuário
+            
+            const userRef = doc(db, 'doador', user.uid); 
             getDoc(userRef).then((docSnap) => {
                 if (docSnap.exists()) {
-                    // Supondo que o nome esteja armazenado no campo 'nome'
+                    
                     setUserName(docSnap.data().nome);
                 } else {
-                    console.log('No such document!');
+                    console.log('esse documento nao existe!');
                 }
             }).catch((error) => {
                 console.error("Error getting document:", error);
@@ -37,7 +37,7 @@ const HomeDoador = () => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.headerContainer}>
-                <Text style={styles.title}>Bem-vindo, {userName}!</Text>
+                <Text style={styles.title}>Bem-vindo(a), {userName}!</Text>
                 <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
                     <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
                 </TouchableOpacity>

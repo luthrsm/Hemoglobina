@@ -2,13 +2,43 @@ import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacit
 import { useNavigation } from '@react-navigation/native'
 import { FontAwesome6 } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { db } from '../../Services/firebaseConfig';
+import { getAuth } from 'firebase/auth';
+import { getDoc, doc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+
 
 
 import MenuDoador from '../../../components/menu/menuDoador';
 
 const ProxDoacao = () => {
-
+    const [proxDoacao, setProxDoacao] = useState('');
+    const [quantDoacoes, setQuantDoacoes] = useState('');
+    const [ultimaDoacao, setUltimaDoacao] = useState('');
     const navigation = useNavigation();
+
+    useEffect(() => {
+        // Pegue o ID do usuário autenticado
+        const auth = getAuth();
+        const user = auth.currentUser;
+
+        if (user) {
+            
+            const userRef = doc(db, 'doador', user.uid); 
+            getDoc(userRef).then((docSnap) => {
+                if (docSnap.exists()) {
+                    
+                    setProxDoacao(docSnap.data().proxDoacao);
+                    setQuantDoacoes(docSnap.data().quantDoacoes);
+                    setUltimaDoacao(docSnap.data().ultimaDoacao);
+                } else {
+                    console.log('esse documento nao existe!');
+                }
+            }).catch((error) => {
+                console.error("Error getting document:", error);
+            });
+        }
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -28,16 +58,16 @@ const ProxDoacao = () => {
                 <View style={styles.contentContainer}>
                     <Text style={styles.titleMain}>Sua última doação foi no dia:</Text>
                     <View style={styles.dataContainer}>
-                        <Text style={styles.data}>22/10/2024</Text>
+                        <Text style={styles.data}>{ultimaDoacao}</Text>
                     </View>
                     <Text style={styles.titleMain}>Sua próxima doação será no dia:</Text>
                     <View style={styles.dataContainer}>
-                        <Text style={styles.data}>22/10/2024</Text>
+                        <Text style={styles.data}>{proxDoacao}</Text>
                     </View>
                         <Text style={styles.titleMain}> Quantidade de Doações </Text>
                         <View style={styles.doacaoContainer}>
                             <Image style={styles.image} source={require('../../../assets/img/gotinha.png')} />
-                            <Text style={styles.doacaotxt}>3</Text>
+                            <Text style={styles.doacaotxt}>{quantDoacoes}</Text>
                         </View>
                 </View>
             </View>

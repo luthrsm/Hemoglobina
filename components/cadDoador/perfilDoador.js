@@ -13,6 +13,7 @@ import { collection, doc, setDoc, updateDoc } from 'firebase/firestore';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Ionicons } from '@expo/vector-icons';
+import ProxDoacao from '../../src/Screen/doador/proxDoacao';
 
 // Defina o esquema de validação com Yup
 const validationSchema = yup.object().shape({
@@ -84,6 +85,10 @@ const PerfilDoador = ({ route }) => {
                 cpf,
                 tipoSanguineo: tipoSanguineoValue,  
                 dataNascimento: formatDate(dataNascimento),
+                ultimaDoacao: '',
+                proxDoacao: '',
+                quantDoacoes: 0
+
             });
 
             // Sucesso, pode navegar ou mostrar uma mensagem

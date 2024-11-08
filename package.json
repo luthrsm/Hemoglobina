@@ -22,7 +22,7 @@
     "@react-navigation/stack": "^6.4.1",
     "@supabase/realtime-js": "^2.10.5",
     "@supabase/supabase-js": "^2.45.3",
-    "axios": "^1.7.3",
+    "axios": "^1.7.7",
     "date-fns": "^3.6.0",
     "expo": "^51.0.32",
     "expo-image-picker": "^15.0.7",

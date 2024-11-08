@@ -20,16 +20,16 @@ const HemocentrosMap = () => {
         {
             id: 1,
             name: 'Hospital Geral',
-            description: 'O Hemocentro do Hospital Geral oferece um atendimento eficiente e acolhedor, com uma equipe profissional e dedicada. As instalações são limpas e bem organizadas, proporcionando uma experiência positiva para doadores e pacientes.',
             latitude: -23.60488889090432,
             longitude: -46.76314845503553,
+            endereco: 'Rua 1, 123',
         },
         {
             id: 2,
             name: 'Hospital Aldeota',
-            description: 'O Hemocentro do Hospital Aldeota é conhecido por...',
             latitude: -23.604146637826567,
             longitude: -46.76351859985018,
+            endereco: 'Rua do Hospital, 123',
         },
     ];
 
@@ -89,7 +89,7 @@ const HemocentrosMap = () => {
                                     />
                                     <Text style={styles.popupTitle}>{selectedHemocentro.name}</Text>
                                 </View>
-                                <Text style={styles.popupDescription}>{selectedHemocentro.description}</Text>
+                                <Text style={styles.popupDescription}>{selectedHemocentro.endereco}</Text>
                                 <TouchableOpacity
                                     onPress={() => setModalVisible(false)}
                                     style={styles.closeButton}

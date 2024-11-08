@@ -130,6 +130,8 @@ const ProfileScreen = ({ navigation }) => {
         >
           <View style={styles.profileSection}>
             <Image source={userPhoto} style={styles.profileImage} />
+            <Text style={styles.profileName}>{userName}</Text>
+            <Text style={styles.profileEmail}>{userEmail}</Text>
             <TouchableOpacity style={styles.BtProxAlterar} onPress={handleImagePicker}>
               <Text style={styles.buttonText}>Alterar foto</Text>
             </TouchableOpacity>
