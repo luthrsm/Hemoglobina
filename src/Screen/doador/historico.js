@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   },
   txtTitle: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 18,
+    fontSize: 25,
   },
   txtFotoContainer: {
     marginBottom: 20,
