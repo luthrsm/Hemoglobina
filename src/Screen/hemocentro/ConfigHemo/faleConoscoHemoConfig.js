@@ -119,7 +119,8 @@ const styles = StyleSheet.create({
     marginLeft: 30,
     marginTop: 7,
     fontFamily: 'DM-Sans',
-    letterSpacing: 1.5
+    letterSpacing: 1.5,
+    fontSize: 16,
   },
   mainContainer: {
     padding: 32,
