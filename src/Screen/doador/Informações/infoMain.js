@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
         marginTop: 15,
         fontFamily: 'DM-Sans',
         letterSpacing: 1.5,
-        fontSize: 22
+        fontSize: 16
     },
     config: {
         marginTop: 15,
