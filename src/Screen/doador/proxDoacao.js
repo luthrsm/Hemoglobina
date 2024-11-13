@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     },
     titleMain: {
         fontFamily: 'DM-Sans',
-        fontSize: 28,
+        fontSize: 20,
     },
     contentContainer: {
         gap: 40,
