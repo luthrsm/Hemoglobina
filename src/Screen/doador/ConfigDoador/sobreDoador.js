@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   textoFale: {
     textAlign: 'center',
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: '700',
     marginBottom: 20,
   },
