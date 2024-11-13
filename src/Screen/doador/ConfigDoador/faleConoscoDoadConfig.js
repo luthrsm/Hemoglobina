@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
+import * as MailComposer from 'expo-mail-composer';
 
 import MenuDoador from '../../../../components/menu/menuDoador'
 import AntDesign from '@expo/vector-icons/AntDesign';
