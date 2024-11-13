@@ -101,7 +101,8 @@ const styles = StyleSheet.create({
     color: '#EEF0EB',
     marginTop: 7,
     fontFamily: 'DM-Sans',
-    letterSpacing: 1.5
+    letterSpacing: 1.5,
+    fontSize: 16,
   },
   bloodTypeContainer: {
     padding: 16,
