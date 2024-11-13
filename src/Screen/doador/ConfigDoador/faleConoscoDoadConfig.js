@@ -11,22 +11,27 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 
 const FaleConoscoD = ({ navigation, route }) => {
-  const { control, handleSubmit } = useForm();
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [pergunta, setPergunta] = useState('');
+  const [isAvailable, setIsAvailable] = useState(false);
+  const [subject, setSubject] = useState(undefined);
+  const [body, setBody] = useState(undefined);
+  const [email, setEmail] = useState(undefined);
 
-  const [text, setText] = useState('');
+  useEffect(() => {
+    async function checkAvailability() {
+      const isMailAvailable = await MailComposer.isAvailableAsync();
+      setIsAvailable(isMailAvailable);
+    }
 
-  const handleEmailChange = (text) => setEmail(text);
-  const handleNameChange = (text) => setName(text);
-  const handlePerguntaChange = (text) => setPergunta(text);
+    checkAvailability();
+  }, []);
 
-  const handleSave = async (data) => {
-    console.log('Nome:', data.name);
-    console.log('Email:', data.email);
-    console.log('Pergunta', data.pergunta);
-    navigation.navigate('ConfiguracoesDoador'); // Voltar para a tela anterior
+  const sendMail = async () => {
+
+    MailComposer.composeAsync({
+      subject: subject,
+      body: body,
+      recipients: ['hemoglobinaltda@gmail.com'],
+    });
   };
 
   return (
@@ -41,70 +46,49 @@ const FaleConoscoD = ({ navigation, route }) => {
             <AntDesign name="arrowleft" size={24} color="#7A0000" />
           </TouchableOpacity>
         </View>
-
-        <View style={styles.inputSection}>
-          <Text style={styles.textoFale}>Fale conosco</Text>
+    
+      <View style={styles.inputSection}>
+        <Text style={styles.textoFale}>Fale conosco</Text>
           <View style={styles.icon}>
-            <Text style={styles.inputLabel}>Nome completo:</Text>
+            <Text style={[styles.inputLabel, { textAlignVertical: 'top', paddingTop: 15 }]}>Nome completo:</Text>
           </View>
-          <Controller
-            control={control}
-            render={({ onChange, onBlur, value }) => (
-              <TextInput
-                style={styles.input}
-                onBlur={onBlur}
-                onChangeText={(text) => onChange(text)}
-                value={value}
-              />
-            )}
-            name="name"
-          />
-        </View>
+            <TextInput
+              style={styles.input}
+              onChangeText={setSubject}
+              value={subject}
+            />
+      </View>
 
         <View style={styles.inputSection}>
           <View style={styles.icon}>
-            <Text style={styles.inputLabel}>Email:</Text>
+            <Text style={[styles.inputLabel, { textAlignVertical: 'top', paddingTop: 15 }]}>Email:</Text>
           </View>
-          <Controller
-            control={control}
-            render={({ onChange, onBlur, value }) => (
-              <TextInput
-                style={styles.input}
-                onBlur={onBlur}
-                onChangeText={(text) => onChange(text)}
-                value={value}
-              />
-            )}
-            name="email"
-          />
+            <TextInput
+              style={styles.input}
+              onChangeText={setEmail}
+              value={email}
+            />
         </View>
 
-        <View style={styles.inputSection}>
+      <View style={styles.inputSection}>
           <View style={styles.icon}>
             <Text style={[styles.inputLabel, { textAlignVertical: 'top', paddingTop: 15 }]}>Mensagem:</Text>
           </View>
-          <Controller
-            control={control}
-            render={({ onChange, onBlur, value }) => (
-              <TextInput
-                style={styles.input}
-                onBlur={onBlur}
-                onChangeText={(text) => onChange(text)}
-                value={value}
-                multiline={true}
-                numberOfLines={5}
-              />
-            )}
-            name="pergunta"
-          />
+            <TextInput
+              style={styles.input}
+              onChangeText={setBody}
+              value={body}
+              multiline={true}
+              numberOfLines={5}
+            />
         </View>
 
-        <TouchableOpacity style={styles.BtProx} onPress={handleSubmit(handleSave)}>
+        {isAvailable ? <TouchableOpacity style={styles.BtProx} onPress={sendMail}>
           <Text style={styles.buttonText}>Enviar</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> : <Text>Email não </Text>}
       </View>
 
-      <MenuDoador />
+     <MenuDoador />
     </View>
   );
 };
