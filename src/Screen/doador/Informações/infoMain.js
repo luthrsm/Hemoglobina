@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     },
     titleMain: {
         fontFamily: 'Poppins-SemiBold',
-        fontSize: 24,
+        fontSize: 20,
         textAlign: 'center',
         color: '#053a45',
         marginBottom: 26,
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     },
     titleInfoCard: {
         fontFamily: 'DM-Sans',
-        fontSize: 17,
+        fontSize: 16,
         color: '#053a45',
         fontWeight: 'bold',
     },
