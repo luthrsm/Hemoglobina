@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     color: '#000',
     marginTop: 15,
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 25,
+    fontSize: 20,
     marginBottom: 25
   },
   textView: {
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   },
   text: {
     padding: 15,
-    fontSize: 17,
+    fontSize: 16,
     fontFamily: 'Poppins-Regular',
     textAlign: 'justify'
   },
