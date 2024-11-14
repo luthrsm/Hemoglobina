@@ -96,7 +96,7 @@ const FaleConoscoD = ({ navigation, route }) => {
 
         {isAvailable ? <TouchableOpacity style={styles.BtProx} onPress={sendMail}>
           <Text style={styles.buttonText}>Enviar</Text>
-        </TouchableOpacity> : <Text>Email não </Text>}
+        </TouchableOpacity> : <Text>Email não disponível para envio </Text>}
 
           </ScrollView>
       </View>
