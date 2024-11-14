@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     titleInfo: {
         fontFamily: 'Poppins-SemiBold',
         color: '#053A45',
-        fontSize: 23,
+        fontSize: 20,
         textAlign: 'center',
     },
     image: {
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     },
     refInfo: {
         fontFamily: 'DM-Sans',
-        fontSize: 20,
+        fontSize: 18,
         marginTop: 30,
         color: '#053A45',
     },
