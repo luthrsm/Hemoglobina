@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import * as MailComposer from 'expo-mail-composer';
@@ -16,6 +16,8 @@ const FaleConoscoH = ({ navigation, route }) => {
   const [subject, setSubject] = useState(undefined);
   const [body, setBody] = useState(undefined);
   const [email, setEmail] = useState(undefined);
+
+  const scrollViewRef = useRef(null);
 
   useEffect(() => {
     async function checkAvailability() {
@@ -47,6 +49,12 @@ const FaleConoscoH = ({ navigation, route }) => {
             <AntDesign name="arrowleft" size={24} color="#7A0000" />
           </TouchableOpacity>
         </View>
+
+  <ScrollView
+          ref={scrollViewRef}
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={true}
+        >
     
       <View style={styles.inputSection}>
         <Text style={styles.textoFale}>Fale conosco</Text>
@@ -87,6 +95,8 @@ const FaleConoscoH = ({ navigation, route }) => {
         {isAvailable ? <TouchableOpacity style={styles.BtProx} onPress={sendMail}>
           <Text style={styles.buttonText}>Enviar</Text>
         </TouchableOpacity> : <Text>Email não </Text>}
+
+          </ScrollView>
       </View>
 
      <MenuHemocentro />
@@ -165,7 +175,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: '4%',
     width: '60%',
-    alignSelf: 'center'
+    alignSelf: 'center',
+    marginBottom: '5%',
   },
 });
 
