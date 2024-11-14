@@ -35,6 +35,8 @@ const FaleConoscoD = ({ navigation, route }) => {
       body: body,
       recipients: ['hemoglobinaltda@gmail.com'],
     });
+
+    navigation.navigate('ConfiguracoesDoador');
   };
 
   return (
