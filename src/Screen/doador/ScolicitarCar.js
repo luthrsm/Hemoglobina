@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react'; 
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
 // import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 //import { faHome, faInfoCircle, faMapMarkerAlt, faHandPaper } from '@fortawesome/free-solid-svg-icons';
@@ -52,6 +52,8 @@ const SolicitarCarteirinha = () => {
   const [cpf, setCpf] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [carteirinhaData, setCarteirinhaData] = useState(null);
+
+  const scrollViewRef = useRef(null);
 
   const handleCpfChange = (text) => {
     setCpf(text);
@@ -108,6 +110,12 @@ const SolicitarCarteirinha = () => {
         </View>
       </View>
 
+    <ScrollView
+          ref={scrollViewRef}
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={true}
+        >
+
       <View style={styles.textView}>
         <Text style={styles.title}>Solicitar a carteirinha</Text>
 
@@ -135,6 +143,8 @@ const SolicitarCarteirinha = () => {
       <TouchableOpacity style={styles.BtProx} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Realizar solicitação</Text>
       </TouchableOpacity>
+            
+    </ScrollView>
 
       <MenuDoador />
     </View>
@@ -305,7 +315,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     fontSize: 15,
     marginLeft: 10,
-    marginTop: 100
+    marginTop: 50
   },
   mainContainer: {
     padding: 32,
@@ -330,7 +340,8 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
-    marginTop: '10%',
+    marginTop: '5%',
+    marginBottom: '5%',
     width: '60%',
     alignSelf: 'center'
   },
