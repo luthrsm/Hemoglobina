@@ -50,7 +50,9 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         gap: 35,
         marginTop: 'auto',
-        
+        // alterações do menu para acessibilidade
+        paddingLeft: '3%',
+        paddingRight: '3%',
     },
     divLink: {
         alignItems: "center",
