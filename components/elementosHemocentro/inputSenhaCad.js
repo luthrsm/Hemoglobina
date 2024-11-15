@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Text, Image } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Text, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -7,6 +7,13 @@ import * as yup from 'yup';
 import { useNavigation } from '@react-navigation/native';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
+
+import { auth, db } from '../../src/Services/firebaseConfig';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+
+
+
 
 // Definição do esquema de validação com yup
 const schema = yup.object().shape({
@@ -27,7 +34,11 @@ const schema = yup.object().shape({
         .oneOf([true], 'Você deve concordar com os Termos de Uso e Política de Privacidade'),
 });
 
-const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
+
+
+const InputSenhaCad = () => {
+    const [email, setEmail] = useState('');
+    const [senha, setSenha] = useState('');
 
     const navigation = useNavigation();
 
@@ -45,19 +56,39 @@ const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
     };
 
     const validateStep = async () => {
+        try {
+            // Criar usuário com email e senha
+            const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+
+            // Obter o UID do usuário recém criado
+            const uid = userCredential.user.uid;
+
+            // Adicionar informações do usuário ao Firestore com o UID como ID do documento
+            await setDoc(doc(db, "Hemocentro", uid), {
+                Email: email
+            });
+            navigation.navigate('PerfilHemocentro', uid)
+        } catch (error) {
+            if (error.code === 'auth/email-already-in-use') {
+                Alert.alert('Erro', 'Email já cadastrado.');
+            } else {
+                Alert.alert('Erro', error.message || 'Ocorreu um erro.');
+            }
+        }
+
+
         //const result = await trigger(); // Valida todos os campos
         //if (result) {
-            //const formData = getValues(); // Coleta os dados do formulário
-            //console.log('Dados do formulário:', formData); // Exibe os dados no console
-            
+        //const formData = getValues(); // Coleta os dados do formulário
+        //console.log('Dados do formulário:', formData); // Exibe os dados no console
+
         //}
-        navigation.navigate('HomeHemocentro');
     };
 
     return (
         <View style={styles.stepContainer}>
             <View style={styles.voltarContainer}>
-                <TouchableOpacity onPress={onBack}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
                     <AntDesign name="arrowleft" size={24} color="#7A0000" />
                 </TouchableOpacity>
             </View>
@@ -66,21 +97,21 @@ const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
             </View>
             <View style={styles.txtTopContainer}>
                 <Text style={styles.txtPrincipal}>Cadastro hemocentro</Text>
-                <Text style={styles.txtSecundario}>Finalize seu cadastro</Text>
+                <Text style={styles.txtSecundario}>Inicie seu cadastro</Text>
             </View>
 
             <View style={styles.inputContainer}>
                 <Controller
                     control={control}
                     name="email"
-                    render={({ field: { onChange, onBlur, value } }) => (
+                    render={({ field: { onBlur } }) => (
                         <TextInput
                             style={styles.inputEmail}
                             placeholder='E-mail'
                             placeholderTextColor='#000'
-                            onChangeText={onChange}
+                            onChangeText={setEmail}
                             onBlur={onBlur}
-                            value={value}
+                            value={email}
                         />
                     )}
                 />
@@ -89,12 +120,12 @@ const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
                 <Controller
                     control={control}
                     name="senha"
-                    render={({ field: { onChange, onBlur, value } }) => (
+                    render={({ field: { onBlur } }) => (
                         <View style={styles.containerBotao}>
                             <TextInput
                                 style={styles.input}
-                                value={value}
-                                onChangeText={onChange}
+                                value={senha}
+                                onChangeText={setSenha}
                                 placeholder="Senha"
                                 secureTextEntry={!isPasswordVisible1}
                                 placeholderTextColor="#000"
@@ -169,7 +200,7 @@ const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
                 </View>
 
                 <TouchableOpacity style={styles.BtProx} onPress={validateStep}>
-                    <Text style={styles.txtBtProx}>Finalizar Cadastro</Text>
+                    <Text style={styles.txtBtProx}>Próximo</Text>
                 </TouchableOpacity>
 
             </View>

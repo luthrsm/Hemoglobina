@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, Imag
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
 
 import AntDesign from '@expo/vector-icons/AntDesign';
-import MenuHemocentro from '../menuHemocentro';
+import MenuHemocentro from '../menu/menuHemocentro';
 
 const GerenciarEstoqueHemo = ({ route }) => {
 
