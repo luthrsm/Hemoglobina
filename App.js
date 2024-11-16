@@ -74,6 +74,8 @@ import AtencaoScreen from './src/Screen/hemocentro/adcDoacaoHemo/telaAtencao';
 import RegistrosPendentes from './src/Screen/hemocentro/adcDoacaoHemo/registrosPendentes';
 import EdicaoDoacao from './src/Screen/hemocentro/adcDoacaoHemo/editInfo';
 
+//chatbot
+import Chatbot from './src/Screen/doador/HemoAssistent/Chatbot';
 
 const Stack = createNativeStackNavigator();
 
@@ -178,6 +180,9 @@ export default function App() {
           <Stack.Screen name="RegistrosPendentes" component={RegistrosPendentes} />
           <Stack.Screen name="AtencaoScreen" component={AtencaoScreen} />
           <Stack.Screen name="EdicaoDoacao" component={EdicaoDoacao} />
+
+          {/*chatbot */}
+          <Stack.Screen name="Chatbot" component={Chatbot} />
 
 
 

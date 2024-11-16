@@ -58,6 +58,7 @@ const styles = StyleSheet.create({
         color: '#EEF0EB',
         fontSize: 13,
         textAlign: 'center',
+        fontFamily: 'DM-Sans',
     },
     icons: {
         textAlign: 'center'

@@ -57,8 +57,8 @@ const InfoMain = () => {
                                 <Text style={styles.titleCard}>HemoAssistent IA: tire suas dúvidas</Text>
                             </View>
                             <View style={styles.cardContent}>
-                                <Text style={styles.descriptionTxtCard}>Uma IA treinada pela equipe do Hemoglobina responderá as dúvidas mais frequentes.</Text>
-                                <TouchableOpacity style={styles.cardBt}>
+                                <Text style={styles.descriptionTxtCard}>Uma Inteligênica Artificial que responderá as dúvidas mais frequentes.</Text>
+                                <TouchableOpacity style={styles.cardBt} onPress={() => navigation.navigate('Chatbot')}>
                                     <Text style={styles.cardTxtBt}> Experimentar </Text>
                                 </TouchableOpacity>
                             </View>
