@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, Image,Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
+import { getFirestore, doc, updateDoc, setDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MenuHemocentro from '../menu/menuHemocentro';
@@ -8,20 +10,50 @@ import MenuHemocentro from '../menu/menuHemocentro';
 const GerenciarEstoqueHemo = ({ route }) => {
 
   const navigation = useNavigation();
-
-  const { type } = route.params;
-  const [quantidade, setQuantidade] = useState('');
+  const { type, quantidades } = route.params;
+  const [quantidade, setQuantidade] = useState(''); // Preencher com a quantidade se já houver
+  const [updatedQuantities, setUpdatedQuantities] = useState(quantidades);
 
   const handleVoltar = () => {
-    // Navegar para a tela anterior
     navigation.goBack();
   };
 
-  const handleSalvar = () => {
-    // Processar o salvamento da quantidade no estoque
-    console.log(`Quantidade de ${type}: ${quantidade} ml`);
-    navigation.goBack();
-    // implementar a lógica para salvar essa informação em um banco de dados ou servidor aqui
+  const handleSalvar = async () => {
+    if (isNaN(quantidade) || quantidade < 0) {
+      Alert.alert('Erro', 'Por favor, insira uma quantidade válida.');
+      return;
+    }
+    
+  
+    const auth = getAuth();
+    const user = auth.currentUser;
+  
+    if (user) {
+      const db = getFirestore();
+      const hemocentroRef = doc(db, 'Hemocentro', user.uid);
+  
+      try {
+        
+        const estoqueAtualizado = {
+          [`estoque.${type}`]: quantidade, 
+        };
+  
+        
+        await updateDoc(hemocentroRef, estoqueAtualizado);
+        setUpdatedQuantities(prevQuantities => ({
+          ...prevQuantities,
+          [type]: quantidade,
+        }));
+        Alert.alert(`Estoque de ${type} salvo com sucesso. Quantidade atual: ${quantidade} ml.`);
+        console.log(`Quantidade de ${type}: ${quantidade} ml`);
+        navigation.goBack();
+      } catch (error) {
+        console.error("Erro ao salvar estoque:", error);
+        Alert.alert('Erro', 'Ocorreu um erro ao salvar o estoque.');
+      }
+    } else {
+      Alert.alert('Erro', 'Usuário não autenticado');
+    }
   };
 
   return (

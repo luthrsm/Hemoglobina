@@ -1,24 +1,31 @@
 import React from 'react';
-import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Text, SafeAreaView, View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
 
 import MenuHemocentro from '../../../../components/menu/menuHemocentro';
-
-
-
-
+import { db } from '../../../Services/firebaseConfig';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 const AtencaoScreen = ({ route, navigation }) => {
-    const { data, quantidade, cpf, tipoSanguineo, nome } = route.params;
+    // Verificando se route.params existe
+    const { data, quantidade, cpf, tipoSanguineo, nome, donationId, doadorUid, hemocentroId } = route.params || {};
 
-    const handlePendente = () => {
-        navigation.navigate('RegistrosPendentes', { data, quantidade, cpf, tipoSanguineo, nome });
+    // Se algum parâmetro importante estiver faltando, exibe um alerta e retorna para a tela anterior
+    if (!donationId) {
+        Alert.alert('Erro', 'O ID da doação não foi encontrado.', [
+            { text: 'OK', onPress: () => navigation.goBack() }
+        ]);
+        return null;
+    }
+
+    const handlePendente = async () => {
+        // Atualiza o status da doação para "pendente"
+        await updateDonationStatus(donationId, 'pendente');
+        navigation.navigate('RegistrosPendentes', { data, quantidade, cpf, tipoSanguineo, nome, donationId });
     };
 
-    const handleConfirmar = () => {
-        Alert.alert('Atenção!', 'Você tem certeza que você deseja confirmar essa doação?', [
+    const handleConfirmar = async () => {
+        Alert.alert('Atenção!', 'Você tem certeza que deseja confirmar essa doação?', [
             {
                 text: 'Editar Informações',
                 onPress: () => navigation.navigate('EdicaoDoacao', {
@@ -31,14 +38,137 @@ const AtencaoScreen = ({ route, navigation }) => {
             },
             {
                 text: 'Colocar doação como pendente',
-                onPress: () => navigation.navigate('RegistrosPendentes', { data, quantidade, cpf, tipoSanguineo, nome }),
+                onPress: { handlePendente },
                 style: 'cancel',
             },
-            { text: 'Confirmar doação', onPress: () => navigation.navigate('HistoricoHemocentro') },
+            {
+                text: 'Confirmar doação',
+                onPress: async () => {
+                    // Atualiza o status da doação para "confirmada"
+                    await handleConfirmarDoacao(
+                        donationId,
+                        doadorUid,
+                        hemocentroId,
+                        tipoSanguineo,
+                        quantidade,
+                        data
+                    );
+                }
+            },
             { cancelable: true }
         ]);
     };
 
+    const handleConfirmarDoacao = async (donationId, doadorUid, hemocentroId, tipoSanguineo, quantidade, dataDoacao) => {
+        if (!donationId || !hemocentroId || !tipoSanguineo || !quantidade || !dataDoacao) {
+            console.error("Valores ausentes ao confirmar doação:", { donationId, doadorUid, hemocentroId, tipoSanguineo, quantidade, dataDoacao });
+            alert("Erro: Alguns campos obrigatórios estão ausentes.");
+            return;
+        }
+
+        try {
+            await updateDonationStatus(donationId, "confirmada");
+            await updateEstoque(hemocentroId, tipoSanguineo, quantidade);
+
+            if (doadorUid) {
+                console.log(`Atualizando informações do doador com UID: ${doadorUid}`);
+                await updateDoadorInfo(doadorUid, dataDoacao);
+            } else {
+                console.log("Doador não registrado. Doação confirmada apenas no histórico do hemocentro.");
+            }
+
+            alert("Doação confirmada com sucesso!");
+            navigation.navigate('HistoricoHemocentro');
+        } catch (error) {
+            console.error("Erro ao confirmar doação:", error);
+            alert("Erro ao confirmar doação. Tente novamente.");
+        }
+    };
+
+    // Função para atualizar o status da doação
+    const updateDonationStatus = async (donationId, newStatus) => {
+        const donationRef = doc(db, "doacoes", donationId);
+        try {
+            await updateDoc(donationRef, { status: newStatus });
+            console.log(`Status da doação ${donationId} atualizado para: ${newStatus}`);
+        } catch (error) {
+            console.error("Erro ao atualizar o status da doação:", error);
+        }
+    };
+
+    const updateEstoque = async (hemocentroId, tipoSanguineo, quantidade) => {
+        try {
+            console.log("Atualizando estoque para hemocentroId:", hemocentroId);
+
+            const hemocentroRef = doc(db, 'Hemocentro', hemocentroId);
+            const hemocentroDoc = await getDoc(hemocentroRef);
+
+            if (!hemocentroDoc.exists()) {
+                console.error(`Documento do hemocentro ${hemocentroId} não encontrado.`);
+                return;
+            }
+
+            const hemocentroData = hemocentroDoc.data();
+            const estoqueAtualString = hemocentroData.estoque?.[tipoSanguineo] || "0";
+            const estoqueAtual = parseInt(estoqueAtualString, 10); // Converte para número
+
+            if (isNaN(estoqueAtual)) {
+                console.error('Estoque atual não é um número válido. Estoque atual:', estoqueAtualString);
+                return;
+            }
+
+            const quantidadeInt = parseInt(quantidade, 10); // Converte a quantidade para número
+            if (isNaN(quantidadeInt)) {
+                console.error('Quantidade fornecida não é válida. Quantidade:', quantidade);
+                return;
+            }
+
+            const novoEstoque = estoqueAtual + quantidadeInt; // Soma dos números
+
+            await updateDoc(hemocentroRef, {
+                [`estoque.${tipoSanguineo}`]: novoEstoque.toString(), // Converte o resultado para string
+            });
+
+            console.log(`Estoque do tipo ${tipoSanguineo} atualizado para ${novoEstoque}ml.`);
+        } catch (error) {
+            console.error('Erro ao atualizar estoque:', error);
+        }
+    };
+
+    const updateDoadorInfo = async (userUid, dataDoacao) => {
+        try {
+            const doadorRef = doc(db, 'doador', userUid);
+            const doadorDoc = await getDoc(doadorRef);
+
+            if (doadorDoc.exists()) {
+                const doadorData = doadorDoc.data();
+                const updatedQuantDoacoes = (parseInt(doadorData.quantDoacoes || 0, 10) || 0) + 1;
+
+                // Calcula a próxima data de doação como string
+                const [dia, mes, ano] = dataDoacao.split("/");
+                if (!dia || !mes || !ano) {
+                    console.error("Data da doação inválida:", dataDoacao);
+                    return;
+                }
+                const mesProximo = (parseInt(mes, 10) + 4) % 12 || 12;
+                const anoProximo = parseInt(ano, 10) + Math.floor((parseInt(mes, 10) + 4) / 12);
+
+                const proxDoacao = `${dia.padStart(2, "0")}/${mesProximo.toString().padStart(2, "0")}/${anoProximo}`;
+
+                await updateDoc(doadorRef, {
+                    quantDoacoes: updatedQuantDoacoes.toString(),
+                    ultimaDoacao: dataDoacao, // Salva como string
+                    proxDoacao: proxDoacao,  // Próxima data também como string
+                });
+
+                console.log("Informações do doador atualizadas com sucesso.");
+            } else {
+                console.warn("Documento do doador não encontrado.");
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar informações do doador:", error);
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -67,9 +197,10 @@ const AtencaoScreen = ({ route, navigation }) => {
             </View>
             <MenuHemocentro />
         </SafeAreaView>
-
     );
 };
+
+
 
 export default AtencaoScreen;
 
@@ -134,11 +265,10 @@ const styles = StyleSheet.create({
         borderColor: '#053a45',
         alignContent: 'center',
         justifyContent: 'center',
-
     },
     attButtonTxt: {
         textAlign: 'center',
         color: '#eef0eb',
         fontSize: 12
     }
-})
+});

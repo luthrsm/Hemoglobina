@@ -50,6 +50,9 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         gap: 35,
         marginTop: 'auto',
+        // alterações do menu para acessibilidade
+        paddingLeft: '4%',
+        paddingRight: '4%',
     },
     divLink: {
 
@@ -58,7 +61,6 @@ const styles = StyleSheet.create({
         color: '#EEF0EB',
         fontSize: 13,
         textAlign: 'center',
-        fontFamily: 'DM-Sans',
     },
     icons: {
         textAlign: 'center'

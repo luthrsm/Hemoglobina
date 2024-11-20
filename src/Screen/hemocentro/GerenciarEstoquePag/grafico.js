@@ -1,126 +1,129 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
-
+import { db } from '../../../Services/firebaseConfig';
+import { onSnapshot, getDoc, doc } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import MenuHemocentro from '../../../../components/menu/menuHemocentro';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const SangueChart = ({ navigation }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [sangueData, setSangueData] = useState([]); // Alterado para array vazio por padrão
+  const [loading, setLoading] = useState(true);
+  const [uid, setUid] = useState(null);
+  const [maxValue, setMaxValue] = useState(0);
+  const auth = getAuth();
 
-  const sangueData = [
-    { type: 'A+', litros: 45 },
-    { type: 'A-', litros: 20 },
-    { type: 'B+', litros: 80 },
-    { type: 'B-', litros: 45 },
-  ];
-  const sangueData2 = [
-    { name: 'AB+', liters: 44 },
-    { name: 'AB-', liters: 81 },
-    { name: 'O+', liters: 93 },
-    { name: 'O-', liters: 44 },
-  ]; 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUid(user.uid);
+      } else {
+        setUid(null);
+      }
+    });
 
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!uid) return;
+
+    const unsubscribe = onSnapshot(doc(db, 'Hemocentro', uid), (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const data = docSnapshot.data();
+        const estoque = data.estoque;
+        const estoqueArray = Object.keys(estoque).map((key) => ({
+          type: key,
+          mililitros: parseInt(estoque[key], 10),
+        }));
+
+        // Filtro para garantir que não haja valores nulos ou inválidos
+        const validEstoque = estoqueArray.filter(item => !isNaN(item.mililitros) && item.mililitros > 0);
+        
+        setSangueData(validEstoque); // Atualiza o estado com estoque válido
+        setLoading(false);
+      } else {
+        console.log("Documento não encontrado.");
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [uid]);
+
+  // Calcular o valor máximo de mililitros para o eixo Y
+  useEffect(() => {
+    if (sangueData && sangueData.length > 0) {
+      const max = Math.max(...sangueData.map((data) => data.mililitros));
+      setMaxValue(max);
+    }
+  }, [sangueData]);
+
+  const getYScale = (value) => {
+    if (maxValue === 0) return 0; // Evitar dividir por zero
+    const scale = 100; // Valor máximo para o eixo Y
+    return (value / maxValue) * scale; // Ajusta a altura com base no valor máximo
   };
 
-  const renderChart = () => {
-    if (currentPage === 1) {
-      return (
-        <SafeAreaView style={{justifyContent: 'center', alignItems: 'center', marginTop: 30,}}>
-          <View style={styles.chartContainer}>
-            <View style={styles.yAxis}>
-              <Text style={styles.yAxisLabel}>100</Text>
-              <Text style={styles.yAxisLabel}>80</Text>
-              <Text style={styles.yAxisLabel}>60</Text>
-              <Text style={styles.yAxisLabel}>40</Text>
-              <Text style={styles.yAxisLabel}>20</Text>
-              <Text style={styles.yAxisLabel}>0</Text>
-            </View>
-            <View style={styles.xAxis}>
-              {sangueData.map((data, index) => (
-                <View key={index} style={styles.barContainer}>
-                  <View
-                    style={[
-                      styles.bar,
-                      { height: data.litros * 2.67},
-                    ]}
-                  />
-                  <Text style={styles.xAxisLabel}>{data.type}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        </SafeAreaView>
-        
-      );
-    } else if (currentPage === 2) {
-      return (
-        <SafeAreaView style={{justifyContent: 'center', alignItems: 'center', marginTop: 30,}}>
-          <View style={styles.chartContainer}>
-            <View style={styles.yAxis}>
-              <Text style={styles.yAxisLabel}>100</Text>
-              <Text style={styles.yAxisLabel}>80</Text>
-              <Text style={styles.yAxisLabel}>60</Text>
-              <Text style={styles.yAxisLabel}>40</Text>
-              <Text style={styles.yAxisLabel}>20</Text>
-              <Text style={styles.yAxisLabel}>0</Text>
-            </View>
-            <View style={styles.xAxis}>
-              {sangueData2.map((data, index) => (
-                <View key={index} style={styles.barContainer}>
-                  <View
-                    style={[
-                      styles.bar,
-                      { height: data.liters * 2.67},
-                    ]}
-                  />
-                  <Text style={styles.xAxisLabel}>{data.name}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        </SafeAreaView>
-      );
+  const RenderChart = () => {
+    if (!sangueData || sangueData.length === 0) {
+      return <Text style={styles.errorMessage}>Não há dados disponíveis para exibir.</Text>;
     }
+
+    return (
+      <SafeAreaView style={{ justifyContent: 'center', alignItems: 'center', marginTop: 30 }}>
+        <View style={styles.chartContainer}>
+          <View style={styles.yAxis}>
+            {[100, 80, 60, 40, 20, 0].map((label) => (
+              <Text key={label} style={styles.yAxisLabel}>
+                {label}
+              </Text>
+            ))}
+          </View>
+          <View style={styles.xAxis}>
+            {sangueData.map((data, index) => (
+              <View key={index} style={styles.barContainer}>
+                <View
+                  style={[
+                    styles.bar,
+                    { height: getYScale(data.mililitros) },
+                  ]}
+                />
+                <Text style={styles.xAxisLabel}>{data.type}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </SafeAreaView>
+    );
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.title}> Banco de sangue - Hemocentro </Text>
+        <Text style={styles.title}>Banco de sangue - Hemocentro</Text>
       </View>
 
       <View style={styles.mainContainer}>
         <View style={styles.voltarContainer}>
           <TouchableOpacity onPress={() => navigation.navigate('Estoque')}>
-              <AntDesign name="arrowleft" size={24} color="#7A0000" />
+            <AntDesign name="arrowleft" size={24} color="#7A0000" />
           </TouchableOpacity>
         </View>
         <View style={styles.textoBancoSan}>
-            <Text style={styles.titleBanco}>Banco de sangue</Text>
-            <Text style={styles.titleBanco}>por tipo sanguíneo</Text>
+          <Text style={styles.titleBanco}>Banco de sangue</Text>
+          <Text style={styles.titleBanco}>por tipo sanguíneo</Text>
         </View>
-        {renderChart()} 
-        <View style={styles.contaButton}>
-            <TouchableOpacity 
-              style={[ styles.arrowButton, currentPage === 1 ? styles.disabledButton : null ]}
-              disabled={currentPage === 1}
-              onPress={() => handlePageChange(currentPage - 1)}>
-                <Ionicons name="chevron-back-outline" size={28} color="#EEF0EB" />
-                </TouchableOpacity>
-            <TouchableOpacity 
-              style={[ styles.arrowButton, currentPage === 2 ? styles.disabledButton : null ]}
-              disabled={currentPage === 2}
-              onPress={() => handlePageChange(currentPage + 1)} >
-                <Ionicons name="chevron-forward-outline" size={28} color="#EEF0EB" />
-            </TouchableOpacity>
-        </View>
+        {loading ? (
+          <Text>Carregando...</Text>
+        ) : (
+          <RenderChart />
+        )}
       </View>
-
-        <MenuHemocentro />
+      <MenuHemocentro />
     </View>
   );
 };
@@ -161,8 +164,8 @@ const styles = StyleSheet.create({
     color: '#470404'
   },
   chartContainer: {
-    width: '80%',
-    height: 300,
+    width: '95%',
+    height: '70%',
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
@@ -192,7 +195,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column-reverse'
   },
   bar: {
-    width: 50,
+    width: 25,
     backgroundColor: '#AF2B2B',
     marginBottom: 5,
     borderRadius: 2,
@@ -201,36 +204,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
   },
-  arrowButton: {
-    backgroundColor: '#AF2B2B',
-    padding: 8,
-    borderRadius: 4,
-    width: 70,
-    alignItems: 'center',
-  },
-  contaButton: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 60,
-    width: '80%',
-    alignSelf: 'center',
-  },
-  disabledButton: {
-    opacity: 1.0,
-    backgroundColor: '#ccc',
-  },
-  disabledButton2: {
-    opacity: 1.0,
-    color: '#ccc'
-  },
-  arrowButton2: {
-    padding: 8,
-    borderRadius: 4,
-    width: 70,
-    alignItems: 'center',
-  },
-  icons: {
-    color: '#AF2B2B',
+  errorMessage: {
+    color: 'red',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
 

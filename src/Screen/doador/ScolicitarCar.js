@@ -1,107 +1,182 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
-// import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-//import { faHome, faInfoCircle, faMapMarkerAlt, faHandPaper } from '@fortawesome/free-solid-svg-icons';
-//import QRCode from 'react-native-qrcode-svg';
+import { useEffect, useState, useRef } from 'react';
+import { Alert, Text, TextInput, TouchableOpacity, View, ScrollView, Image, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
-import AntDesign from '@expo/vector-icons/AntDesign';
 import { FontAwesome6 } from '@expo/vector-icons';
-//import Ionicons from '@expo/vector-icons/Ionicons';
-//import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { AntDesign } from '@expo/vector-icons';
+import { auth, db } from '../../Services/firebaseConfig';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 
 import MenuDoador from '../../../components/menu/menuDoador';
-
-// Adicionar depois a ligação com o banco de dados aqui
-const data = [
-  {
-    cpf: '54803037523',
-    name: 'Juliana Ferreira Lima',
-    birthDate: '29/10/97',
-    bloodType: 'O+',
-    doacoes: '2',
-    fotoPerfil: 'https://png.pngtree.com/png-vector/20200706/ourmid/pngtree-businessman-user-character-vector-illustration-png-image_2298565.jpg'
-  },
-  {
-    cpf: '54803037524',
-    name: 'Juliana',
-    birthDate: '29/10/54',
-    bloodType: 'O-',
-    doacoes: '0',
-    fotoPerfil: 'https://png.pngtree.com/png-vector/20200706/ourmid/pngtree-businessman-user-character-vector-illustration-png-image_2298565.jpg'
-  },
-  {
-    cpf: '43812641852',
-    name: 'Gabrielly Nataly Machado da Silva Rodrigues',
-    birthDate: '08/06/06',
-    bloodType: 'O+',
-    doacoes: '3',
-    fotoPerfil: 'https://media.istockphoto.com/id/1482199015/pt/foto/happy-puppy-welsh-corgi-14-weeks-old-dog-winking-panting-and-sitting-isolated-on-white.jpg?s=612x612&w=0&k=20&c=XI-fFXTXEU4UbQtGwM_vWzBB4F17W4dlPtXL4wr2dmE='
-  },
-  {
-    cpf: '54587664820',
-    name: 'Nicolas dos Santos',
-    birthDate: '22/10/06',
-    bloodType: 'O+',
-    doacoes: '3',
-    fotoPerfil: 'https://media.istockphoto.com/id/1482199015/pt/foto/happy-puppy-welsh-corgi-14-weeks-old-dog-winking-panting-and-sitting-isolated-on-white.jpg?s=612x612&w=0&k=20&c=XI-fFXTXEU4UbQtGwM_vWzBB4F17W4dlPtXL4wr2dmE='
-  },
-];
 
 const SolicitarCarteirinha = () => {
   const [cpf, setCpf] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [carteirinhaData, setCarteirinhaData] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const scrollViewRef = useRef(null);
+  const doadorUid = auth.currentUser?.uid;
+  const navigation = useNavigation();
 
   const handleCpfChange = (text) => {
     setCpf(text);
   };
 
-  const [isProcessing, setIsProcessing] = useState(false);
-
   const handleSubmit = async () => {
     setIsLoading(true);
     setIsProcessing(true);
-    try {
-      setTimeout(() => {
-        const foundData = data.find((item) => item.cpf === cpf);
-        const foundDataDoacoes = data.find((item) => item.doacoes >= 3);
 
-        if (foundData) {
-          if (foundData.doacoes >= 3) {
-            setCarteirinhaData(foundData);
-          } else {
-            Alert.alert('Número de doações inválido', 'Para solicitar sua carteirinha, você precisa ter realizado 3 ou mais doações. Verifique seu histórico de doações...');
+    try {
+      const userDocRef = doc(db, 'doador', doadorUid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+
+        // Se a pessoa já solicitou a carteirinha (campo cartSolicitada == true)
+        if (userData.cartSolicitada) {
+          Alert.alert('Carteirinha já solicitada', 'Você já solicitou a sua carteirinha.');
+          setIsProcessing(false);
+          setIsLoading(false);
+          return;
+        }
+        const doacoes = parseInt(userData.quantDoacoes, 10);
+        if (doacoes >= 3) {
+          await updateDoc(userDocRef, { cartSolicitada: true });
+          setCarteirinhaData(userData); 
+        } else {
+          Alert.alert(
+            'Número de doações insuficiente',
+            'Para solicitar sua carteirinha, você precisa ter realizado 3 ou mais doações.'
+          );
+        }
+      } else {
+        Alert.alert(
+          'Número de doações insuficiente',
+          'Para solicitar sua carteirinha, você precisa ter realizado 3 ou mais doações.'
+        );
+      }
+
+      setIsProcessing(false);
+      setIsLoading(false);
+    } catch (error) {
+    console.error(error);
+    setIsLoading(false);
+    setIsProcessing(false);
+  }
+};
+
+
+useEffect(() => {
+  if (doadorUid) {
+    setIsLoading(true);
+    const fetchUserData = async () => {
+      try {
+        const userDocRef = doc(db, 'doador', doadorUid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          if (userData.cartSolicitada) {
+            setCarteirinhaData(userData);  // Atualiza o estado com os dados do usuário
           }
         } else {
-          Alert.alert('CPF não encontrado', 'Por favor, verifique o CPF informado.');
+          console.log('Documento não encontrado');
         }
-        setIsProcessing(false);
+      } catch (error) {
+        console.error('Erro ao buscar dados do usuário', error);
+      } finally {
         setIsLoading(false);
-      }, 2000); // simula um atraso de 2 segundos
-    } catch (error) {
-      console.error(error);
-      setIsLoading(false); // garante que o carregamento pare em caso de erro
-      setIsProcessing(false);
+      }
+    };
+
+    fetchUserData();
+  }
+}, [doadorUid]);
+
+
+// Função para gerar o PDF
+const gerarPdf = async () => {
+  if (!carteirinhaData) {
+    Alert.alert('Erro', 'Não foi possível gerar a carteirinha.');
+    return;
+  }
+
+  const htmlContent = `
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+          }
+          .title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+          }
+          .content {
+            margin-top: 20px;
+          }
+          .content p {
+            font-size: 16px;
+          }
+          .footer {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 30px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="title">
+          CARTEIRINHA DE DOADOR
+        </div>
+        <div class="content">
+          <p><strong>Nome:</strong> ${carteirinhaData.nome}</p>
+          <p><strong>Data de Nascimento:</strong> ${carteirinhaData.dataNascimento}</p>
+          <p><strong>CPF:</strong> ${carteirinhaData.cpf}</p>
+          <p><strong>Tipo Sanguíneo:</strong> ${carteirinhaData.tipoSanguineo}</p>
+        </div>
+        <div class="footer">
+          Doe sangue, doe vidas.
+        </div>
+      </body>
+    </html>
+  `;
+
+  try {
+    const { uri } = await Print.printToFileAsync({
+      html: htmlContent,
+      fileName: 'CarteirinhaDoador',
+    });
+
+    if (Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(uri);
+    } else {
+      Alert.alert('Erro', 'Não foi possível compartilhar o PDF.');
     }
-  };
+  } catch (error) {
+    console.error('Erro ao gerar o PDF', error);
+    Alert.alert('Erro', 'Não foi possível gerar a carteirinha em PDF.');
+  }
+};
 
 
-  const navigation = useNavigation();
+const renderRequestScreen = () => (
+  <View style={styles.container}>
+    <View style={styles.headerContainer}>
+      <Text style={styles.titlePrin}> Solicitar carteirinha</Text>
 
-  const renderRequestScreen = () => (
-    <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.titlePrin}> Solicitar carteirinha</Text>
+      <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
+        <FontAwesome6 name="gear" size={24} color="#EEF0EB" />
+      </TouchableOpacity>
+    </View>
 
-        <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
-          <FontAwesome6 name="gear" size={24} color="#EEF0EB" />
-        </TouchableOpacity>
-      </View>
-
+    <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={true} style={{ flex: 1, marginBottom: 10 }}>
       <View style={styles.mainContainer}>
         <View style={styles.voltarContainer}>
-
           <TouchableOpacity onPress={() => navigation.navigate('HomeDoador')}>
             <AntDesign name="arrowleft" size={24} color="#326771" />
           </TouchableOpacity>
@@ -110,20 +185,13 @@ const SolicitarCarteirinha = () => {
 
       <View style={styles.textView}>
         <Text style={styles.title}>Solicitar a carteirinha</Text>
-
-        <View>
-          <Text style={styles.text}>
-            Caso você já tenha doado sangue mais de três vezes, terá o direito a uma carteirinha que te dará benefícios de ser um doador frequente.
-          </Text>
-          <Text style={styles.text}>
-            Para solicitá-la, insira o ID disponibilizado pelo hemocentro em sua última doação.
-          </Text>
-          <Text style={styles.txtInput}>Insira seu CPF:</Text>
-        </View>
+        <Text style={styles.text}>
+          Caso você já tenha doado sangue mais de três vezes, terá o direito a uma carteirinha que te dará benefícios de ser um doador frequente. Para solicitá-la, insira o seu CPF.
+        </Text>
+        <Text style={styles.txtInput}>Insira seu CPF:</Text>
       </View>
 
       <View>
-
         <TextInput
           style={styles.input}
           placeholder="Digite seu CPF"
@@ -135,122 +203,101 @@ const SolicitarCarteirinha = () => {
       <TouchableOpacity style={styles.BtProx} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Realizar solicitação</Text>
       </TouchableOpacity>
+    </ScrollView>
 
-      <MenuDoador />
+    <MenuDoador />
+  </View>
+);
+
+const renderProcessingScreen = () => (
+  <View style={styles.containerLoading}>
+    <View style={styles.headerContainer}>
+      <Text style={styles.titlePrin}> Solicitar carteirinha</Text>
+
+      <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
+        <FontAwesome6 name="gear" size={24} color="#EEF0EB" />
+      </TouchableOpacity>
     </View>
-  );
+    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 'auto' }}>
+      <Text style={styles.textLoading}>Isso pode demorar alguns minutos</Text>
+      <Image source={require('../../../assets/img/carteirinhaLoad.png')} style={styles.processingImage} />
+      <Text style={styles.textLoading}>Estamos verificando seus dados e gerando sua carteirinha</Text>
+    </View>
 
-  const renderProcessingScreen = () => (
-    <View style={styles.containerLoading}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.titlePrin}> Solicitar carteirinha</Text>
+    <MenuDoador />
+  </View>
+);
 
-        <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
-          <FontAwesome6 name="gear" size={24} color="#EEF0EB" />
+const renderCarteirinhaScreen = () => (
+  <View style={styles.container}>
+    <View style={styles.headerContainer}>
+      <Text style={[styles.titlePrin, {marginLeft: 5}]}> Carteirinha do Doador de Sangue</Text>
+      <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
+        <FontAwesome6 name="gear" size={24} color="#EEF0EB" />
+      </TouchableOpacity>
+    </View>
+
+    <View style={styles.mainContainer}>
+      <View style={styles.voltarContainer}>
+        <TouchableOpacity onPress={() => navigation.navigate('HomeDoador')}>
+          <AntDesign name="arrowleft" size={24} color="#7A0000" />
         </TouchableOpacity>
       </View>
-      <View style={{justifyContent: 'center', alignItems: 'center', marginTop: 'auto'}}>
-        <Text style={styles.textLoading}>
-          Isso pode demorar alguns minutos
-        </Text>
-        <Image
-          source={require('../../../assets/img/carteirinhaLoad.png')}
-          style={styles.processingImage}
-        />
-        <Text style={styles.textLoading}>
-          Estamos verificando seus dados e gerando sua carteirinha
-        </Text>
-      </View>
-
-      <MenuDoador />
     </View>
-  );
 
-  const renderCarteirinhaScreen = () => (
-    <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.titlePrin}> Solicitar carteirinha</Text>
+    <View style={styles.carteirinhaContainer}>
+      <View style={styles.carteirinhaBackColor}>
+        <Text style={styles.carteirinhaTitle}>CARTEIRINHA DE DOADOR DE SANGUE</Text>
       </View>
 
-      <View style={styles.mainContainer}>
-        <View style={styles.voltarContainer}>
-          <TouchableOpacity onPress={() => navigation.navigate('HomeDoador')}>
-            <AntDesign name="arrowleft" size={24} color="#7A0000" />
-          </TouchableOpacity>
+      <View style={styles.carteirinhaContent}>
+        <Image source={require('../../../assets/img/iconUser.png')} style={styles.imagemPerfil} />
+        <View style={styles.carteirinhaInfo}>
+          <Text style={styles.carteirinhaText}>
+            <Text style={styles.carteirinhaBold}>NOME DO DOADOR:</Text> {carteirinhaData.nome} {carteirinhaData.sobrenome}
+          </Text>
+          <Text style={styles.carteirinhaText}>
+            <Text style={styles.carteirinhaBold}>DATA DE NASC:</Text> {carteirinhaData.dataNascimento}
+          </Text>
+          <Text style={styles.carteirinhaText}>
+            <Text style={styles.carteirinhaBold}>CPF:</Text> {carteirinhaData.cpf}
+          </Text>
+          <Text style={styles.carteirinhaText}>
+            <Text style={styles.carteirinhaBold}>TIPO SANGUÍNEO:</Text> {carteirinhaData.tipoSanguineo}
+          </Text>
         </View>
       </View>
-
-
-      <View style={styles.carteirinhaContainer}>
-        <View style={styles.carteirinhaBackColor}>
-          <Text style={styles.carteirinhaTitle}>CARTEIRINHA DE DOADOR</Text>
-        </View>
-
-        <View style={styles.carteirinhaContent}>
-
-          <Image source={{ uri: 'https://png.pngtree.com/png-vector/20200706/ourmid/pngtree-businessman-user-character-vector-illustration-png-image_2298565.jpg' }} style={styles.imagemPerfil} />
-          <View style={styles.carteirinhaInfo}>
-
-            <Text style={styles.carteirinhaText}>
-              <Text style={styles.carteirinhaBold}>NOME DO DOADOR:</Text>{' '}
-              {carteirinhaData.name}
-            </Text>
-            <Text style={styles.carteirinhaText}>
-              <Text style={styles.carteirinhaBold}>DATA DE NASC:</Text>{' '}
-              {carteirinhaData.birthDate}
-            </Text>
-            <Text style={styles.carteirinhaText}>
-              <Text style={styles.carteirinhaBold}>CPF:</Text>{' '}
-              {carteirinhaData.cpf}
-            </Text>
-            <Text style={styles.carteirinhaText}>
-              <Text style={styles.carteirinhaBold}>TIPO SANGUÍNEO:</Text>{' '}
-              {carteirinhaData.bloodType}
-            </Text>
-          </View>
-          {/*<View style={styles.qrCodeContainer}>
-            <QRCode
-              value={`CPF: ${carteirinhaData.cpf}`}
-              size={80}
-              color="#000"
-              backgroundColor="#fff"
-            />
-            <Text style={styles.qrCodeText}>
-              Para validar a carteirinha escaneie o QR code
-            </Text>
-          </View>*/}
-        </View>
-        <Text style={styles.carteirinhaFooter}>Doe sangue, doe vidas</Text>
-
-      </View>
-
-      <TouchableOpacity style={styles.downloadButton} onPress={() => { }}>
-        <Text style={styles.buttonText}>Baixar</Text>
-      </TouchableOpacity>
-
-
-      <MenuDoador />
+      <Text style={styles.carteirinhaFooter}>Doe sangue, doe vidas</Text>
     </View>
-  );
 
-  return (
-    <View style={styles.container}>
-      {isLoading && isProcessing ? (
-        renderProcessingScreen()
-      ) : carteirinhaData ? (
-        renderCarteirinhaScreen()
-      ) : (
-        renderRequestScreen()
-      )}
-    </View>
-  );
+    <TouchableOpacity style={styles.downloadButton} onPress={gerarPdf}>
+      <Text style={styles.buttonText}>Baixar</Text>
+    </TouchableOpacity>
+
+    <MenuDoador />
+  </View>
+);
+
+return (
+  <View style={styles.container}>
+    {isLoading && isProcessing ? (
+      renderProcessingScreen()
+    ) : carteirinhaData ? (
+      renderCarteirinhaScreen()
+    ) : (
+      renderRequestScreen()
+    )}
+  </View>
+);
 };
+
+
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FDFEFF',
-    justifyContent: 'center',
   },
   headerContainer: {
     backgroundColor: '#AF2B2B',
@@ -269,7 +316,7 @@ const styles = StyleSheet.create({
   titlePrin: {
     color: '#EEF0EB',
     marginLeft: 25,
-    marginTop: 7,
+    marginTop: 2,
     fontFamily: 'DM-Sans',
     letterSpacing: 1.5,
     fontSize: 16
@@ -305,7 +352,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     fontSize: 15,
     marginLeft: 10,
-    marginTop: 100
+    marginTop: 30
   },
   mainContainer: {
     padding: 32,
@@ -315,7 +362,7 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   text: {
-    padding: 15,
+    marginBottom: 20,
     fontSize: 17,
     fontFamily: 'Poppins-Regular',
     textAlign: 'justify'
@@ -332,7 +379,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: '10%',
     width: '60%',
-    alignSelf: 'center'
+    alignSelf: 'center',
+    marginTop: 20
   },
 
   //loading
@@ -360,6 +408,8 @@ const styles = StyleSheet.create({
   carteirinhaBackColor: {
     backgroundColor: '#AF2B2B',
     borderTopRadius: 10,
+    height: 30,
+    justifyContent: 'center'
   },
   carteirinhaContainer: {
     backgroundColor: '#fff',
@@ -373,7 +423,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     justifyContent: 'center',
     fontWeight: 'bold',
-    marginBottom: 10,
+
     textAlign: 'center',
     alignItems: 'center'
   },
@@ -387,8 +437,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   carteirinhaText: {
-    fontSize: 10,
-    marginBottom: 5,
+    fontSize: 12,
+    marginTop:7,
+    marginLeft: 5
   },
   carteirinhaBold: {
     fontWeight: 'bold',

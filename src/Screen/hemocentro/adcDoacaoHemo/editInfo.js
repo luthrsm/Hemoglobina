@@ -4,24 +4,25 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { SelectList } from 'react-native-dropdown-select-list';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../../Services/firebaseConfig'; // Altere o caminho conforme necessário
 import MenuHemocentro from '../../../../components/menu/menuHemocentro';
-
 
 const EdicaoDoacao = () => {
     const tipos = [
-        { key: "1", value: "A verificar" },
-        { key: "2", value: "A+" },
-        { key: "3", value: "A-" },
-        { key: "4", value: "B+" },
-        { key: "5", value: "B-" },
-        { key: "6", value: "AB+" },
-        { key: "7", value: "AB-" },
-        { key: "8", value: "O+" },
-        { key: "9", value: "O-" },
+        { key: "1", value: "A+" },
+        { key: "2", value: "A-" },
+        { key: "3", value: "B+" },
+        { key: "4", value: "B-" },
+        { key: "5", value: "AB+" },
+        { key: "6", value: "AB-" },
+        { key: "7", value: "O+" },
+        { key: "8", value: "O-" },
     ];
+
     const route = useRoute();
     const navigation = useNavigation();
-    const { date, quantidade, cpf, tipoSanguineo } = route.params;
+    const { id, date, quantidade, cpf, tipoSanguineo } = route.params;
 
     // Estados para armazenar os valores recebidos e editados
     const [editedDate, setEditedDate] = useState(date);
@@ -29,8 +30,41 @@ const EdicaoDoacao = () => {
     const [editedCpf, setEditedCpf] = useState(cpf);
     const [editedTipoSanguineo, setEditedTipoSanguineo] = useState(tipoSanguineo);
 
-    const handleSave = () => {
-        navigation.goBack();
+    // Função para salvar as alterações
+    const handleSave = async () => {
+        // Depuração: Verificar os valores antes de salvar
+        console.log("Valores antes de salvar:", { editedQuantidade, editedTipoSanguineo });
+
+        // Verificação de campos
+        if (!editedQuantidade || !editedTipoSanguineo) {
+            alert("Todos os campos precisam ser preenchidos corretamente!");
+            return;
+        }
+
+        try {
+            // Preparando os dados para atualização
+            const dataToUpdate = {
+                quantidade: editedQuantidade,
+                tipoSanguineo: editedTipoSanguineo,
+            };
+
+            // Se a data da doação for válida, incluir no objeto
+            if (editedDate) {
+                dataToUpdate.dataDoacao = editedDate;
+            }
+
+            // Atualizando o documento no Firestore
+            const doacaoRef = doc(db, 'doacoes', id); // Referência para o documento da doação
+            await updateDoc(doacaoRef, dataToUpdate);
+
+            // Depuração: Confirmar que o documento foi atualizado
+            console.log("Doação salva com sucesso!");
+
+            // Navegar de volta após salvar
+            navigation.goBack();
+        } catch (error) {
+            console.error("Erro ao salvar edição da doação: ", error);
+        }
     };
 
     return (
@@ -60,17 +94,6 @@ const EdicaoDoacao = () => {
                         />
                     </View>
                     <View style={styles.inputContainer}>
-                        <Text style={styles.label}>CPF do doador:</Text>
-                        <TextInput
-                            placeholder='Digite o CPF sem pontos e traços...'
-                            style={styles.input}
-                            placeholderTextColor={'#999999'}
-                            keyboardType='numeric'
-                            value={editedCpf}
-                            onChangeText={setEditedCpf}
-                        />
-                    </View>
-                    <View style={styles.inputContainer}>
                         <Text style={styles.label}>Tipo sanguíneo: </Text>
                         <SelectList
                             data={tipos}
@@ -83,15 +106,18 @@ const EdicaoDoacao = () => {
                             maxHeight={'100'}
                             placeholderTextColor={'#999999'}
                             setSelected={(key) => {
+                                // Atualizando o valor corretamente com base na chave selecionada
                                 const selectedTipo = tipos.find(tipo => tipo.key === key);
-                                setSelected(selectedTipo.value);
+                                console.log("Tipo sanguíneo selecionado:", selectedTipo); // Verificar qual tipo sanguíneo foi selecionado
+                                if (selectedTipo) {
+                                    setEditedTipoSanguineo(selectedTipo.value);
+                                }
                             }}
                             value={editedTipoSanguineo}
-                            onChangeText={setEditedTipoSanguineo}
                         />
                     </View>
                     <TouchableOpacity style={styles.button} onPress={handleSave}>
-                        <Text style={styles.buttonTxt}>Adicionar doação</Text>
+                        <Text style={styles.buttonTxt}>Salvar alterações</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -205,4 +231,4 @@ const styles = StyleSheet.create({
         lineHeight: 12,
         textAlign: 'center'
     }
-})
+});

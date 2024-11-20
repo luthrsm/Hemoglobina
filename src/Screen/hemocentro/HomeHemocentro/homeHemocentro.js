@@ -1,6 +1,10 @@
 import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome6 } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
+import { db } from '../../../Services/firebaseConfig';
+import { getAuth, signOut } from 'firebase/auth';
+import { getDoc, doc } from 'firebase/firestore';
 
 
 import MenuHemocentro from '../../../../components/menu/menuHemocentro';
@@ -9,12 +13,33 @@ import MenuHemocentro from '../../../../components/menu/menuHemocentro';
 
 const HomeHemocentro = () => {
 
+  const [userName, setUserName] = useState('');
   const navigation = useNavigation();
+
+  useEffect(() => {
+      // Pegue o ID do usuário autenticado
+      const auth = getAuth();
+      const user = auth.currentUser;
+      console.log('currentUser:', user);
+      if (user) {
+          
+          const userRef = doc(db, 'Hemocentro', user.uid); 
+          getDoc(userRef).then((docSnap) => {
+              if (docSnap.exists()) {
+                  setUserName(docSnap.data().Nome);
+              } else {
+                  console.log('esse documento nao existe!');
+              }
+          }).catch((error) => {
+              console.error("Error getting document:", error);
+          });
+      }
+  }, []);
 
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.title}> Bem vindo, hemocentro!</Text>
+        <Text style={styles.title}> Bem vindo, {userName}!</Text>
       </View>
 
       <View style={styles.mainContainer}>

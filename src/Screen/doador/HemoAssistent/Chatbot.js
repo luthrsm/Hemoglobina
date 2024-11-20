@@ -16,6 +16,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import MenuDoador from "../../../../components/menu/menuDoador";
 import ChatBubble from "./ChatBubble";
 import { speak, isSpeakingAsync, stop } from "expo-speech";
+import { useNavigation } from '@react-navigation/native';
 
 
 const Chatbot = () => {
@@ -24,6 +25,7 @@ const Chatbot = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isSpeaking, setIsSpeaking] = useState(false);
+    const navigation = useNavigation();
 
 
     const API_KEY = "AIzaSyD7mayOsrEY2xmf39_LOfMEj3VPJrIBEgg";
@@ -123,7 +125,7 @@ const Chatbot = () => {
                     </TouchableOpacity>
                 </View>
                 <KeyboardAvoidingView style={styles.contentContainer}>
-                
+
                     <FlatList
                         data={chat}
                         renderItem={renderChatItem}
@@ -143,11 +145,11 @@ const Chatbot = () => {
                         <TouchableOpacity style={styles.button} onPress={handleUserInput}>
                             <FontAwesome name="send-o" size={24} color="white" />
                         </TouchableOpacity>
-                        
+
                     </View>
                 </KeyboardAvoidingView>
             </View>
-            <MenuDoador/>
+            <MenuDoador />
         </View>
     )
 }

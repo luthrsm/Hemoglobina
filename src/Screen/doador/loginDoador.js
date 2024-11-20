@@ -20,10 +20,10 @@ const LoginDoador = () => {
             // Fazendo login com email e senha
             await signInWithEmailAndPassword(auth, email, password);
             console.log('Login bem-sucedido!');
-            navigation.navigate('HomeDoador'); // Navegar para a próxima tela após o login
+            navigation.navigate('HomeDoador');
         } catch (error) {
             console.error("Erro no login:", error.message);
-            alert('Erro ao fazer login. Verifique suas credenciais.');
+            alert('Erro ao fazer login. Verifique se seu email e senha estão corretos.');
         }
     };
 

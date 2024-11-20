@@ -1,311 +1,343 @@
 import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView } from 'react-native';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { SelectList } from 'react-native-dropdown-select-list';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import axios from 'axios';
-import { DatePickerAndroid } from 'react-native';
-
-import InputSenhaCad from './inputSenhaCad';
-import AddressForm from './cep'
-
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { Ionicons } from '@expo/vector-icons';
+import { auth, db } from '../../src/Services/firebaseConfig';
+import { updateDoc, doc } from 'firebase/firestore';
 
-const PHONE_NUMBER_REGEX = /^\(?([0-9]{2})\)?[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/;
-const CNPJ_REGEX = /^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/;
-const TIME_REGEX = /^([0-1][0-9]|2[0-3]):([0-5][0-9])$/;
+// Regex e validações
+const PHONE_NUMBER_REGEX = /^\(?\d{2}\)?\s?\d{4,5}-\d{4}$/;
+const validateCNPJ = (value) => {
+  const cleanedValue = value.replace(/\D/g, '');
+  if (cleanedValue.length !== 14) return false;
+  if (/^(\d)\1{13}$/.test(cleanedValue)) return false;
 
-const PerfilHemocentro = ({ formData, onDataChange, onNext, onBack }) => {
+  let sum = 0;
+  let weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+  for (let i = 0; i < 12; i++) {
+    sum += cleanedValue[i] * weights1[i];
+  }
+  let remainder = sum % 11;
+  let digit1 = remainder < 2 ? 0 : 11 - remainder;
 
-  const horariosDeFuncionamentoRegex = /^((Segunda-feira|Terça-feira|Quarta-feira|Quinta-feira|Sexta-feira|Sábado|Domingo): (?:[0-1][0-9]|2[0-3]):[0-5][0-9]-(?:[0-1][0-9]|2[0-3]):[0-5][0-9]|não abre)(, (Segunda-feira|Terça-feira|Quarta-feira|Quinta-feira|Sexta-feira|Sábado|Domingo): (?:[0-1][0-9]|2[0-3]):[0-5][0-9]-(?:[0-1][0-9]|2[0-3]):[0-5][0-9]|não abre)*$/;
-    const navigation = useNavigation();
+  sum = 0;
+  let weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+  for (let i = 0; i < 13; i++) {
+    sum += cleanedValue[i] * weights2[i];
+  }
+  remainder = sum % 11;
+  let digit2 = remainder < 2 ? 0 : 11 - remainder;
+
+  return cleanedValue[12] == digit1 && cleanedValue[13] == digit2;
+};
+
+const PHONE_NUMBER_MASK = (value) => {
+  return value
+    .replace(/\D/g, '') // Remove tudo que não for número
+    .replace(/^(\d{2})(\d)/, '($1) $2') // Coloca parênteses no DDD
+    .replace(/(\d{5})(\d{1,4})/, '$1-$2') // Coloca o traço depois dos 5 primeiros números
+    .substring(0, 15); // Limita o número de caracteres a 14
+};
+
+const handlePhoneChange = (text) => {
+  const maskedPhone = PHONE_NUMBER_MASK(text);
+  setPhone(maskedPhone); // Atualiza o estado com o valor mascarado
+};
 
 
-    const [mondayFridayHours, setMondayFridayHours] = useState('');
-    const [saturdayHours, setSaturdayHours] = useState('');
-    const [sundayHours, setSundayHours] = useState('');
-    const [saturdaySunHours, setSaturdaySunHours] = useState('');
-    const [hourspecific, setHourspecific] = useState('');
+const PerfilHemocentro = () => {
+  const navigation = useNavigation();
+  const [mondayFridayHours, setMondayFridayHours] = useState('');
+  const [saturdayHours, setSaturdayHours] = useState('');
+  const [sundayHours, setSundayHours] = useState('');
+  const [hourspecific, setHourspecific] = useState('');
 
-    
-    const schemaPerfilDoador = yup.object().shape({
-        nome: yup.string().required("Informe seu nome"),
-        cpf: yup.string().required("Informe seu CPF"),
-        tipoSanguineo: yup.string().required("Selecione um tipo sanguíneo"),
-        horariosDeFuncionamento: yup.string().required("Informe os horários de funcionamento"),
-    });
+  const schemaPerfilDoador = yup.object().shape({
+    nome: yup.string().required("Informe seu nome"),
+    cnpj: yup
+      .string()
+      .required('Informe o CNPJ')
+      .test('is-valid-cnpj', 'CNPJ inválido', value => validateCNPJ(value)),
+    telefone: yup.string().required("Informe o telefone").matches(PHONE_NUMBER_REGEX, "Telefone inválido"),
+  });
 
-    const { control, handleSubmit, formState: { errors }, trigger } = useForm({
-        resolver: yupResolver(schemaPerfilDoador)
-    });
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    resolver: yupResolver(schemaPerfilDoador)
+  });
 
-    // const { control, handleSubmit, formState: { errors }, trigger } = useForm({
-    //     resolver: yupResolver(schemaPerfilDoador),
-    //     defaultValues: {
-    //       phoneNumber: '',
-    //     },
-    //     defaultValues2: {
-    //       cnpj: '',
-    //     },
-    //     defaultValues3: {
-    //       time: '',
-    //   },
-    // });
+  const atualizarDados = async (data) => {
+    const uid = auth.currentUser?.uid;
+    const clienteRef = doc(db, "Hemocentro", uid);
 
-        // Função para garantir que o valor é um número
-    const handleChange = (text) => {
-        // Permite apenas números
-        const numericValue = text.replace(/[^0-9]/g, '');
-        setValue(numericValue);
-    };
-
-      const onSubmit = async (data) => {
-    // Submit the form data
+    try {
+      const horarios = {
+        "Seg-Sex": data.mondayFridayHours || "Não especificado",
+        "Sábado": data.saturdayHours || "Não especificado",
+        "Domingo": data.sundayHours || "Não especificado",
+        "Específico": data.hourspecific || "Nenhum horário específico"
       };
 
-      const onSubmit2 = async (data) => {
-    // Submit the form data
-    };
+      await updateDoc(clienteRef, {
+        Nome: data.nome,
+        Telefone: data.telefone,
+        CNPJ: data.cnpj,
+        Horário: horarios,
+      });
+      navigation.navigate('AddressForm', uid);
+    } catch (erro) {
+      console.error("Erro ao atualizar dados:", erro);
+    }
+  };
 
-    const [value, setValue] = useState('');
+  return (
+    <View style={styles.stepContainer}>
+      <View style={styles.voltarContainer}>
+        <TouchableOpacity onPress={() => navigation.navigate('CadastroEscolha')}>
+          <AntDesign name="arrowleft" size={24} color="#7A0000" />
+        </TouchableOpacity>
+      </View>
 
-    const scrollViewRef = useRef(null);
+      <View style={styles.containerImg}>
+        <Image style={styles.logo} source={require('../../assets/img/hemoCadImages/logoHemoglobina.png')} />
+      </View>
 
-    return (
-        <View style={styles.stepContainer}>
-            <View style={styles.voltarContainer}>
-                <TouchableOpacity onPress={() => navigation.navigate('CadastroEscolha')}>
-                    <AntDesign name="arrowleft" size={24} color="#7A0000" />
-                </TouchableOpacity>
-            </View>
-            
-            <View style={styles.containerImg}>
-                <Image style={styles.logo} source={require('../../assets/img/hemoCadImages/logoHemoglobina.png')} />
-            </View>
-            <View style={styles.txtTopContainer}>
-                <Text style={styles.txtPrincipal}>Cadastro hemocentro</Text>
-                <Text style={styles.txtSecundario}>Perfil do hemocentro</Text>
-            </View>
+      <Text style={styles.txtPrincipal}>Cadastro hemocentro</Text>
+      <Text style={styles.txtSecundario}>Perfil do hemocentro</Text>
 
-            <View style={styles.inputContainer}>
-                
+      <View style={styles.inputContainer}>
+        {/* Nome */}
+        <Controller
+          control={control}
+          name="nome"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styles.input}
+              placeholder="Nome da instituição/razão social"
+              placeholderTextColor="#000"
+              onBlur={onBlur}
+              value={value}
+              onChangeText={onChange}
+            />
+          )}
+        />
+        {errors.nome && <Text style={styles.labelError}>{errors.nome.message}</Text>}
+
+        {/* Telefone */}
+        <Controller
+          control={control}
+          name="telefone"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styles.input}
+              placeholder="Telefone"
+              placeholderTextColor="#000"
+              value={value}
+              onChangeText={(text) => onChange(PHONE_NUMBER_MASK(text))}
+              onBlur={onBlur}
+              keyboardType="phone-pad"
+            />
+          )}
+        />
+        {errors.telefone && <Text style={styles.labelError}>{errors.telefone.message}</Text>}
+
+        {/* CNPJ */}
+        <Controller
+          control={control}
+          name="cnpj"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styles.input}
+              placeholder="CNPJ"
+              placeholderTextColor="#000"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+            />
+          )}
+        />
+        {errors.cnpj && <Text style={styles.labelError}>{errors.cnpj.message}</Text>}
+
+        {/* Horários de funcionamento */}
+        <Text style={styles.label}>Horários de funcionamento</Text>
+
+        <View style={styles.hourContainer}>
+          <View style={styles.conteudoHoras}>
+            <View style={styles.dayContainer}>
+              <Text style={styles.dayLabel}>Segunda à Sexta</Text>
               <Controller
                 control={control}
-                name='nome'
-                    render={({ field: { onChange, onBlur, value } }) =>
-                        <TextInput
-                            style={styles.input}                     
-                            onChangeText={text => handleChange('nome', text)}
-                            placeholder='Nome da instituição/razão social'
-                            placeholderTextColor='#000'
-                            onBlur={onBlur}
-                            value={value} // esse é o problema do input n funcionar, arrumar
-                        />
-                    }
-                />
-              {errors.nome && <Text style={styles.labelError}>{errors.nome.message}</Text>}
+                name="mondayFridayHours"
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    style={styles.hourInput}
+                    placeholder="08:00-18:00"
+                    value={value || mondayFridayHours}
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              <TouchableOpacity onPress={() => setMondayFridayHours('Não abre')}>
+                <Text style={styles.noOpenLabel}>Não abre</Text>
+              </TouchableOpacity>
+            </View>
 
+            <View style={styles.dayContainer}>
+              <Text style={styles.dayLabel}>Sábado</Text>
               <Controller
                 control={control}
-                name="phoneNumber"
-                  render={({ onChange, onBlur, value }) => (
-                      <TextInput
-                        style={styles.input}
-                        placeholder="Telefone"
-                        placeholderTextColor='#000'
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                        keyboardType="phone-pad"
-                      />
-            )}
-            rules={{
-              required: true,
-              pattern: PHONE_NUMBER_REGEX,
-            }}
-            />
-            {errors.phoneNumber && <Text>Número de telefone inválido</Text>}
-
-            <Controller
-              control={control}
-              name="cnpj"
-                render={({ onChange, onBlur, value }) => (
-                    <TextInput
-                      style={styles.input}
-                      placeholder="CNPJ"
-                      placeholderTextColor='#000'
-                      value={value}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                    />
-            )}
-            rules={{
-              required: true,
-              pattern: CNPJ_REGEX,
-            }}
-            />
-            {errors.cnpj && <Text>CNPJ inválido</Text>}
-
-
-          <Text style={styles.label}>Horários de funcionamento</Text>
-
-          <View style={styles.hourContainer}>
-            
-            <View style={styles.conteudoHoras}>
-              <View style={styles.dayContainer}>
-                <Text style={styles.dayLabel}>Segunda à Sexta</Text>
-                <TextInput
-                  style={styles.hourInput}
-                  placeholder="08:00-18:00"
-                  value={mondayFridayHours}
-                  onChangeText={(text) => setMondayFridayHours(text)}
-                />
-                <TouchableOpacity onPress={() => setMondayFridayHours('Não abre')}>
-                  <Text style={styles.noOpenLabel}>Não abre</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.dayContainer}>
-                <Text style={styles.dayLabel}>Sábado</Text>
-                <TextInput
-                  style={styles.hourInput}
-                  placeholder="08:00-18:00"
-                  value={saturdayHours}
-                  onChangeText={(text) => setSaturdayHours(text)}
-                />
-                <TouchableOpacity onPress={() => setSaturdayHours('Não abre')}>
-                  <Text style={styles.noOpenLabel}>Não abre</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            
-            <View style={styles.conteudoHoras}>
-              <View style={styles.dayContainer}>
-                <Text style={styles.dayLabel}>Domingo</Text>
-                <TextInput
-                  style={styles.hourInput}
-                  placeholder="08:00-18:00"
-                  value={sundayHours}
-                  onChangeText={(text) => setSundayHours(text)}
-                />
-                <TouchableOpacity onPress={() => setSundayHours('Não abre')}>
-                  <Text style={styles.noOpenLabel}>Não abre</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.dayContainer}>
-                <Text style={styles.dayLabel}>Específico</Text>
-                <TextInput
-                  style={styles.hourInput}
-                  placeholder="Quarta: Não abre"
-                  value={hourspecific}
-                  onChangeText={(text) => setHourspecific(text)}
-                />
-                <TouchableOpacity onPress={() => setHourspecific('Não abre')}>
-                  <Text style={styles.noOpenLabel}>Não abre</Text>
-                </TouchableOpacity>
-              </View>
-          
+                name="saturdayHours"
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    style={styles.hourInput}
+                    placeholder="08:00-18:00"
+                    value={value || saturdayHours}
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              <TouchableOpacity onPress={() => setSaturdayHours('Não abre')}>
+                <Text style={styles.noOpenLabel}>Não abre</Text>
+              </TouchableOpacity>
             </View>
           </View>
-          
 
+          <View style={styles.conteudoHoras}>
+            <View style={styles.dayContainer}>
+              <Text style={styles.dayLabel}>Domingo</Text>
+              <Controller
+                control={control}
+                name="sundayHours"
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    style={styles.hourInput}
+                    placeholder="08:00-18:00"
+                    value={value || sundayHours}
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              <TouchableOpacity onPress={() => setSundayHours('Não abre')}>
+                <Text style={styles.noOpenLabel}>Não abre</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={onNext} style={styles.BtProx}>
-                <Text style={styles.txtBtProx}>Avançar</Text>
-            </TouchableOpacity>
- 
+
+            <View style={styles.dayContainer}>
+              <Text style={styles.dayLabel}>Específico</Text>
+              <Controller
+                control={control}
+                name="hourspecific"
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    style={styles.hourInput}
+                    placeholder="Especifique o horário"
+                    value={value || hourspecific}
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              <TouchableOpacity onPress={() => setHourspecific('Nenhum horário específico')}>
+                <Text style={styles.noOpenLabel}>Nenhum horário específico</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-    )
-}
+      </View>
+
+      <TouchableOpacity
+        style={styles.BtProx}
+        onPress={handleSubmit(atualizarDados)}
+      >
+        <Text style={styles.txtBtProx}>Continuar</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 export default PerfilHemocentro;
 
 const styles = StyleSheet.create({
-    stepContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    voltarContainer: {
-        position: 'absolute',
-        top: 25,
-        left: 16,
-    },
-    containerImg: {
-        marginBottom: 20,
-    },
-    logo: {
-        width: 50,
-        height: 50,  
-    },
-    txtTopContainer: {
-        marginBottom: 20,
-    },
-    txtPrincipal: {
-        fontSize: 24,
-        color: '#470404',
-        fontFamily: 'Poppins-Medium',
-        textAlign: 'center'
-    },
-    txtSecundario: {
-        fontSize: 16,
-        color: '#470404',
-        fontFamily: 'Poppins-Regular',
-        textAlign: 'center'
-    },
-    inputContainer: {
-        marginTop: '5%',
-        width: '95%',
-    },
-    input: {
-        height: 50,
-        width: '100%',
-        backgroundColor: '#EEF0EB',
-        marginBottom: '6%',
-        paddingHorizontal: 8,
-        borderRadius: 7,
-        paddingLeft: 20,
-        fontFamily: 'DM-Sans',
-        justifyContent: 'center'
-    },
-    BtProx: {
-      backgroundColor: '#AF2B2B',
-      padding: 10,
-      borderRadius: 5,
-      alignItems: 'center',
-      width: '60%',
-      alignSelf: 'center'
-    },
-    txtBtProx: {
-      color: '#fff',
-      fontSize: 16,
-    },
-    labelError: {
-      alignSelf: 'flex-start',
-      color: '#AF2B2B',
-      marginBottom: 8,
-    },
-    label: {
-      fontSize: 18,
-      textAlign: 'center',
-      marginBottom: 20,
-    },
+  stepContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  voltarContainer: {
+    position: 'absolute',
+    top: 25,
+    left: 16,
+  },
+  containerImg: {
+    marginBottom: 20,
+  },
+  logo: {
+    width: 50,
+    height: 50,
+  },
+  txtTopContainer: {
+    marginBottom: 20,
+  },
+  txtPrincipal: {
+    fontSize: 24,
+    color: '#470404',
+    fontFamily: 'Poppins-Medium',
+    textAlign: 'center'
+  },
+  txtSecundario: {
+    fontSize: 16,
+    color: '#470404',
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'center'
+  },
+  inputContainer: {
+    marginTop: '5%',
+    width: '95%',
+  },
+  input: {
+    height: 50,
+    width: '100%',
+    backgroundColor: '#EEF0EB',
+    marginBottom: '6%',
+    paddingHorizontal: 8,
+    borderRadius: 7,
+    paddingLeft: 20,
+    fontFamily: 'DM-Sans',
+    justifyContent: 'center'
+  },
+  BtProx: {
+    backgroundColor: '#AF2B2B',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    width: '60%',
+    alignSelf: 'center'
+  },
+  txtBtProx: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  labelError: {
+    alignSelf: 'flex-start',
+    color: '#AF2B2B',
+    marginBottom: 8,
+  },
+  label: {
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
   hourContainer: {
     marginBottom: 20,
-    flexDirection: 'row', 
+    flexDirection: 'row',
     justifyContent: 'space-around'
   },
 
   dayContainer: {
     width: '100%',
     marginBottom: 20,
-    
+
   },
 
   dayLabel: {

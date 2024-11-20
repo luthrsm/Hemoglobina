@@ -49,14 +49,17 @@ const InputSenhaCadDoador = () => {
             // Criando o documento no Firestore
             await setDoc(doadorRef, {
                 email: email,
-                createdAt: serverTimestamp(),
+                cadastroCompleto: false
             });
 
-            // Navega para a próxima página com o UID do usuário
+
             navigation.navigate('PerfilDoador', { uid });
         } catch (error) {
-            console.error("Erro ao criar conta:", error);
-            alert("Erro ao criar conta: " + error.message);
+            if (error.code === 'auth/email-already-in-use') {
+                Alert.alert('Erro', 'Email já cadastrado.');
+            } else {
+                Alert.alert('Erro', error.message || 'Ocorreu um erro.');
+            }
         }
     };
 
@@ -151,26 +154,24 @@ const InputSenhaCadDoador = () => {
                 {errors.confirmarSenha && <Text style={styles.labelError}>{errors.confirmarSenha.message}</Text>}
 
                 <View style={styles.termos}>
-                    <TouchableOpacity
-                        style={styles.checkboxContainer}
-                        onPress={handleCheckboxToggle}
-                    >
+                    <TouchableOpacity style={styles.checkboxContainer} onPress={handleCheckboxToggle}>
                         <Ionicons
                             name={isChecked ? 'checkbox' : 'square-outline'}
                             size={24}
                             color="black"
                         />
-                        <Text style={styles.label}>
-                            Declaro que li e concordo com os{' '}
-                            <Text style={styles.link}>
-                                Termos de Uso
-                            </Text>
-                            {' '}e com a{' '}
-                            <Text style={styles.link}>
-                                Política de Privacidade
-                            </Text>
-                        </Text>
                     </TouchableOpacity>
+
+                    <Text style={styles.text}>
+                        Li e estou de acordo com o{' '}
+                        <TouchableOpacity onPress={() => navigation.navigate('TermosCad')}>
+                            <Text style={styles.link}>Termo de Uso</Text>
+                        </TouchableOpacity>{' '}
+                        e{' '}
+                        <TouchableOpacity onPress={() => navigation.navigate('PoliticasCad')}>
+                            <Text style={styles.link}>Política de Privacidade</Text>
+                        </TouchableOpacity>
+                    </Text>
                     {errors.isChecked && <Text style={styles.labelError}>{errors.isChecked.message}</Text>}
                 </View>
 

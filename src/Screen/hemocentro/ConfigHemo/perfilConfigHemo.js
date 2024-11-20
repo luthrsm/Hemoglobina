@@ -1,45 +1,116 @@
-import React, { useState, useRef, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import * as ImagePicker from 'expo-image-picker';
-import MenuHemocentro from '../../../../components/menu/menuHemocentro';
-
+import { db } from '../../../Services/firebaseConfig';
+import { getDoc, doc, updateDoc } from 'firebase/firestore';
+import { getAuth, EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePassword } from 'firebase/auth';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
+const ProfileScreenHemo = ({ navigation }) => {
+  const { control, handleSubmit, setValue } = useForm();
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [image, setImage] = useState(require('../../../../assets/img/iconUser.png'));
+  const [newName, setNewName] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [mondayFridayHours, setMondayFridayHours] = useState('');
+  const [saturdayHours, setSaturdayHours] = useState('');
+  const [sundayHours, setSundayHours] = useState('');
+  const [hourspecific, setHourspecific] = useState('');
+  const [telefone, setTelefone] = useState('');
+  const [newTelefone, setNewTelefone] = useState('');
 
-const ProfileScreenHemo = ({ navigation, route }) => {
-  
-  const { control, handleSubmit, errors } = useForm({
-  defaultValues: userData,
-});
-  
-  const handleEmailChange = (text) => setEmail(text);
-  const handlePasswordChange = (text) => setPassword(text);
-  const handleNameChange = (text) => setName(text);
 
-  const handleSave = async (data) => {
-  console.log('Nome:', data.name);
-  console.log('Email:', data.email);
-  console.log('Senha:', data.password);
-  console.log('Telefone:', data.telefone);
-  console.log('Endereço:', data.endereco);
-  console.log('Horário de funcionamento:', data.horarioFuncionamento);
-  navigation.navigate('ConfiguracoesHemo'); // Voltar para a tela anterior
-};
+  useEffect(() => {
+    const auth = getAuth();
+    const user = auth.currentUser;
 
-  const [userData] = useState({
-    name: 'Hospital Geral',
-    email: 'hgpirajussara@gmail.com',
-  });
+    if (user) {
+      const userRef = doc(db, 'Hemocentro', user.uid);
+      getDoc(userRef).then((docSnap) => {
+        if (docSnap.exists()) {
+          setUserName(docSnap.data().Nome);
+          setUserEmail(docSnap.data().Email);
+          setImage(docSnap.data().photoUrl || require('../../../../assets/img/iconUser.png'));
+          setTelefone(docSnap.data().Telefone);
 
-  const scrollViewRef = useRef(null);
+          // Carregar os horários se existirem
+          const horarios = docSnap.data().Horário || {};
+          setMondayFridayHours(horarios["Seg-Sex"] || '');
+          setSaturdayHours(horarios["Sábado"] || '');
+          setSundayHours(horarios["Domingo"] || '');
+          setHourspecific(horarios["Específico"] || '');
+        }
+      }).catch((error) => {
+        console.error("Error getting document:", error);
+      });
+    }
+  }, []);
 
-  const [image, setImage] = useState(require('../../../../assets/img/configImages/hemocentro.png'));
+  const handleSave = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
 
-    const handleImagePicker = async () => {
-      const result = await ImagePicker.launchImageLibraryAsync({
+    if (user) {
+      const userRef = doc(db, 'Hemocentro', user.uid);
+      const credential = EmailAuthProvider.credential(user.email, newPassword);
+
+      // Reautenticação se tiver senha nova
+      if (newPassword) {
+        const credential = EmailAuthProvider.credential(user.email, newPassword);
+        await reauthenticateWithCredential(user, credential);
+      }
+
+      // Atualizar email se for diferente e enviar link de verificação
+      if (newEmail && newEmail !== user.email) {
+        await updateEmail(user, newEmail);
+        await sendEmailVerification(user);
+        console.log('Email atualizado com sucesso! Link de verificação enviado.');
+        Alert.alert('Verifique seu e-mail', 'Por favor, verifique seu novo e-mail antes de realizar a alteração.');
+        return;
+      }
+
+      // Atualizar senha se for diferente
+      if (newPassword) {
+        await updatePassword(user, newPassword);
+        console.log('Senha atualizada com sucesso!');
+      }
+
+      try {
+        // Criar um objeto com os dados de horário (somente se preenchidos)
+        const Horários = {};
+        if (mondayFridayHours) Horários["Seg-Sex"] = mondayFridayHours;
+        if (saturdayHours) Horários["Sábado"] = saturdayHours;
+        if (sundayHours) Horários["Domingo"] = sundayHours;
+        if (hourspecific) Horários["Específico"] = hourspecific;
+
+        // Criar o objeto com os dados a serem atualizados
+        const updatedData = {
+          Nome: newName || userName,
+          Email: newEmail || userEmail,
+          ...(Object.keys(Horários).length > 0 && { Horário: Horários }), // Atualizar Horário apenas se houver mudanças
+          Telefone: newTelefone || telefone,
+        };
+
+        // Atualizar no Firestore
+        await updateDoc(userRef, updatedData);
+        Alert.alert('Informações atualizadas!');
+        navigation.goBack(); // Volta para a tela anterior
+      } catch (error) {
+        console.error("Erro ao atualizar informações:", error);
+        Alert.alert("Erro", error.message);
+      }
+    }
+  };
+
+
+
+  const handleImagePicker = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 4],
@@ -47,21 +118,17 @@ const ProfileScreenHemo = ({ navigation, route }) => {
       quality: 1,
     });
 
-    if (!result.canceled){
+    if (!result.canceled) {
       setImage(result.assets[0].uri);
+      // Atualize a foto do usuário no Firestore, se necessário
+      // updateUserPhoto(result.assets[0].uri);
     }
   };
-
-  const [mondayFridayHours, setMondayFridayHours] = useState('');
-  const [saturdayHours, setSaturdayHours] = useState('');
-  const [sundayHours, setSundayHours] = useState('');
-  const [saturdaySunHours, setSaturdaySunHours] = useState('');
-  const [hourspecific, setHourspecific] = useState('');
 
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.title}> Configurações</Text>
+        <Text style={styles.title}>Configurações</Text>
       </View>
 
       <View style={styles.mainContainer}>
@@ -71,16 +138,11 @@ const ProfileScreenHemo = ({ navigation, route }) => {
           </TouchableOpacity>
         </View>
 
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={true}
-        >
+        <ScrollView style={styles.scrollView}>
           <View style={styles.profileSection}>
             <Image source={image} style={styles.profileImage} />
-              
-            <Text style={styles.profileName}>{userData.name}</Text>
-            <Text style={styles.profileEmail}>{userData.email}</Text>
+            <Text style={styles.profileName}>{userName}</Text>
+            <Text style={styles.profileEmail}>{userEmail}</Text>
 
             <TouchableOpacity style={styles.BtProxAlterar} onPress={handleImagePicker}>
               <Text style={styles.buttonText}>Alterar foto</Text>
@@ -88,170 +150,177 @@ const ProfileScreenHemo = ({ navigation, route }) => {
           </View>
 
           <View style={styles.inputSection}>
-            <View style={styles.icon}>
-              <Ionicons name="mail-outline" size={21} color="#AF2B2B" style={styles.icons} />
-              <Text style={styles.inputLabel}>Alterar email:</Text>
-            </View>
+            <Text style={styles.inputLabel}>Alterar nome:</Text>
             <Controller
               control={control}
               render={({ onChange, onBlur, value }) => (
                 <TextInput
                   style={styles.input}
                   onBlur={onBlur}
-                  onChangeText={(text) => onChange(text)}
-                  value={value}
+                  onChangeText={setNewName}
+                  value={newName || userName}
+                />
+              )}
+              name="name"
+            />
+          </View>
+
+          <View style={styles.inputSection}>
+            <Text style={styles.inputLabel}>Alterar email:</Text>
+            <Controller
+              control={control}
+              render={({ onChange, onBlur, value }) => (
+                <TextInput
+                  style={styles.input}
+                  onBlur={onBlur}
+                  onChangeText={setNewEmail}
+                  value={newEmail || userEmail}
                 />
               )}
               name="email"
-              rules={{ required: true, pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ }}
-              defaultValue=""
             />
-            
+          </View>
 
-          </View> 
-
-        <View style={styles.inputSection}>
-          <View style={styles.icon}>
-            <Ionicons name="key-outline" size={20} color="#AF2B2B" style={styles.icons} />
+          <View style={styles.inputSection}>
             <Text style={styles.inputLabel}>Alterar senha:</Text>
-          </View>
-          <Controller
-            control={control}
-            render={({ onChange, onBlur, value }) => (
-              <TextInput
-                style={styles.input}
-                onBlur={onBlur}
-                onChangeText={(text) => onChange(text)}
-                value={value}
-                secureTextEntry
-              />
-            )}
-            name="password"
-            rules={{ required: true, minLength: 8 }}
-            defaultValue=""
-          />
-        
-      </View>
-
-      <View style={styles.inputSection}>
-        <View style={styles.icon}>
-          <Ionicons name="call-outline" size={20} color="#AF2B2B" style={styles.icons} />
-          <Text style={styles.inputLabel}>Telefone:</Text>
-        </View>
-        <Controller
-          control={control}
-          render={({ onChange, onBlur, value }) => (
-            <TextInput
-              style={styles.input}
-              onBlur={onBlur}
-              onChangeText={(text) => onChange(text)}
-              value={value}
-              keyboardType="phone-pad"
+            <Controller
+              control={control}
+              render={({ onChange, onBlur, value }) => (
+                <TextInput
+                  style={styles.input}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  secureTextEntry
+                />
+              )}
+              name="password"
             />
-          )}
-          name="telefone"
-          rules={{ required: true, pattern: /^\d{10,11}$/ }}
-          defaultValue=""
-        />
-        
-      </View>
-
-      <View style={styles.inputSection}>
-        <View style={styles.icon}>
-          <Ionicons name="time-outline" size={20} color="#AF2B2B" style={styles.icons} />
-          <Text style={styles.inputLabel}>Horário de funcionamento:</Text>
-        </View>
-        <View style={styles.hourContainer}>
-            <View style={styles.conteudoHoras}>
-              <View style={styles.dayContainer}>
-                <Text style={styles.dayLabel}>Segunda à Sexta</Text>
-                <TextInput
-                  style={styles.hourInput}
-                  placeholder="08:00-18:00"
-                  value={mondayFridayHours}
-                  onChangeText={(text) => setMondayFridayHours(text)}
-                />
-                <TouchableOpacity onPress={() => setMondayFridayHours('Não abre')} style={{marginBottom: 10}}>
-                  <Text style={styles.noOpenLabel}>Não abre</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.dayContainer}>
-                <Text style={styles.dayLabel}>Sábado</Text>
-                <TextInput
-                  style={styles.hourInput}
-                  placeholder="08:00-18:00"
-                  value={saturdayHours}
-                  onChangeText={(text) => setSaturdayHours(text)}
-                />
-                <TouchableOpacity onPress={() => setSaturdayHours('Não abre')}>
-                  <Text style={styles.noOpenLabel}>Não abre</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            
-            <View style={styles.conteudoHoras}>
-              <View style={styles.dayContainer}>
-                <Text style={styles.dayLabel}>Domingo</Text>
-                <TextInput
-                  style={styles.hourInput}
-                  placeholder="08:00-18:00"
-                  value={sundayHours}
-                  onChangeText={(text) => setSundayHours(text)}
-                />
-                <TouchableOpacity onPress={() => setSundayHours('Não abre')} style={{marginBottom: 10}}>
-                  <Text style={styles.noOpenLabel}>Não abre</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.dayContainer}>
-                <Text style={styles.dayLabel}>Específico</Text>
-                <TextInput
-                  style={styles.hourInput}
-                  placeholder="Quarta: Não abre"
-                  value={hourspecific}
-                  onChangeText={(text) => setHourspecific(text)}
-                />
-                <TouchableOpacity onPress={() => setHourspecific('Não abre')}>
-                  <Text style={styles.noOpenLabel}>Não abre</Text>
-                </TouchableOpacity>
-              </View>
-          
-            </View>
           </View>
-        
-      </View>
 
-      <View style={styles.inputSection}>
-        <View style={styles.icon}>
-          <Ionicons name="location-outline" size={20} color="#AF2B2B" style={styles.icons} />
-          <Text style={styles.inputLabel}>Endereço:</Text>
-        </View>
-        <Controller
-          control={control}
-          render={({ onChange, onBlur, value }) => (
-            <TextInput
-              style={styles.input}
-              onBlur={onBlur}
-              onChangeText={(text) => onChange(text)}
-              value={value}
+          <View style={styles.inputSection}>
+            <Text style={styles.inputLabel}>Telefone:</Text>
+            <Controller
+              control={control}
+              render={({ onChange, onBlur, value }) => (
+                <TextInput
+                  style={styles.input}
+                  onBlur={onBlur}
+                  onChangeText={(text) => setNewTelefone(text)}  // Atualiza o estado do telefone
+                  value={newTelefone || telefone}  // Usa o estado ou o valor fallback
+                  keyboardType="phone-pad"
+                />
+              )}
+              name="telefone"
             />
-          )}
-          name="endereco"
-          rules={{ required: true }}
-          defaultValue=""
-        />
-        
-      </View>
+          </View>
 
-        <TouchableOpacity style={styles.BtProx} onPress={handleSave}>
-          <Text style={styles.buttonText}>Salvar</Text>
-        </TouchableOpacity>
-      </ScrollView>
+          <View style={styles.inputSection}>
+            <View style={styles.icon}>
+              <Ionicons name="time-outline" size={20} color="#AF2B2B" style={styles.icons} />
+              <Text style={styles.inputLabel}>Horário de funcionamento:</Text>
+            </View>
+            <View style={styles.hourContainer}>
+              {/* Horários */}
+              {['Segunda à Sexta', 'Sábado', 'Domingo', 'Específico'].map((day, index) => (
+                <View key={index} style={styles.dayContainer}>
+                  <Text style={styles.dayLabel}>{day}</Text>
+                  <Controller
+                    control={control}
+                    name={day.toLowerCase().replace(' ', '') + 'Hours'} // Nome do campo gerado dinamicamente
+                    defaultValue=""
+                    render={({ field: { onChange, value, onBlur } }) => {
+                      let currentValue = ''; // Definir o valor atual com base no estado correspondente
+
+                      // Defina o valor atual com base no nome do dia
+                      switch (day) {
+                        case 'Segunda à Sexta':
+                          currentValue = mondayFridayHours;
+                          break;
+                        case 'Sábado':
+                          currentValue = saturdayHours;
+                          break;
+                        case 'Domingo':
+                          currentValue = sundayHours;
+                          break;
+                        case 'Específico':
+                          currentValue = hourspecific;
+                          break;
+                        default:
+                          currentValue = ''; // Valor padrão vazio
+                      }
+
+                      return (
+                        <TextInput
+                          style={styles.hourInput}
+                          placeholder="08:00-18:00"
+                          onBlur={onBlur}
+                          onChangeText={(text) => {
+                            // Atualiza o valor diretamente na variável de estado correspondente
+                            switch (day) {
+                              case 'Segunda à Sexta':
+                                setMondayFridayHours(text);
+                                break;
+                              case 'Sábado':
+                                setSaturdayHours(text);
+                                break;
+                              case 'Domingo':
+                                setSundayHours(text);
+                                break;
+                              case 'Específico':
+                                setHourspecific(text);
+                                break;
+                              default:
+                                break;
+                            }
+                            onChange(text); // Atualiza o valor do formulário
+                          }}
+                          value={value || currentValue} // Exibe o valor atual ou vazio se não houver valor
+                        />
+                      );
+                    }}
+                  />
+                  {/* Quando clicar em "Não abre", define o valor como "Não abre" */}
+                  <TouchableOpacity onPress={() => {
+                    let updatedValue = 'Não abre';
+
+                    // Atualiza a variável de estado correspondente com o valor "Não abre"
+                    switch (day) {
+                      case 'Segunda à Sexta':
+                        setMondayFridayHours(updatedValue);
+                        break;
+                      case 'Sábado':
+                        setSaturdayHours(updatedValue);
+                        break;
+                      case 'Domingo':
+                        setSundayHours(updatedValue);
+                        break;
+                      case 'Específico':
+                        setHourspecific(updatedValue);
+                        break;
+                      default:
+                        break;
+                    }
+
+                    // Atualiza o valor no formulário com "Não abre"
+                    setValue(day.toLowerCase().replace(' ', '') + 'Hours', updatedValue);
+                  }}>
+                    <Text style={styles.noOpenLabel}>Não abre</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+
+
+
+          </View>
+
+          <TouchableOpacity style={styles.BtProx} onPress={handleSubmit(handleSave)}>
+            <Text style={styles.buttonText}>Salvar</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
     </View>
-
-    <MenuHemocentro />
-  </View>
   );
 };
 
@@ -351,8 +420,6 @@ const styles = StyleSheet.create({
   },
 
   hourContainer: {
-    flexDirection: 'row', 
-    justifyContent: 'space-between'
   },
 
   dayContainer: {

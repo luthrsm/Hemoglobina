@@ -7,6 +7,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useState, useEffect } from 'react';
 import supabase from '../../../../supabaseClient';
 
+import { collection, getDocs, onSnapshot } from 'firebase/firestore';
+import { db } from '../../../Services/firebaseConfig';
 
 import CampanhasDetalhes from '../../../../components/campanha/campanhaDetails';
 
@@ -65,33 +67,40 @@ const CampanhaHemo = () => {
         }
     };
 
-    // Função para buscar campanhas do Supabase
-    const fetchCampaigns = async () => {
-        let query = supabase.from('campanhas').select('*');
-
-        // Se um tipo de doação estiver selecionado, adiciona filtro para o tipo de doação
-        if (tipoDoacao) {
-            query = query.eq('tipoDoacao', tipoDoacao);
-        }
-
-        // Se "Todos" não estiver selecionado, aplica filtro de tipo sanguíneo
-        if (tipoSanguineoSelecionado && tipoSanguineoSelecionado !== 'Todos') {
-            query = query.eq('tipoSanguineo', tipoSanguineoSelecionado); // Certifique-se de que 'tipoSanguineo' exista no Supabase
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-            console.error('Error fetching campaigns:', error);
-        } else {
-            setCampaigns(data);
+    // Função para buscar campanhas 
+    const fetchCampanhas = () => {
+        try {
+            const campanhasRef = collection(db, "campanhas");
+            const unsubscribe = onSnapshot(campanhasRef, (querySnapshot) => {
+                const campanhas = querySnapshot.docs
+                    .map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }))
+                    .filter((campanha) => {
+                        const doacaoMatch = tipoDoacao ? campanha.tipoDoacao === tipoDoacao : true;
+                        const sangueMatch = tipoSanguineoSelecionado && tipoSanguineoSelecionado !== "Todos"
+                            ? campanha.tipoSanguineo === tipoSanguineoSelecionado
+                            : true;
+                        return doacaoMatch && sangueMatch;
+                    });
+    
+                setCampaigns(campanhas);
+                console.log("Campanhas atualizadas:", campanhas);
+            });
+    
+            return unsubscribe;
+        } catch (error) {
+            console.error("Erro ao buscar campanhas:", error);
         }
     };
-
-    // Atualiza as campanhas sempre que o tipoDoacao ou tipoSanguineoSelecionado muda
+    
+    
     useEffect(() => {
-        fetchCampaigns();
-    }, [tipoDoacao, tipoSanguineoSelecionado]);
+        const unsubscribe = fetchCampanhas();
+    
+        return () => unsubscribe && unsubscribe();
+    }, [tipoDoacao, tipoSanguineoSelecionado]); 
 
 
 
@@ -113,6 +122,8 @@ const CampanhaHemo = () => {
         setModalVisible(false); // Fecha o modal
         setSelectedCampaign(null); // Limpa a campanha selecionada
     };
+
+    
 
     const CampanhaList = () => {
         return (
@@ -138,17 +149,8 @@ const CampanhaHemo = () => {
                                 <Image source={randomImage.uri} style={styles.image} />
                                 <View style={styles.shareContainer}>
                                     <Text style={styles.shareText}>Compartilhe:</Text>
-
-                                    <TouchableOpacity >
+                                    <TouchableOpacity onPress={() => handleShare(item)}>
                                         <FontAwesome name="share-alt" size={16} color="#005555" style={styles.icon} />
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity >
-                                        <FontAwesome name="instagram" size={16} color="#005555" style={styles.icon} />
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity >
-                                        <FontAwesome name="facebook" size={16} color="#005555" style={styles.icon} />
                                     </TouchableOpacity>
                                 </View>
                             </View>

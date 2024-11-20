@@ -4,40 +4,42 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { db } from '../../Services/firebaseConfig';
 import { getAuth } from 'firebase/auth';
-import { getDoc, doc } from 'firebase/firestore';
+import { getDoc, doc, onSnapshot} from 'firebase/firestore';
 
 import MenuDoador from '../../../components/menu/menuDoador';
 
 const HomeDoador = () => {
     const [userName, setUserName] = useState('');
+    const [userUid, setUserUid] = useState(null);
+    const [cartSolicitada, setCartSolicitada] = useState(false);
     const navigation = useNavigation();
+    const auth = getAuth();
 
     useEffect(() => {
-        // Pegue o ID do usuário autenticado
         const auth = getAuth();
         const user = auth.currentUser;
-
-        if (user) {
+        const userRef = doc(db, 'doador', user.uid);
             
-            const userRef = doc(db, 'doador', user.uid); 
-            getDoc(userRef).then((docSnap) => {
-                if (docSnap.exists()) {
-                    
-                    setUserName(docSnap.data().nome);
-                } else {
-                    console.log('esse documento nao existe!');
-                }
-            }).catch((error) => {
-                console.error("Error getting document:", error);
-            });
-        }
+        // Utiliza onSnapshot para ouvir alterações em tempo real
+        const unsubscribe = onSnapshot(userRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const userData = docSnap.data();
+                setUserName(userData.nome);
+                setCartSolicitada(userData.cartSolicitada || false); // Atualiza com o valor de cartSolicitada
+            } else {
+                console.log('Documento não existe!');
+            }
+        });
+
+        // Limpa o listener quando o componente for desmontado
+        return () => unsubscribe();
     }, []);
 
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.headerContainer}>
-                <Text style={styles.title}>Bem-vindo(a), {userName}!</Text>
+                <Text style={styles.title}>Bem-vindo(a), {userName || "Usuário"}!</Text>
                 <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
                     <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
                 </TouchableOpacity>
@@ -69,8 +71,13 @@ const HomeDoador = () => {
                 </View>
                 <View style={styles.doacoesContainer}>
                     <Text style={styles.doacoesTxt}>Minhas Doações</Text>
-                    <TouchableOpacity style={styles.botaoDoacao} onPress={() => navigation.navigate('SolicitarCarteirinha')}>
-                        <Text style={styles.txtBotao}>Solicitar carteirinha</Text>
+                    <TouchableOpacity 
+                        style={styles.botaoDoacao} 
+                        onPress={() => navigation.navigate('SolicitarCarteirinha')}
+                    >
+                        <Text style={styles.txtBotao}>
+                            {cartSolicitada ? 'Visualizar carteirinha' : 'Solicitar carteirinha'}
+                        </Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.botaoDoacao} onPress={() => navigation.navigate('HistoricoDoacoes')}>
                         <Text style={styles.txtBotao}>Ver histórico de doações</Text>

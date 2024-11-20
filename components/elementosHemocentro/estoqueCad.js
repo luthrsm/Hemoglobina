@@ -1,81 +1,157 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
-
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { db, auth } from '../../src/Services/firebaseConfig';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { useNavigation } from '@react-navigation/native';
 
-// onPress={onBack} do primeiro touchableOpacity
 
-const HemocentroScreen = ({ formData, onDataChange, onNext, onBack }) => {
+import LoadingScreen from '../../src/Screen/geral/LoadingScreen';
 
+const HemocentroScreen = ({ onNext, onBack }) => {
+  const [selectedType, setSelectedType] = useState(null);
+  const [quantidades, setQuantidades] = useState(null);
+  const [allQuantitiesDefined, setAllQuantitiesDefined] = useState(false);
   const navigation = useNavigation();
 
-  const [selectedType, setSelectedType] = useState(null);
+  const bloodTypes = ['A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'O-', 'AB-'];
+
+  useEffect(() => {
+    const fetchQuantidades = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'Hemocentro'));
+  
+        // Lista dos tipos sanguíneos válidos
+        const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+  
+        // Inicializa as quantidades somente com os tipos sanguíneos
+        const newQuantidades = bloodTypes.reduce((acc, type) => {
+          acc[type] = 0;
+          return acc;
+        }, {});
+  
+        // Processa os documentos retornados do Firestore
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+  
+          if (data.estoque) {
+            const tipos = data.estoque; // Acessa o mapa "estoque"
+  
+            Object.keys(tipos).forEach((key) => {
+              if (newQuantidades.hasOwnProperty(key)) {
+                newQuantidades[key] += parseInt(tipos[key], 10) || 0;
+              }
+            });
+          } else {
+            console.warn(`Documento ${doc.id} não possui o campo "estoque".`);
+          }
+        });
+  
+        console.log('Quantidades do Firestore:', newQuantidades);
+        setQuantidades(newQuantidades);
+      } catch (error) {
+        console.error('Erro ao buscar os dados: ', error);
+      }
+    };
+  
+    fetchQuantidades();
+  }, []);
+  
+
+
+  useEffect(() => {
+    // Verifica se todas as quantidades são maiores que 0
+    if (quantidades) {
+      setAllQuantitiesDefined(Object.values(quantidades).every((q) => q > 0));
+    }
+  }, [quantidades]);
+
 
   const handleTypePress = (type) => {
     setSelectedType(type);
-    // Navegar para a tela de estoque com o tipo selecionado
-    navigation.navigate('EstoqueScreen', { type }); // Implemente a navegação
+    navigation.navigate('EstoqueScreen', { type });
   };
+
+
+  
+
+  const finalizarCadastro = async (updateTipoUsuario) => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) {
+      console.error("UID não definido. Não é possível finalizar o cadastro.");
+      alert("Erro interno. Por favor, tente novamente.");
+      return;
+    }
+  
+    try {
+      const hemocentroRef = doc(db, 'Hemocentro', uid);
+      await updateDoc(hemocentroRef, { cadastroCompleto: true });
+      
+      // Atualiza o tipo de usuário no App.js através da função callback
+      updateTipoUsuario("hemocentro");
+      
+      console.log("Cadastro finalizado com sucesso!");
+      navigation.navigate('HomeHemocentro');
+    } catch (error) {
+      console.error("Erro ao finalizar cadastro:", error);
+    }
+};
+
+
+  
+
+
+  if (!quantidades) {
+    return (
+      <LoadingScreen/>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-    <View style={styles.stepContainer}>
-      <View style={styles.voltarContainer}>
-        <TouchableOpacity onPress={onBack}>
-          <AntDesign name="arrowleft" size={24} color="#7A0000" />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.containerImg}>
-        <Image style={styles.logo} source={require('../../assets/img/hemoCadImages/logoHemoglobina.png')} /> 
-      </View>
+      <View style={styles.stepContainer}>
+        <View style={styles.voltarContainer}>
+          <TouchableOpacity onPress={onBack}>
+            <AntDesign name="arrowleft" size={24} color="#7A0000" />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.containerImg}>
+          <Image style={styles.logo} source={require('../../assets/img/hemoCadImages/logoHemoglobina.png')} />
+        </View>
         <View style={styles.txtTopContainer}>
           <Text style={styles.txtPrincipal}>Cadastro hemocentro</Text>
-            <Text style={styles.txtSecundario}>Registrar banco de sangue</Text>
+          <Text style={styles.txtSecundario}>Registrar banco de sangue</Text>
         </View>
 
-      <View style={styles.inputContainer}>
-        <View style={styles.regSangue}>
-          <TouchableOpacity style={[styles.botaoSangue, selectedType === 'A+' && styles.selectedButton]} onPress={() => handleTypePress('A+')}>
-          <Text style={styles.buttonText}>A+</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.botaoSangue, selectedType === 'B+' && styles.selectedButton]} onPress={() => handleTypePress('B+')}>
-            <Text style={styles.buttonText}>B+</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.botaoSangue, selectedType === 'AB+' && styles.selectedButton]} onPress={() => handleTypePress('AB+')}>
-            <Text style={styles.buttonText}>AB+</Text>
-          </TouchableOpacity>
-        </View>
-        
-        <View style={styles.regSangue}>
-          <TouchableOpacity style={[styles.botaoSangue, selectedType === 'O+' && styles.selectedButton]} onPress={() => handleTypePress('O+')}>
-            <Text style={styles.buttonText}>O+</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.botaoSangue, selectedType === 'A-' && styles.selectedButton]} onPress={() => handleTypePress('A-')}>
-            <Text style={styles.buttonText}>A-</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.botaoSangue, selectedType === 'B-' && styles.selectedButton]} onPress={() => handleTypePress('B-')}>
-            <Text style={styles.buttonText}>B-</Text>
-          </TouchableOpacity>
-        </View>
-        
-        <View style={styles.regSangue}>
-          <TouchableOpacity style={[styles.botaoSangue, selectedType === 'O-' && styles.selectedButton]} onPress={() => handleTypePress('O-')}>
-            <Text style={styles.buttonText}>O-</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.botaoSangue, selectedType === 'AB-' && styles.selectedButton]} onPress={() => handleTypePress('AB-')}>
-            <Text style={styles.buttonText}>AB-</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.botaoSangue}>
-            
-          </TouchableOpacity>
-        </View>
-        
-        <TouchableOpacity style={styles.BtProx} onPress={onNext}>
+        <View style={styles.inputContainer}>
+          <View style={styles.regSangue}>
+            {bloodTypes.map((type) => (
+              <TouchableOpacity
+                key={type}
+                style={[styles.botaoSangue, selectedType === type && styles.selectedButton]}
+                onPress={() => handleTypePress(type)}
+              >
+                <Text style={styles.buttonText}>{type}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <TouchableOpacity
+            style={[styles.BtProx, !allQuantitiesDefined && styles.disabledButton]}
+            onPress={() => {
+              if (allQuantitiesDefined) {
+                finalizarCadastro()
+              } else {
+                alert("Certifique-se de que todas as quantidades estão definidas.");
+              }
+            }}
+            disabled={!allQuantitiesDefined}
+          >
             <Text style={styles.txtBtProx}>Próximo</Text>
-        </TouchableOpacity>
+          </TouchableOpacity>
+
+        </View>
       </View>
-    </View>
     </SafeAreaView>
   );
 };
@@ -89,6 +165,9 @@ const styles = StyleSheet.create({
   selectedButton: {
     backgroundColor: '#AF2B2B', // Define a cor para o botão selecionado
     borderColor: '#AF2B2B',
+  },
+  disabledButton: {
+    backgroundColor: '#C0C0C0', // Cor do botão desabilitado
   },
   buttonText: {
     fontSize: 18,
@@ -105,11 +184,12 @@ const styles = StyleSheet.create({
     left: 3,
   },
   containerImg: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   logo: {
     width: 50,
     height: 50,
+    marginTop: 30,
   },
   txtTopContainer: {
     marginBottom: 20,
@@ -118,23 +198,20 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#470404',
     fontFamily: 'Poppins-Medium',
-    textAlign: 'center'
+    textAlign: 'center',
   },
   txtSecundario: {
     fontSize: 16,
     color: '#470404',
     fontFamily: 'Poppins-Regular',
-    textAlign: 'center'
+    textAlign: 'center',
   },
   inputContainer: {
     marginTop: '5%',
-    width: '95%',
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  estoqueLogo: {
-    width: 40,
-    height: 40,
+    height: '70%',
   },
   BtProx: {
     backgroundColor: '#AF2B2B',
@@ -143,33 +220,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: '15%',
     width: '60%',
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
   txtBtProx: {
     color: '#fff',
     fontSize: 16,
   },
-  regSangue:{
+  regSangue: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'center',
     gap: 30,
-    width: '80%',
+    width: '90%',
     alignSelf: 'center',
-    marginTop: 10
+    marginTop: 10,
   },
-  regSangueUltimo:{
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 130,
-    width: '80%',
-    alignSelf: 'center',
-    alignItems: 'space-between',
-    marginTop: 10 
-  },
-  botaoSangue:{
+  botaoSangue: {
     backgroundColor: '#EEF0EB',
-    width: 80,
-    height: 80,
+    width: 90,
+    height: 90,
     borderRadius: 80,
     justifyContent: 'center',
     alignItems: 'center',
@@ -177,4 +246,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HemocentroScreen;
+export default HemocentroScreen 

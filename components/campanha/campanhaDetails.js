@@ -1,12 +1,36 @@
 import React from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { Share } from 'react-native';
 
 const imagens = [
     { id: 1, uri: require('./../../assets/img/agulha.jpg') },
     { id: 2, uri: require('./../../assets/img/coracaoDoacao.jpg') },
     { id: 3, uri: require('./../../assets/img/sangue.jpg') },
 ];
+
+
+const handleShare = async (campaign) => {
+    const message = `Campanha de doação de sangue: ${campaign.titulo}\n\nTipo Sanguíneo: ${campaign.tipoSanguineo}\n\nLocal: ${campaign.local}\n\nDescrição: ${campaign.descricao}\n\nApoie essa causa!`;
+
+    try {
+        const result = await Share.share({
+            message: message,
+        });
+
+        if (result.action === Share.sharedAction) {
+            if (result.activityType) {
+                console.log('Compartilhado com sucesso via:', result.activityType);
+            } else {
+                console.log('Compartilhado com sucesso!');
+            }
+        } else if (result.action === Share.dismissedAction) {
+            console.log('Compartilhamento cancelado');
+        }
+    } catch (error) {
+        console.log('Erro ao tentar compartilhar:', error.message);
+    }
+};
 
 const CampanhasDetalhes = ({ campaign, onClose }) => {
     if (!campaign) return null;
@@ -36,6 +60,12 @@ const CampanhasDetalhes = ({ campaign, onClose }) => {
                     {campaign.descricao}
                 </Text>
                 <Image source={randomImage.uri} style={styles.image} />
+                <View style={styles.shareContainer}>
+                    <Text style={styles.shareText}>Compartilhe:</Text>
+                    <TouchableOpacity onPress={() => handleShare(item)}>
+                        <FontAwesome name="share-alt" size={16} color="#005555" style={styles.icon} />
+                    </TouchableOpacity>
+                </View>
             </View>
         </SafeAreaView>
     );

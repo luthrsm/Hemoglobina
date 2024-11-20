@@ -6,7 +6,8 @@ import { SelectList } from 'react-native-dropdown-select-list';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useState, useEffect } from 'react';
 import supabase from '../../../../supabaseClient';
-
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../../../Services/firebaseConfig';
 import MenuDoador from '../../../../components/menu/menuDoador';
 
 
@@ -64,30 +65,21 @@ const CriarCampanha = () => {
     };
 
 
-    // Função para criar campanha no Supabase
+    // Função para criar campanha 
     const handleSubmit = async () => {
         try {
-            const { data, error } = await supabase
-                .from('campanhas')  // Nome da sua tabela no Supabase
-                .insert([
-                    {
-                        titulo: campaignName,
-                        descricao: campaignDescription,
-                        tipoSanguineo: selectedCategory,
-                        local: local,
-                        tipoDoacao: filtroSelecionado,
-                        //imagem: imagemUriTexto.uri, 
-                    }
-                ]);
-
-            if (error) {
-                console.error('Erro ao criar campanha:', error);
-            } else {
-                console.log('Campanha criada com sucesso');
-                navigation.navigate('CampanhaMain')
-            }
+            const docRef = await addDoc(collection(db, "campanhas"), {
+                titulo: campaignName,
+                descricao: campaignDescription,
+                tipoSanguineo: selectedCategory,
+                local: local,
+                tipoDoacao: filtroSelecionado,
+                createdAt: new Date() // Para registrar a data de criação
+            });
+            console.log("Campanha criada com ID:", docRef.id);
+            navigation.navigate('CampanhaDoador');
         } catch (error) {
-            console.error('Erro ao enviar campanha:', error);
+            console.error("Erro ao criar campanha:", error);
         }
     };
 
@@ -107,12 +99,13 @@ const CriarCampanha = () => {
                             <FontAwesome name="close" size={24} color="#af2b2b" />
                         </TouchableOpacity>
                         <Text style={styles.titleModal}>Qual a diferença entre doação de reposição e doação voluntária?</Text>
-                        <Text style={styles.txtModal}> in ullamcorper tincidunt enim turpis dictum tristique quis vulputate elit non arcu blandit at iaculis convallis convallis eu nec ipsum fusce enim dui feugiat maecenas egestas sagittis nibh amet nunc enim tortor pellentesque orci risus egestas nunc enim, enim elementum neque nam scelerisque feugiat vitae ipsum vel tempus, est, tristique leo dignissim elementum aliquam amet aliquam sed turpis accumsan placerat arcu, bibendum curabitur pharetra, risus tincidunt cras aliquet rutrum magna vestibulum at tortor, sit consectetur facilisis volutpat dictum augue enim sapien, tristique eget lacus at odio nibh pellentesque felis ultrices semper nunc sit ac ut nisl, nibh turpis posuere dignissim</Text>
+                        <Text style={styles.txtModal}>Doação voluntária: Feita de forma altruísta, sem um destinatário específico, para ajudar quem precisar do sangue doado.</Text>
+                        <Text style={styles.txtModal}>Doação de reposição: Realizada quando um familiar ou amigo necessita de sangue, e o doador contribui para atender essa necessidade específica. </Text>
                         <View style={{ flexDirection: 'row', gap: 30, justifyContent: 'center' }}>
                             <TouchableOpacity style={styles.btModal} onPress={() => setModalVisible(false)}>
                                 <Text style={styles.txtBtModal}>Entendi</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.btModal}>
+                            <TouchableOpacity style={styles.btModal} onPress={() => navigation.navigate("InfoMain")}>
                                 <Text style={styles.txtBtModal}>Não entendi, quero saber mais</Text>
                             </TouchableOpacity>
                         </View>
@@ -130,12 +123,12 @@ const CriarCampanha = () => {
             <View style={styles.headerContainer}>
                 <Text style={styles.title}>Campanhas</Text>
                 <TouchableOpacity style={styles.btConfig}>
-                    <FontAwesome6 name="gear" size={24} color="#EEF0EB"/>
+                    <FontAwesome6 name="gear" size={24} color="#EEF0EB" />
                 </TouchableOpacity>
             </View>
             <View style={styles.mainContainer}>
                 <View style={styles.voltarContainer}>
-                    <TouchableOpacity onPress={()=> navigation.goBack()}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
                         <AntDesign name="arrowleft" size={28} color="#326771" />
                     </TouchableOpacity>
                 </View>
@@ -179,12 +172,12 @@ const CriarCampanha = () => {
                                 <TextInput
                                     value={campaignDescription}
                                     onChangeText={(text) => {
-                                        if (text.length <= 1000) { // adjust the limit to your desired value
+                                        if (text.length <= 1000) {
                                             setCampaignDescription(text);
                                         }
                                     }}
                                     placeholder="Digite aqui a descrição da campanha..."
-                                    multiline={true}
+                                    multiline
                                     numberOfLines={10}
                                     maxLength={1000}
                                     style={styles.TextAreainput}
@@ -271,7 +264,7 @@ const styles = StyleSheet.create({
         letterSpacing: 1.5,
         fontSize: 16
     },
-    
+
     btConfig: {
         marginRight: 20,
     },
@@ -321,7 +314,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         paddingLeft: 13,
         textAlignVertical: 'top',
-        paddingTop: 15
+        paddingTop: 15,
     },
     boxStyles: {
         width: '95%',

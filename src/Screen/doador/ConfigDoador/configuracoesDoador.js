@@ -6,7 +6,7 @@ import { AsyncStorage } from 'react-native';
 
 import { db } from '../../../Services/firebaseConfig';
 import { getAuth, signOut } from 'firebase/auth';
-import { getDoc, doc } from 'firebase/firestore';
+import { getDoc, doc, onSnapshot } from 'firebase/firestore';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -19,28 +19,27 @@ import MenuDoador from '../../../../components/menu/menuDoador';
 const ConfigGeralDoador = () => {
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
+  const [cartSolicitada, setCartSolicitada] = useState(false);
 
   useEffect(() => {
-    // Pegue o ID do usuário autenticado
     const auth = getAuth();
     const user = auth.currentUser;
+    const userRef = doc(db, 'doador', user.uid);
+        
+    // Utiliza onSnapshot para ouvir alterações em tempo real
+    const unsubscribe = onSnapshot(userRef, (docSnap) => {
+        if (docSnap.exists()) {
+            const userData = docSnap.data();
+            setUserName(userData.nome);
+            setUserEmail(userData.email);
+            setCartSolicitada(userData.cartSolicitada || false); // Atualiza com o valor de cartSolicitada
+        } else {
+            console.log('Documento não existe!');
+        }
+    });
 
-    if (user) {
-        // Busque os dados do usuário no Firestore
-        const userRef = doc(db, 'doador', user.uid); // Aqui, 'doador' é o nome da coleção onde você armazena os dados do usuário
-        getDoc(userRef).then((docSnap) => {
-            if (docSnap.exists()) {
-                // Supondo que o nome esteja armazenado no campo 'nome'
-                setUserName(docSnap.data().nome);
-                setUserEmail(docSnap.data().email);
-
-            } else {
-                console.log('No such document!');
-            }
-        }).catch((error) => {
-            console.error("Error getting document:", error);
-        });
-    }
+    // Limpa o listener quando o componente for desmontado
+    return () => unsubscribe();
 }, []);
 
   const navigation = useNavigation();
@@ -101,7 +100,7 @@ const ConfigGeralDoador = () => {
 
             <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('SolicitarCarteirinha')}>
               <Image source={require('../../../../assets/img/configImages/resgatarCarte.png')} style={styles.imageBotoes} />
-              <Text style={styles.optionText}>Resgatar sua carteirinha</Text>
+              <Text style={styles.optionText}>{cartSolicitada ? 'Visualizar carteirinha' : 'Solicitar carteirinha'}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('PoliticasDeSegurancaDoador')}>

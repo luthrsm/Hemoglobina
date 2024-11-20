@@ -476,7 +476,7 @@ const Perguntas = () => {
             <View style={styles.resultContainer}>
                 <Text style={styles.resultTitle}>Parabéns, você está apto para doar de sangue! :D</Text>
                 <Image style={styles.imageApto} source={require('../../../assets/img/apto.png')} />
-                <TouchableOpacity style={styles.btResult}>
+                <TouchableOpacity style={styles.btResult} onPress={() => navigation.navigate("HemocentrosMap")}>
                     <Text style={styles.btResultTxt}>Mostre-me onde doar!</Text>
                 </TouchableOpacity>
             </View>
@@ -502,11 +502,11 @@ const Perguntas = () => {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.contentContainer}>
-                        {showResult ? (  // Se o showResult for true, exibe a tela de resultado
+                        {showResult ? (  
                             <View>
                                 {result}
                             </View>
-                        ) : (  // Caso contrário, continua exibindo as perguntas
+                        ) : (  
                             <View>
                                 <Text style={styles.contagemTxt}> Pergunta {questions[currentQuestion].id}/{questions.length}</Text>
                                 <Text style={styles.questionTxt}>{questions[currentQuestion].question}</Text>

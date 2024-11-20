@@ -7,9 +7,10 @@ import { db } from '../../Services/firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
 import axios from 'axios';
 import { FontAwesome6 } from '@expo/vector-icons';
-
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import MenuDoador from '../../../components/menu/menuDoador';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const GOOGLE_MAPS_API_KEY = 'AIzaSyAoKrjxoAFNaQLZdnVEqd2npM2bRQ-xmQE';
 
@@ -36,41 +37,53 @@ const HemocentrosMap = () => {
                 querySnapshot.docs.map(async (doc) => {
                     const data = doc.data();
                     const endereco = data.Endereço;
+                    const telefone = data.Telefone || 'Não informado';
+
+
+                    // Verifica se o campo "Horário" existe no documento
+                    const horarioFuncionamento = data.Horário || {};
+
+                    // Processa os horários, adicionando valores padrão caso estejam ausentes
+                    const horarios = {
+                        "Seg-Sex": horarioFuncionamento["Seg-Sex"] || "Não informado",
+                        "Sábado": horarioFuncionamento["Sábado"] || "Não informado",
+                        "Domingo": horarioFuncionamento["Domingo"] || "Não informado",
+                        "Específico": horarioFuncionamento["Específico"] || "Não informado",
+                    };
 
                     if (!endereco) {
                         console.error("Erro: Endereço não encontrado para o documento", doc.id);
-                        return null; // Ignora este documento se não tiver o endereço
+                        return null;
                     }
 
-                    // Verifica cada campo e define um valor padrão se estiver ausente
                     const rua = endereco.Rua || '';
-                    const numero = endereco.Numero || '';
+                    const numero = endereco.Número || '';
                     const bairro = endereco.Bairro || '';
                     const cidade = endereco.Cidade || '';
                     const estado = endereco.Estado || '';
                     const cep = endereco.CEP || '';
+                    const complemento = endereco.Complemento || '';
 
-                    const fullAddress = `${rua}, ${numero}, ${bairro}, ${cidade} - ${estado}, ${cep}`;
-                    console.log("Endereço completo:", fullAddress);
-
+                    const fullAddress = `${rua}, ${numero}, ${complemento}, ${bairro}, ${cidade} - ${estado}, ${cep}`;
                     const coords = await geocodeAddress(fullAddress);
 
                     return {
                         id: doc.id,
                         name: data.Nome || 'Nome do Hemocentro',
                         fullAddress,
-                        ...coords
-
+                        ...coords,
+                        telefone,
+                        horarios,
                     };
                 })
             );
 
-            // Filtra para remover documentos nulos (sem endereço)
             setHemocentros(hemocentrosData.filter(Boolean));
         } catch (error) {
             console.error("Erro ao buscar hemocentros: ", error);
         }
     };
+
 
     // Função que usa a API do Google para geocodificar um endereço
     const geocodeAddress = async (address) => {
@@ -176,7 +189,25 @@ const HemocentrosMap = () => {
                                     />
                                     <Text style={styles.popupTitle}>{selectedHemocentro.name}</Text>
                                 </View>
-                                <Text style={styles.popupDescription}>{selectedHemocentro.fullAddress}</Text>
+                                <View style={{ flexDirection: "row", alignItems: "baseline", marginTop: '20', marginBottom: '10' }}>
+                                    <Ionicons name="location-outline" size={24} color="#326771" style={styles.icons} />
+                                    <Text style={[styles.popupDescription, { marginTop: 10, marginLeft: 7, alignSelf: 'center', fontSize: 16, fontFamily: 'DM-Sans Medium' }]}>Endereço:</Text>
+                                </View>
+                                <Text style={styles.popupDescription}>Endereço: {selectedHemocentro.fullAddress}</Text>
+                                <View style={{ flexDirection: "row", alignItems: "baseline", marginTop: '10', marginBottom: '10' }}>
+                                    <Ionicons name="call-outline" size={24} color="#326771" style={styles.icons} />
+                                    <Text style={[styles.popupDescription, { marginTop: 10, marginLeft: 7, alignSelf: 'center', fontSize: 16, fontFamily: 'DM-Sans Medium' }]}>Telefone:</Text>
+                                </View>
+                                <Text style={styles.popupDescription}>Telefone: {selectedHemocentro.telefone}</Text>
+                                <View style={{ flexDirection: "row", alignItems: "baseline", marginTop: '10', marginBottom: '10' }}>
+                                    <Ionicons name="time-outline" size={24} color="#326771" style={styles.icons} />
+                                    <Text style={[styles.popupDescription, { marginTop: 10, marginLeft: 7, alignSelf: 'center', fontSize: 16, fontFamily: 'DM-Sans Medium' }]}>Horário de funcionamento:</Text>
+                                </View>
+                                {Object.entries(selectedHemocentro.horarios).map(([dia, horario]) => (
+                                    <Text key={dia} style={styles.popupDescription}>
+                                        {dia}: {horario}
+                                    </Text>
+                                ))}
                                 <TouchableOpacity
                                     onPress={() => setModalVisible(false)}
                                     style={styles.closeButton}
@@ -234,10 +265,10 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 8,
         borderTopLeftRadius: 8,
         marginTop: 'auto',
-        height: '35%'
+        height: '55%'
     },
     popupTitle: {
-        fontSize: 18,
+        fontSize: 22,
         fontFamily: 'DM-Sans Bold',
         marginBottom: 8,
         color: '#053A45',
@@ -246,7 +277,6 @@ const styles = StyleSheet.create({
     popupDescription: {
         fontSize: 14,
         textAlign: 'justify',
-        marginTop: 20,
         fontFamily: 'DM-Sans',
     },
     viewFotos: {
@@ -254,8 +284,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     image: {
-        width: 40,
-        height: 40,
+        width: 50,
+        height: 50,
         marginRight: 5
     },
     closeButton: {

@@ -1,8 +1,12 @@
 import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { AsyncStorage } from 'react-native';
+
+import { db } from '../../../Services/firebaseConfig';
+import { getAuth, signOut } from 'firebase/auth';
+import { getDoc, doc } from 'firebase/firestore';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -14,81 +18,109 @@ import MenuHemocentro from '../../../../components/menu/menuHemocentro';
 
 const ConfigHemo = () => {
 
-  const [userData] = useState({
-    name: 'Hospital Geral',
-    email: 'hgpirajussara@gmail.com',
-  });
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+
+  useEffect(() => {
+    // Pegue o ID do usuário autenticado
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (user) {
+      const userRef = doc(db, 'Hemocentro', user.uid);
+      getDoc(userRef).then((docSnap) => {
+        if (docSnap.exists()) {
+          setUserName(docSnap.data().Nome);
+          setUserEmail(docSnap.data().Email);
+
+        } else {
+          console.log('No such document!');
+        }
+      }).catch((error) => {
+        console.error("Error getting document:", error);
+      });
+    }
+  }, []);
 
   const navigation = useNavigation();
 
   const [loggedOut, setLoggedOut] = useState(false);
-  
+
   const handleLogout = async () => {
-    navigation.navigate('WelcomeScreen')
+    const auth = getAuth();
+
+    try {
+      await signOut(auth);
+      console.log('Usuário deslogado com sucesso!');
+
+      navigation.navigate('WelcomeScreen');
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error.message);
+    }
   };
 
-    // const route = useRoute();
-    // const { profilePic } = route.params;
+  // const route = useRoute();
+  // const { profilePic } = route.params;
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.headerContainer}>
-                <Text style={styles.title}> Configurações</Text>
-            </View>
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.title}> Configurações</Text>
+      </View>
 
-            <View style={styles.mainContainer}>
-              <View style={styles.voltarContainer}>
-                <TouchableOpacity  onPress={() => navigation.goBack()}>
-                  <AntDesign name="arrowleft" size={24} color="#7A0000" />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.profile}>
-                
-                <Image source={require('../../../../assets/img/configImages/hemocentro.png')} style={styles.profileImage} />
-                <Text style={styles.profileName}>{userData.name}</Text>
-                <Text style={styles.profileEmail}>{userData.email}</Text>
-              </View>
-
-              <View style={styles.options}>
-
-                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('PerfilConfigHemo')}> 
-                  <Image source={require('../../../../assets/img/configImages/lapis.png')} style={styles.imageBotoes} />
-                  <Text style={styles.optionText}>Editar perfil</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.option} onPress={handleLogout}>
-                  <Image source={require('../../../../assets/img/configImages/sairConta.png')} style={styles.imageBotoes}/>
-                  <Text style={styles.optionText}>Sair da conta</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('FaleConoscoHemo')}>
-                  <Image source={require('../../../../assets/img/configImages/faleConosco.png')} style={styles.imageBotoes} />
-                  <Text style={styles.optionText}>Fale conosco</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('PoliticasDeSegurancaHemo')}>
-                  <Image source={require('../../../../assets/img/configImages/politicas.png')} style={styles.imageBotoes} />
-                  <Text style={styles.optionText}>Políticas de segurança</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('TermosDeUsoHemo')}>
-                  <Image source={require('../../../../assets/img/configImages/termos.png')} style={styles.imageBotoes} />
-                  <Text style={styles.optionText}>Termos de uso</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('SobreHemo')}>
-                  <Image source={require('../../../../assets/img/configImages/sobre.png')} style={styles.imageBotoes} />
-                  <Text style={styles.optionText}>Sobre</Text>
-                </TouchableOpacity>
-
-              </View>      
-            </View>
-
-            <MenuHemocentro />
+      <View style={styles.mainContainer}>
+        <View style={styles.voltarContainer}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <AntDesign name="arrowleft" size={24} color="#7A0000" />
+          </TouchableOpacity>
         </View>
 
-    )
+        <View style={styles.profile}>
+
+          <Image source={require('../../../../assets/img/iconUser.png')} style={styles.profileImage} />
+          <Text style={styles.profileName}>{userName}</Text>
+          <Text style={styles.profileEmail}>{userEmail}</Text>
+        </View>
+
+        <View style={styles.options}>
+
+          <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('PerfilConfigHemo')}>
+            <Image source={require('../../../../assets/img/configImages/lapis.png')} style={styles.imageBotoes} />
+            <Text style={styles.optionText}>Editar perfil</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.option} onPress={handleLogout}>
+            <Image source={require('../../../../assets/img/configImages/sairConta.png')} style={styles.imageBotoes} />
+            <Text style={styles.optionText}>Sair da conta</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('FaleConoscoHemo')}>
+            <Image source={require('../../../../assets/img/configImages/faleConosco.png')} style={styles.imageBotoes} />
+            <Text style={styles.optionText}>Fale conosco</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('PoliticasDeSegurancaHemo')}>
+            <Image source={require('../../../../assets/img/configImages/politicas.png')} style={styles.imageBotoes} />
+            <Text style={styles.optionText}>Políticas de segurança</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('TermosDeUsoHemo')}>
+            <Image source={require('../../../../assets/img/configImages/termos.png')} style={styles.imageBotoes} />
+            <Text style={styles.optionText}>Termos de uso</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('SobreHemo')}>
+            <Image source={require('../../../../assets/img/configImages/sobre.png')} style={styles.imageBotoes} />
+            <Text style={styles.optionText}>Sobre</Text>
+          </TouchableOpacity>
+
+        </View>
+      </View>
+
+      <MenuHemocentro />
+    </View>
+
+  )
 }
 
 export default ConfigHemo;
@@ -141,7 +173,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     fontSize: 18,
   },
-   profile: {
+  profile: {
     alignItems: 'center',
     marginTop: 20,
   },

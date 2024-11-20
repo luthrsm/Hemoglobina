@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Text, Image } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Text, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -7,6 +7,10 @@ import * as yup from 'yup';
 import { useNavigation } from '@react-navigation/native';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
+
+import { auth, db } from '../../src/Services/firebaseConfig';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc, collection } from 'firebase/firestore';
 
 // Definição do esquema de validação com yup
 const schema = yup.object().shape({
@@ -16,7 +20,7 @@ const schema = yup.object().shape({
         .required('O email é obrigatório'),
     senha: yup
         .string()
-        .min(8, 'A senha deve ter pelo menos 8 caracteres')
+        .min(6, 'A senha deve ter pelo menos 6 caracteres')
         .required('A senha é obrigatória'),
     confirmarSenha: yup
         .string()
@@ -27,37 +31,56 @@ const schema = yup.object().shape({
         .oneOf([true], 'Você deve concordar com os Termos de Uso e Política de Privacidade'),
 });
 
-const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
-
+const InputSenhaCad = () => {
     const navigation = useNavigation();
-
     const [isPasswordVisible1, setIsPasswordVisible1] = useState(false);
     const [isPasswordVisible2, setIsPasswordVisible2] = useState(false);
-
     const [isChecked, setIsChecked] = useState(false);
 
-    const { control, handleSubmit, formState: { errors }, getValues, trigger } = useForm({
-        resolver: yupResolver(schema),
+    const { control, handleSubmit, formState: { errors } } = useForm({
+        resolver: yupResolver(schema)
     });
 
     const handleCheckboxToggle = () => {
         setIsChecked(prev => !prev);
     };
 
-    const validateStep = async () => {
-        //const result = await trigger(); // Valida todos os campos
-        //if (result) {
-            //const formData = getValues(); // Coleta os dados do formulário
-            //console.log('Dados do formulário:', formData); // Exibe os dados no console
-            
-        //}
-        navigation.navigate('HomeHemocentro');
+    const handleSignUp = async (data) => {
+        if (!isChecked) {
+            alert("Por favor, aceite os termos de uso e a política de privacidade.");
+            return;
+        }
+
+        const { email, senha } = data;
+
+        try {
+            // Cria a conta com e-mail e senha no Firebase Auth
+            const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+            const { uid } = userCredential.user;
+
+            const doadorRef = doc(collection(db, 'Hemocentro'), uid);
+
+            // Criando o documento no Firestore
+            await setDoc(doadorRef, {
+                Email: email,
+                cadastroCompleto: false
+            });
+
+
+            navigation.navigate('PerfilHemocentro', { uid });
+        } catch (error) {
+            if (error.code === 'auth/email-already-in-use') {
+                Alert.alert('Erro', 'Email já cadastrado.');
+            } else {
+                Alert.alert('Erro', error.message || 'Ocorreu um erro.');
+            }
+        }
     };
 
     return (
         <View style={styles.stepContainer}>
             <View style={styles.voltarContainer}>
-                <TouchableOpacity onPress={onBack}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
                     <AntDesign name="arrowleft" size={24} color="#7A0000" />
                 </TouchableOpacity>
             </View>
@@ -66,7 +89,7 @@ const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
             </View>
             <View style={styles.txtTopContainer}>
                 <Text style={styles.txtPrincipal}>Cadastro hemocentro</Text>
-                <Text style={styles.txtSecundario}>Finalize seu cadastro</Text>
+                <Text style={styles.txtSecundario}>Inicie seu cadastro</Text>
             </View>
 
             <View style={styles.inputContainer}>
@@ -145,31 +168,29 @@ const InputSenhaCad = ({ formData, onDataChange, onNext, onBack }) => {
                 {errors.confirmarSenha && <Text style={styles.labelError}>{errors.confirmarSenha.message}</Text>}
 
                 <View style={styles.termos}>
-                    <TouchableOpacity
-                        style={styles.checkboxContainer}
-                        onPress={handleCheckboxToggle}
-                    >
+                    <TouchableOpacity style={styles.checkboxContainer} onPress={handleCheckboxToggle}>
                         <Ionicons
                             name={isChecked ? 'checkbox' : 'square-outline'}
                             size={24}
                             color="black"
                         />
-                        <Text style={styles.label}>
-                            Declaro que li e concordo com os{' '}
-                            <Text style={styles.link}>
-                                Termos de Uso
-                            </Text>
-                            {' '}e com a{' '}
-                            <Text style={styles.link}>
-                                Política de Privacidade
-                            </Text>
-                        </Text>
                     </TouchableOpacity>
+
+                    <Text style={styles.label}>
+                        Li e estou de acordo com o{' '}
+                        <TouchableOpacity style={styles.btLink} onPress={() => navigation.navigate('TermosCad')}>
+                            <Text style={styles.link}>Termo de Uso</Text>
+                        </TouchableOpacity>{' '}
+                        e{' '}
+                        <TouchableOpacity style={styles.btLink} onPress={() => navigation.navigate('PoliticasCad')}>
+                            <Text style={styles.link}>Política de Privacidade</Text>
+                        </TouchableOpacity>
+                    </Text>
                     {errors.isChecked && <Text style={styles.labelError}>{errors.isChecked.message}</Text>}
                 </View>
 
-                <TouchableOpacity style={styles.BtProx} onPress={validateStep}>
-                    <Text style={styles.txtBtProx}>Finalizar Cadastro</Text>
+                <TouchableOpacity style={styles.BtProx} onPress={handleSubmit(handleSignUp)}>
+                    <Text style={styles.txtBtProx}>Próximo</Text>
                 </TouchableOpacity>
 
             </View>
@@ -238,7 +259,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginLeft: 7,
-        marginRight: 7
+        marginRight: 7,
+        width: '100%',
+        
     },
     checkboxContainer: {
         flexDirection: 'row',
@@ -246,6 +269,8 @@ const styles = StyleSheet.create({
     },
     label: {
         marginLeft: 8,
+        alignContent: 'center',
+        width: '100%',
     },
     link: {
         textDecorationLine: 'underline',

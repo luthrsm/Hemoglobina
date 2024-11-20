@@ -18,7 +18,7 @@ const schemaCEP = yup.object().shape({
     estado: yup.string(),
 });
 
-const AddressForm = ({ route }) => {
+const AddressFormDoador = ({ route }) => {
     const { uid } = route.params; // Captura o UID da navegação
     const [formData, setFormData] = useState({});
     const [cep, setCep] = useState(formData.cep || '');
@@ -26,11 +26,13 @@ const AddressForm = ({ route }) => {
     const { control, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schemaCEP),
     });
+
     const fetchData = async () => {
         try {
             const db = getFirestore();
             const docRef = doc(db, 'doador', uid); // Referência ao documento
             const docSnap = await getDoc(docRef);
+
             if (docSnap.exists()) {
                 setFormData(docSnap.data()); // Atualiza o estado com os dados do Firestore
             }
@@ -74,19 +76,31 @@ const AddressForm = ({ route }) => {
         fetchAddress();
     }, [cep]);
 
-    const updateAddress = async () => {
+    const updateAddress = async (updateTipoUsuario) => {
+        const uid = auth.currentUser?.uid;
+        if (!uid) {
+            console.error("UID não definido. Não é possível atualizar dados.");
+            return;
+        }
+
         try {
             const db = getFirestore();
-            const docRef = doc(db, 'doador', uid); // Referência ao documento
+            const docRef = doc(db, 'doador', uid);
+
             await updateDoc(docRef, {
                 cep: formData.cep,
                 rua: formData.rua,
                 bairro: formData.bairro,
                 cidade: formData.cidade,
                 estado: formData.estado,
+                cadastroCompleto: true
             });
+
+            // Atualiza o tipo de usuário no App.js através da função callback
+            updateTipoUsuario("doador");
+
             console.log('Dados de endereço atualizados!');
-            navigation.navigate('HomeDoador')
+            navigation.navigate('HomeDoador');
         } catch (error) {
             console.error("Erro ao atualizar dados:", error);
         }
@@ -191,7 +205,7 @@ const AddressForm = ({ route }) => {
     );
 };
 
-export default AddressForm;
+export default AddressFormDoador;
 
 
 

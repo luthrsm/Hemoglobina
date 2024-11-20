@@ -14,7 +14,7 @@ const ChatBubble = ({ role, text, onSpeech }) => {
             {role === "model" && (
                 <View style={{flexDirection: "row", marginBottom: 10}}>
                     <Image
-                    source={require('../../../../assets/img/iconBot.png')}
+                    source={require('../../../../assets/img/chatbotIcon.png')}
                     style={styles.avatar}
                 />
         

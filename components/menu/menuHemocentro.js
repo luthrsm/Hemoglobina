@@ -50,7 +50,8 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         gap: 35,
         marginTop: 'auto',
-        
+        paddingLeft: '3%',
+        paddingRight: '3%',
     },
     divLink: {
         alignItems: "center",
@@ -60,7 +61,7 @@ const styles = StyleSheet.create({
         color: '#EEF0EB',
         fontSize: 13,
         textAlign: 'center',
-        fontFamily: 'DM-Sans',
+
     },
     icons: {
         textAlign: 'center',

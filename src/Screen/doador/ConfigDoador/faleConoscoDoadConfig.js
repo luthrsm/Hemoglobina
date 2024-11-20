@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
+import * as MailComposer from 'expo-mail-composer';
 
 import MenuDoador from '../../../../components/menu/menuDoador'
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -11,22 +12,31 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 
 const FaleConoscoD = ({ navigation, route }) => {
-  const { control, handleSubmit } = useForm();
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [pergunta, setPergunta] = useState('');
+  const [isAvailable, setIsAvailable] = useState(false);
+  const [subject, setSubject] = useState(undefined);
+  const [body, setBody] = useState(undefined);
+  const [email, setEmail] = useState(undefined);
 
-  const [text, setText] = useState('');
+  const scrollViewRef = useRef(null);
 
-  const handleEmailChange = (text) => setEmail(text);
-  const handleNameChange = (text) => setName(text);
-  const handlePerguntaChange = (text) => setPergunta(text);
+  useEffect(() => {
+    async function checkAvailability() {
+      const isMailAvailable = await MailComposer.isAvailableAsync();
+      setIsAvailable(isMailAvailable);
+    }
 
-  const handleSave = async (data) => {
-    console.log('Nome:', data.name);
-    console.log('Email:', data.email);
-    console.log('Pergunta', data.pergunta);
-    navigation.navigate('ConfiguracoesDoador'); // Voltar para a tela anterior
+    checkAvailability();
+  }, []);
+
+  const sendMail = async () => {
+
+    MailComposer.composeAsync({
+      subject: subject,
+      body: body,
+      recipients: ['hemoglobinaltda@gmail.com'],
+    });
+
+    navigation.navigate('ConfiguracoesDoador');
   };
 
   return (
@@ -42,69 +52,56 @@ const FaleConoscoD = ({ navigation, route }) => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.inputSection}>
-          <Text style={styles.textoFale}>Fale conosco</Text>
+  <ScrollView
+          ref={scrollViewRef}
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={true}
+        >
+    
+      <View style={styles.inputSection}>
+        <Text style={styles.textoFale}>Fale conosco</Text>
           <View style={styles.icon}>
-            <Text style={styles.inputLabel}>Nome completo:</Text>
+            <Text style={[styles.inputLabel, { textAlignVertical: 'top', paddingTop: 15 }]}>Nome completo:</Text>
           </View>
-          <Controller
-            control={control}
-            render={({ onChange, onBlur, value }) => (
-              <TextInput
-                style={styles.input}
-                onBlur={onBlur}
-                onChangeText={(text) => onChange(text)}
-                value={value}
-              />
-            )}
-            name="name"
-          />
-        </View>
-
-        <View style={styles.inputSection}>
-          <View style={styles.icon}>
-            <Text style={styles.inputLabel}>Email:</Text>
-          </View>
-          <Controller
-            control={control}
-            render={({ onChange, onBlur, value }) => (
-              <TextInput
-                style={styles.input}
-                onBlur={onBlur}
-                onChangeText={(text) => onChange(text)}
-                value={value}
-              />
-            )}
-            name="email"
-          />
-        </View>
-
-        <View style={styles.inputSection}>
-          <View style={styles.icon}>
-            <Text style={[styles.inputLabel, { textAlignVertical: 'top', paddingTop: 15 }]}>Mensagem:</Text>
-          </View>
-          <Controller
-            control={control}
-            render={({ onChange, onBlur, value }) => (
-              <TextInput
-                style={styles.input}
-                onBlur={onBlur}
-                onChangeText={(text) => onChange(text)}
-                value={value}
-                multiline={true}
-                numberOfLines={5}
-              />
-            )}
-            name="pergunta"
-          />
-        </View>
-
-        <TouchableOpacity style={styles.BtProx} onPress={handleSubmit(handleSave)}>
-          <Text style={styles.buttonText}>Enviar</Text>
-        </TouchableOpacity>
+            <TextInput
+              style={styles.input}
+              onChangeText={setSubject}
+              value={subject}
+            />
       </View>
 
-      <MenuDoador />
+        <View style={styles.inputSection}>
+          <View style={styles.icon}>
+            <Text style={[styles.inputLabel, { textAlignVertical: 'top', paddingTop: 15 }]}>Email:</Text>
+          </View>
+            <TextInput
+              style={styles.input}
+              onChangeText={setEmail}
+              value={email}
+            />
+        </View>
+
+      <View style={[styles.inputSection, {marginBottom: 10, height: 'auto'}]}>
+          <View style={styles.icon}>
+            <Text style={styles.inputLabel}>Mensagem:</Text>
+          </View>
+            <TextInput
+              style={[styles.input,{padding: 0, paddingLeft: 10, alignContent: 'flex-start', textAlignVertical: 'top', paddingTop: 15, paddingRight: 10, paddingBottom: 15}]}
+              onChangeText={setBody}
+              value={body}
+              multiline={true}
+              numberOfLines={10}
+            />
+        </View>
+
+        {isAvailable ? <TouchableOpacity style={styles.BtProx} onPress={sendMail}>
+          <Text style={styles.buttonText}>Enviar</Text>
+        </TouchableOpacity> : <Text>Email não disponível para envio </Text>}
+
+          </ScrollView>
+      </View>
+
+     <MenuDoador />
     </View>
   );
 };
@@ -134,7 +131,8 @@ const styles = StyleSheet.create({
     marginLeft: 25,
     marginTop: 7,
     fontFamily: 'DM-Sans',
-    letterSpacing: 1.5
+    letterSpacing: 1.5,
+    fontSize: 16,
   },
   mainContainer: {
     padding: 32,
@@ -179,7 +177,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: '4%',
     width: '60%',
-    alignSelf: 'center'
+    alignSelf: 'center',
+    marginBottom: '5%',
   },
 });
 

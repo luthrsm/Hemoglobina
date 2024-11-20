@@ -1,113 +1,150 @@
 import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { FontAwesome6 } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
+import { db, auth } from '../../Services/firebaseConfig';
+import { collection, getDocs, query, where, doc, updateDoc, getDoc, onSnapshot } from 'firebase/firestore';
+
 import MenuDoador from '../../../components/menu/menuDoador';
-
-const donationsData = [
-  {
-    id: '1',
-    date: '23/12/202544',
-    location: 'Banco de sangue paulista',
-    bloodType: 'A+',
-    cpf: '09876474029',
-  },
-  {
-    id: '2',
-    date: '06/08/2024',
-    location: 'Hospital Geral',
-    bloodType: 'A+',
-    cpf: '09876474029',
-  },
-  {
-    id: '3',
-    date: '14/10/2023',
-    location: 'Banco de sangue paulista',
-    bloodType: 'A+',
-    cpf: '09876474029',
-  },
-];
-
-const DonationItem = ({ donation }) => {
-  const [showDetails, setShowDetails] = useState(false);
-
-  const toggleDetails = () => {
-    setShowDetails(!showDetails);
-  };
-
-  return (
-    <TouchableOpacity onPress={toggleDetails} style={styles.donationItem}>
-      <View style={styles.donationInfo}>
-        <Text style={styles.donationDate}>Data da doação: {donation.date}</Text>
-        <Text style={styles.donationLocation}>Local: {donation.location}</Text>
-        <Text style={styles.donationBloodType}>Tipo sanguíneo: {donation.bloodType}</Text>
-      </View>
-      {showDetails && (
-        <View style={styles.donationDetails}>
-          <Text style={styles.donationCpf}>CPF: {donation.cpf}</Text>
-        </View>
-      )}
-    </TouchableOpacity>
-  );
-};
-
-
-
 
 
 const HistoricoDoacoes = () => {
+  const scrollViewRef = useRef(null);
+  const navigation = useNavigation();
+  const doadorUid = auth.currentUser?.uid;
+  const [doacoes, setDoacoes] = useState([]);
+  const [numDoacoes, setNumDoacoes] = useState('');
+  const [local, setLocal] = useState('');
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      query(
+        collection(db, "doacoes"),
+        where("userUid", "==", doadorUid), // Filtra doações pelo id do usuário
+        where('status', '==', 'confirmada')
+      ),
+      async (querySnapshot) => {
+        const fetchedDoacoes = await Promise.all(
+          querySnapshot.docs.map(async (docSnapshot) => {
+            const doacaoData = docSnapshot.data();
 
-    const scrollViewRef = useRef(null);
+            // Busca a referência do hemocentro usando o hemocentroUid
+            const hemocentroRef = doc(db, "Hemocentro", doacaoData.hemocentroUid);
+            const hemocentroDoc = await getDoc(hemocentroRef);
 
-    const navigation = useNavigation();
+            // Verifica se o documento do hemocentro existe
+            if (hemocentroDoc.exists()) {
+              setLocal(hemocentroDoc.data().Nome);
+            } else {
+              console.log("Hemocentro não encontrado!");
+            }
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.headerContainer}>
-                <Text style={styles.title}>Histórico de doações</Text>
-                <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
-                    <FontAwesome6 name="gear" size={24} color="#EEF0EB"  />
-                </TouchableOpacity>
-            </View>
+            return {
+              id: docSnapshot.id,
+              ...doacaoData,
+            };
+          })
+        );
 
-            <View style={styles.mainContainer}>
-              <View style={styles.voltarContainer}>
-                <TouchableOpacity onPress={() => navigation.navigate('HomeDoador')}>
-                  <AntDesign name="arrowleft" size={24} color="#326771" />
-                </TouchableOpacity>
-              </View>
+        setDoacoes(fetchedDoacoes);
+        console.log("Doações atualizadas:", fetchedDoacoes);
+      },
+      (error) => {
+        console.error("Erro ao escutar doações:", error);
+      }
+    );
 
-                <View style={styles.txtFotoContainer}>
-                  <Text style={styles.txtTitle}>Últimas Doações</Text>
-                  <Text >Até agora foram feitas: {donationsData.length} doações</Text>
-                </View>
+    return () => unsubscribe();
+  }, [doadorUid]);
 
-              <ScrollView
-                ref={scrollViewRef}
-                style={styles.scrollView}
-                showsVerticalScrollIndicator={true}
-              >
-                <View style={styles.doacoesContainer}>
-                    <View style={styles.donationList}>
-                  {donationsData.map((donation, index) => (
-                    <DonationItem key={donation.id} donation={donation} />
-                  ))}
-                    </View>
 
-                </View>
-              </ScrollView>
-                
-            </View>
+  useEffect(() => {
 
-            <MenuDoador />
+    if (doadorUid) {
+      // Busque os dados do usuário no Firestore
+      const userRef = doc(db, 'doador', doadorUid);
+      getDoc(userRef).then((docSnap) => {
+        if (docSnap.exists()) {
+          setNumDoacoes(docSnap.data().quantDoacoes)
+
+        } else {
+          console.log('No such document!');
+        }
+      }).catch((error) => {
+        console.error("Error getting document:", error);
+      });
+    }
+  }, []);
+
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.title}>Histórico de doações</Text>
+        <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
+          <FontAwesome6 name="gear" size={24} color="#EEF0EB" />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.mainContainer}>
+        <View style={styles.voltarContainer}>
+          <TouchableOpacity onPress={() => navigation.navigate('HomeDoador')}>
+            <AntDesign name="arrowleft" size={24} color="#326771" />
+          </TouchableOpacity>
         </View>
 
-    )
+        <View style={styles.txtFotoContainer}>
+          <Text style={styles.txtTitle}>Últimas Doações</Text>
+          <Text >Até agora foram feitas: {numDoacoes} doações</Text>
+        </View>
+
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={true}
+        >
+          <View style={styles.doacoesContainer}>
+            <View style={styles.donationList}>
+              {doacoes.length > 0 ? (
+                doacoes.map((doacao) => (
+                  <View style={styles.doacaoContainer} key={doacao.id}>
+                    <View style={styles.donationItem}>
+                      <View style={styles.donationInfo}>
+                        <View style={{ flexDirection: 'row' }}>
+                          <Text style={[styles.donationDate, {fontFamily: 'DM-Sans Medium'}]}>Data da doação:</Text>
+                          <Text style={styles.donationDate}> {doacao.dataDoacao}</Text>
+                        </View>
+                        <View style={{ flexDirection: 'row' }}>
+                          <Text style={[styles.donationLocation, {fontFamily: 'DM-Sans Medium'}]}>Local:</Text>
+                          <Text style={styles.donationDate}>{local} </Text>
+                        </View>
+                        <View style={{ flexDirection: 'row' }}>
+                          <Text style={[styles.donationBloodType, {fontFamily: 'DM-Sans Medium'}]}>Tipo sanguíneo: </Text>
+                          <Text style={styles.donationDate}>{doacao.tipoSanguineo} </Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                ))
+              ) : (
+                <Text style={{ textAlign: 'center', fontFamily: 'DM-Sans', fontSize: 18 }}>Nenhuma doação registrada.</Text>
+
+              )}
+            </View>
+
+          </View>
+        </ScrollView>
+
+      </View>
+
+      <MenuDoador />
+    </View>
+
+  )
 }
 
 export default HistoricoDoacoes;
@@ -166,7 +203,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   doacoesContainer: {
-    
+
   },
   donationList: {
     padding: 16,
@@ -181,17 +218,18 @@ const styles = StyleSheet.create({
   },
   donationInfo: {
     marginBottom: 8,
+    gap: 5
   },
   donationDate: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: 'DM-Sans',
   },
   donationLocation: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: 'DM-Sans',
   },
   donationBloodType: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: 'DM-Sans',
   },
   donationDetails: {

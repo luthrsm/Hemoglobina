@@ -14,7 +14,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 const ProfileScreen = ({ navigation }) => {
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [userPhoto, setUserPhoto] = useState(require('../../../../assets/img/configImages/userimage.png'));
+  const [userPhoto, setUserPhoto] = useState(require('../../../../assets/img/iconUser.png'));
   const [userTypeBlood, setUserTypeBlood] = useState('')
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');

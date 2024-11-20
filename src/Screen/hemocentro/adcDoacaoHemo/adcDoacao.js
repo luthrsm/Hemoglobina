@@ -1,12 +1,15 @@
-import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SelectList } from 'react-native-dropdown-select-list';
 import MenuHemocentro from '../../../../components/menu/menuHemocentro';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
+import { db } from '../../../Services/firebaseConfig';
+import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const AdcDoacao = ({ navigation }) => {
 
@@ -28,6 +31,7 @@ const AdcDoacao = ({ navigation }) => {
     const [quantidade, setQuantidade] = useState('');
     const [cpf, setCpf] = useState('');
     const [nome, setNome] = useState("")
+    const [uid, setUid] = useState(null);
 
     const onChangeDate = (event, selectedDate) => {
         setShow(false); // Fecha o DatePicker
@@ -44,21 +48,92 @@ const AdcDoacao = ({ navigation }) => {
         return `${day}/${month}/${year}`;
     };
 
-    // Navegação para a próxima tela com as variáveis
-    const handleNext = () => {
+    const handleNext = async () => {
+        const hemocentroUid = uid;
+    
+        // Adicionar a doação ao banco de dados e obter o donationId
+        const donationId = await addDoacao(hemocentroUid, cpf, selected, quantidade, formatDate(date));
+        const userUid = await getUserUidByCpf(cpf);
+        // Limpar os campos após o envio
+        resetForm();
+    
+        // Navegar para a próxima tela, passando o donationId
         navigation.navigate('AtencaoScreen', {
             data: formatDate(date),
             quantidade,
             nome,
             cpf,
             tipoSanguineo: selected,
+            donationId: donationId, // Passando o donationId para a tela de confirmação
+            doadorUid: userUid,
+            hemocentroId: hemocentroUid,
         });
     };
+    
+    // Função para resetar os campos
+    const resetForm = () => {
+        setNome('');
+        setCpf('');
+        setQuantidade('');
+        setSelected('');
+        setDate(null);
+    };
+    
+
+    // Função para buscar o UID do usuário pelo CPF
+    const getUserUidByCpf = async (cpf) => {
+        const usersRef = collection(db, 'doador'); // Supondo que a coleção de usuários seja 'users'
+        const q = query(usersRef, where("cpf", "==", cpf)); // Consulta para buscar pelo CPF
+
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+            const userDoc = querySnapshot.docs[0]; // Pegando o primeiro documento encontrado
+            return userDoc.id; // Retorna o UID do usuário
+        }
+        return null; // Se não encontrar, retorna null
+    };
+
+    const addDoacao = async (hemocentroUid, userCpf, tipoSanguineo, quantidade, date) => {
+        // Buscar o UID do usuário com o CPF
+        const userUid = await getUserUidByCpf(userCpf);
+    
+        try {
+            // Caso o userUid não seja encontrado, salvamos com o CPF
+            const docRef = await addDoc(collection(db, 'doacoes'), {
+                hemocentroUid: hemocentroUid,
+                userUid: userUid || userCpf, 
+                tipoSanguineo: tipoSanguineo,
+                quantidade: quantidade,
+                dataDoacao: date,
+                status: "pendente", 
+                nome: nome,
+            });
+            console.log("Doação adicionada com ID: ", docRef.id);
+            return docRef.id; // Retorna o ID da doação
+        } catch (e) {
+            Alert.alert("Erro ao adicionar doação: ", e);
+        }
+    };
+    
+
+    const auth = getAuth();
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUid(user.uid);
+            } else {
+                setUid(null);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
 
     const isValidCPF = (cpf) => {
         cpf = cpf.replace(/[^\d]+/g, '');
         if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
-    
+
         let sum = 0;
         let remainder;
         for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i - 1, i)) * (11 - i);
@@ -70,7 +145,7 @@ const AdcDoacao = ({ navigation }) => {
         remainder = (sum * 10) % 11;
         if (remainder === 10 || remainder === 11) remainder = 0;
         if (remainder !== parseInt(cpf.substring(10, 11))) return false;
-    
+
         return true;
     };
 
@@ -90,21 +165,19 @@ const AdcDoacao = ({ navigation }) => {
                     <Text style={styles.adcDoacaoTitle}>Adicionar Doação</Text>
                     <View style={styles.inputContainer}>
                         <Text style={styles.label}>Data da doação:</Text>
-                        <>
-                            <TouchableOpacity onPress={() => setShow(true)} style={styles.input}>
-                                <Text style={{ color: date ? '#000' : '#999999' }}>
-                                    {date ? formatDate(date) : 'Escolha a data da doação'}
-                                </Text>
-                            </TouchableOpacity>
-                            {show && (
-                                <DateTimePicker
-                                    mode="date"
-                                    display="default"
-                                    value={date || new Date()}
-                                    onChange={onChangeDate}
-                                />
-                            )}
-                        </>
+                        <TouchableOpacity onPress={() => setShow(true)} style={styles.input}>
+                            <Text style={{ color: date ? '#000' : '#999999' }}>
+                                {date ? formatDate(date) : 'Escolha a data da doação'}
+                            </Text>
+                        </TouchableOpacity>
+                        {show && (
+                            <DateTimePicker
+                                mode="date"
+                                display="default"
+                                value={date || new Date()}
+                                onChange={onChangeDate}
+                            />
+                        )}
                     </View>
                     <View style={styles.inputContainer}>
                         <Text style={styles.label}>Nome completo do doador:</Text>
@@ -252,7 +325,6 @@ const styles = StyleSheet.create({
         borderTopStartRadius: 0,
         borderColor: '#053a45',
         marginTop: 'auto'
-
     },
     button: {
         backgroundColor: '#1e6370',
@@ -264,7 +336,6 @@ const styles = StyleSheet.create({
         borderColor: '#053a50',
         borderRadius: 12,
         justifyContent: 'center',
-
     },
     buttonTxt: {
         fontFamily: 'DM-Sans',
@@ -274,5 +345,3 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     }
 })
-
-

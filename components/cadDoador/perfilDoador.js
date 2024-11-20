@@ -8,18 +8,53 @@ import { SelectList } from 'react-native-dropdown-select-list';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 import { auth, db } from '../../src/Services/firebaseConfig';
-import { collection, doc, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, updateDoc, getDocs, query, where } from 'firebase/firestore';
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Ionicons } from '@expo/vector-icons';
-import ProxDoacao from '../../src/Screen/doador/proxDoacao';
+
+// Validação CPF
+const isValidCPF = (cpf) => {
+    cpf = cpf.replace(/[^\d]+/g, '');
+
+    // Verificar se o CPF possui 11 dígitos ou é uma sequência repetida
+    if (cpf.length !== 11 || cpf.split('').every(char => char === cpf[0])) return false;
+
+    let sum = 0;
+    let remainder;
+
+    // Calcular o primeiro dígito verificador
+    for (let i = 1; i <= 9; i++) {
+        sum += parseInt(cpf[i - 1]) * (11 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10) remainder = 0;
+    if (remainder !== parseInt(cpf[9])) return false;
+
+    // Calcular o segundo dígito verificador
+    sum = 0;
+    for (let i = 1; i <= 10; i++) {
+        sum += parseInt(cpf[i - 1]) * (12 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10) remainder = 0;
+    if (remainder !== parseInt(cpf[10])) return false;
+
+    return true;
+};
+
+
 
 // Defina o esquema de validação com Yup
 const validationSchema = yup.object().shape({
     nome: yup.string().required("Nome é obrigatório"),
     sobrenome: yup.string().required("Sobrenome é obrigatório"),
-    cpf: yup.string().required("CPF é obrigatório").matches(/^[0-9]{11}$/, "CPF inválido"),
+    cpf: yup
+        .string()
+        .required("CPF é obrigatório")
+        .test("cpf-valido", "CPF inválido", value => isValidCPF(value)),
+
     tipoSanguineo: yup.string().required("Tipo sanguíneo é obrigatório"),
     dataNascimento: yup.date().required("Data de nascimento é obrigatória").max(new Date(), "Data inválida"),
 });
@@ -28,7 +63,7 @@ const PerfilDoador = ({ route }) => {
     const { control, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(validationSchema),
     });
-    const { uid } = route.params;
+    const uid = auth.currentUser?.uid;
     const [date, setDate] = useState(null);
     const [show, setShow] = useState(false);
     const [formData, setFormData] = useState({});
@@ -65,40 +100,51 @@ const PerfilDoador = ({ route }) => {
 
     const onSubmit = async (data) => {
         const { nome, sobrenome, cpf, tipoSanguineo, dataNascimento } = data;
-
-        // Buscar o valor do tipo sanguíneo usando a chave selecionada
-        const tipoSelecionado = tipos.find(item => item.key === tipoSanguineo);
-
-        if (!tipoSelecionado) {
-            console.error("Tipo sanguíneo inválido");
-            return;
-        }
-
-        const tipoSanguineoValue = tipoSelecionado.value; 
-
+    
+        // Verificar se o CPF já existe no banco de dados
         try {
-            const doadorRef = doc(db, 'doador', uid); 
-
-            await updateDoc(doadorRef, {  
+            // Consulta no Firestore para verificar se o CPF já está registrado
+            const q = query(collection(db, 'doador'), where('cpf', '==', cpf));
+            const querySnapshot = await getDocs(q);
+            
+            if (!querySnapshot.empty) {
+                // Se o CPF já existe, mostrar mensagem de erro
+                alert("Já existe uma conta cadastrada com este CPF.");
+                return;
+            }
+    
+            // Caso o CPF não exista, prossiga com a criação ou atualização do cadastro
+            const tipoSelecionado = tipos.find(item => item.key === tipoSanguineo);
+    
+            if (!tipoSelecionado) {
+                console.error("Tipo sanguíneo inválido");
+                return;
+            }
+    
+            const tipoSanguineoValue = tipoSelecionado.value;
+    
+            // Atualizar os dados do doador no Firestore
+            const doadorRef = doc(db, 'doador', uid);
+            await updateDoc(doadorRef, {
                 nome,
                 sobrenome,
                 cpf,
-                tipoSanguineo: tipoSanguineoValue,  
+                tipoSanguineo: tipoSanguineoValue,
                 dataNascimento: formatDate(dataNascimento),
                 ultimaDoacao: '',
                 proxDoacao: '',
-                quantDoacoes: 0
-
+                quantDoacoes: 0,
+                cartSolicitada: false
             });
-
-            // Sucesso, pode navegar ou mostrar uma mensagem
+    
             console.log("Dados atualizados com sucesso!");
-            // Exemplo de navegação para a próxima tela
-            navigation.navigate('AdressForm', { uid });
+            navigation.navigate('AddressFormDoador', { uid });
         } catch (error) {
-            console.error("Erro ao atualizar dados:", error);
+            console.error("Erro ao verificar CPF ou atualizar dados:", error);
         }
     };
+    
+
 
 
 

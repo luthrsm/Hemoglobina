@@ -6,7 +6,10 @@ import { SelectList } from 'react-native-dropdown-select-list';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useState, useEffect } from 'react';
 import supabase from '../../../../supabaseClient';
-
+import * as Sharing from 'expo-sharing';
+import { Share } from 'react-native';
+import { collection, getDocs, onSnapshot } from 'firebase/firestore';
+import { db } from '../../../Services/firebaseConfig';
 
 
 import MenuDoador from '../../../../components/menu/menuDoador';
@@ -20,7 +23,7 @@ const CampanhaDoador = () => {
     const sangueImage = require('../../../../assets/img/sangue.jpg');
     const campanha1 = require('../../../../assets/img/earth-4861456_1280.jpg');
     const campanha2 = require('../../../../assets/img/corona-6200014_1280.jpg');
-    const campanha3=  require('../../../../assets/img/blood-5053760_1280.jpg');
+    const campanha3 = require('../../../../assets/img/blood-5053760_1280.jpg');
     const campanha4 = require('../../../../assets/img/blood-donation-2603649_640.jpg')
 
 
@@ -42,7 +45,7 @@ const CampanhaDoador = () => {
         { key: "6", value: "AB-" },
         { key: "7", value: "O+" },
         { key: "8", value: "O-" },
-        { key: "9", value: "Todos" }, // Adiciona a opção "Todos"
+        { key: "9", value: "Todos" },
     ];
 
     // Função para lidar com clique nos filtros de tipo de doação
@@ -69,32 +72,43 @@ const CampanhaDoador = () => {
     };
 
     // Função para buscar campanhas do Supabase
-    const fetchCampaigns = async () => {
-        let query = supabase.from('campanhas').select('*');
-
-        // Se um tipo de doação estiver selecionado, adiciona filtro para o tipo de doação
-        if (tipoDoacao) {
-            query = query.eq('tipoDoacao', tipoDoacao);
-        }
-
-        // Se "Todos" não estiver selecionado, aplica filtro de tipo sanguíneo
-        if (tipoSanguineoSelecionado && tipoSanguineoSelecionado !== 'Todos') {
-            query = query.eq('tipoSanguineo', tipoSanguineoSelecionado); // Certifique-se de que 'tipoSanguineo' exista no Supabase
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-            console.error('Error fetching campaigns:', error);
-        } else {
-            setCampaigns(data);
+    const fetchCampanhas = () => {
+        try {
+            const campanhasRef = collection(db, "campanhas");
+            const unsubscribe = onSnapshot(campanhasRef, (querySnapshot) => {
+                const campanhas = querySnapshot.docs
+                    .map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }))
+                    .filter((campanha) => {
+                        const doacaoMatch = tipoDoacao ? campanha.tipoDoacao === tipoDoacao : true;
+                        const sangueMatch = tipoSanguineoSelecionado && tipoSanguineoSelecionado !== "Todos"
+                            ? campanha.tipoSanguineo === tipoSanguineoSelecionado
+                            : true;
+                        return doacaoMatch && sangueMatch;
+                    });
+    
+                setCampaigns(campanhas);
+                console.log("Campanhas atualizadas:", campanhas);
+            });
+    
+            return unsubscribe;
+        } catch (error) {
+            console.error("Erro ao buscar campanhas:", error);
         }
     };
-
-    // Atualiza as campanhas sempre que o tipoDoacao ou tipoSanguineoSelecionado muda
+    
+    
     useEffect(() => {
-        fetchCampaigns();
-    }, [tipoDoacao, tipoSanguineoSelecionado]);
+        const unsubscribe = fetchCampanhas();
+    
+        return () => unsubscribe && unsubscribe();
+    }, [tipoDoacao, tipoSanguineoSelecionado]); 
+    
+
+
+
 
 
 
@@ -102,10 +116,10 @@ const CampanhaDoador = () => {
         { id: 1, uri: agulhaImage },
         { id: 2, uri: coracaoDoacaoImage },
         { id: 3, uri: sangueImage },
-        {id: 4, uri: campanha1},
-        {id: 5, uri: campanha2},
-        {id: 6,  uri: campanha3},
-        {id: 7,  uri: campanha4},
+        { id: 4, uri: campanha1 },
+        { id: 5, uri: campanha2 },
+        { id: 6, uri: campanha3 },
+        { id: 7, uri: campanha4 },
     ];
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -121,8 +135,32 @@ const CampanhaDoador = () => {
         setSelectedCampaign(null); // Limpa a campanha selecionada
     };
 
+
+    const handleShare = async (campaign) => {
+        const message = `Campanha de doação de sangue: ${campaign.titulo}\n\nTipo Sanguíneo: ${campaign.tipoSanguineo}\n\nLocal: ${campaign.local}\n\nDescrição: ${campaign.descricao}\n\nApoie essa causa!`;
+
+        try {
+            const result = await Share.share({
+                message: message,
+            });
+
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    console.log('Compartilhado com sucesso via:', result.activityType);
+                } else {
+                    console.log('Compartilhado com sucesso!');
+                }
+            } else if (result.action === Share.dismissedAction) {
+                console.log('Compartilhamento cancelado');
+            }
+        } catch (error) {
+            console.log('Erro ao tentar compartilhar:', error.message);
+        }
+    };
+
+
     const CampaignDetailsDoador = ({ campaign, onClose }) => {
-        if (!campaign) return null; // Certifica-se de que existe uma campanha selecionada
+        if (!campaign) return null;
 
         const randomImageIndex = Math.floor(Math.random() * imagens.length);
         const randomImage = imagens[randomImageIndex];
@@ -137,7 +175,7 @@ const CampanhaDoador = () => {
                 <View style={styles.campanhaDetalhes}>
 
                     <Text style={styles.campanhaTitle}>{campaign.titulo}</Text>
-                    <View style={[styles.detailsContainer,  { width: '40%', marginTop: 10}]}>
+                    <View style={[styles.detailsContainer, { width: '40%', marginTop: 10 }]}>
 
                         <View style={styles.infoTagTipo}>
                             <Text style={styles.infoText}>{campaign.tipoDoacao}</Text>
@@ -147,18 +185,12 @@ const CampanhaDoador = () => {
                         </View>
                         <Text style={styles.infoText}>{campaign.local}</Text>
                     </View>
-                    <Text style={[styles.campanhaDesc, {textAlign: 'justify', marginTop: 20}]}>{campaign.descricao}</Text>
+                    <Text style={[styles.campanhaDesc, { textAlign: 'justify', marginTop: 20 }]}>{campaign.descricao}</Text>
                     <Image source={randomImage.uri} style={styles.image} />
                     <View style={styles.shareContainer}>
                         <Text style={styles.shareText}>Compartilhe:</Text>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleShare(item)}>
                             <FontAwesome name="share-alt" size={16} color="#005555" style={styles.icon} />
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                            <FontAwesome name="instagram" size={16} color="#005555" style={styles.icon} />
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                            <FontAwesome name="facebook" size={16} color="#005555" style={styles.icon} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -191,16 +223,8 @@ const CampanhaDoador = () => {
                                 <View style={styles.shareContainer}>
                                     <Text style={styles.shareText}>Compartilhe:</Text>
 
-                                    <TouchableOpacity >
-                                        <FontAwesome name="share-alt" size={16} color="#005555" style={styles.icon} />
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity >
-                                        <FontAwesome name="instagram" size={16} color="#005555" style={styles.icon} />
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity >
-                                        <FontAwesome name="facebook" size={16} color="#005555" style={styles.icon} />
+                                    <TouchableOpacity onPress={() => handleShare(item)}>
+                                        <FontAwesome name="share-alt" size={20} color="#005555" style={styles.icon} />
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -235,7 +259,7 @@ const CampanhaDoador = () => {
             <View style={styles.headerContainer}>
                 <Text style={styles.title}>Campanhas</Text>
                 <TouchableOpacity style={styles.btConfig} onPress={() => navigation.navigate('ConfiguracoesDoador')}>
-                    <FontAwesome6 name="gear" size={24} color="#EEF0EB"  />
+                    <FontAwesome6 name="gear" size={24} color="#EEF0EB" />
                 </TouchableOpacity>
             </View>
             <View style={styles.mainContainer}>
@@ -290,13 +314,13 @@ const CampanhaDoador = () => {
 
                     <View style={styles.campanhaCriar}>
                         <TouchableOpacity style={styles.criarBt} onPress={() => navigation.navigate('CriarCampanha')}>
-                            <AntDesign name="pluscircleo" size={64} color="black" style={styles.iconCriar} />
+                            <AntDesign name="pluscircleo" size={80} color="black" style={styles.iconCriar} />
                         </TouchableOpacity>
                     </View>
 
                 </View>
             </View>
-            <MenuDoador/>
+            <MenuDoador />
         </SafeAreaView>
     )
 
@@ -342,7 +366,7 @@ const styles = StyleSheet.create({
         letterSpacing: 1.5,
         fontSize: 16
     },
-    
+
     btConfig: {
         marginRight: 20,
     },
@@ -390,7 +414,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         flexShrink: 1,
-        maxHeight: 40,
+        maxHeight: 60,
         padding: 10,
     },
     filtroSelecionado: {
@@ -491,7 +515,7 @@ const styles = StyleSheet.create({
     },
     shareText: {
         fontFamily: 'DM-Sans',
-        fontSize: 13,
+        fontSize: 16,
     },
 
     //modal
