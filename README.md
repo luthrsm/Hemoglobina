@@ -16,7 +16,7 @@ O **Hemoglobina** é um aplicativo móvel que facilita a conexão entre doadores
 
 Para mais informações ou para entrar em contato, acesse a nossa [landing page](https://hemoglobina.com) e nos siga no Instagram:
 
-- Instagram:[@hemoglobinaapp](https://www.instagram.com/hemoglobinaapp/)
+- Instagram:[@hemoglobinaapp](https://www.instagram.com/_hemoglobinaapp/)
 
 ## Equipe
 
