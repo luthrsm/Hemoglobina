@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     padding: 32,
     top: 20,
+    flex: 1
   },
 
   txtTitle: {

@@ -8,11 +8,12 @@ import { useNavigation } from '@react-navigation/native';
 
 import LoadingScreen from '../../src/Screen/geral/LoadingScreen';
 
-const HemocentroScreen = ({ onNext, onBack }) => {
+const HemocentroScreen = ({ onNext, onBack, route }) => {
   const [selectedType, setSelectedType] = useState(null);
   const [quantidades, setQuantidades] = useState(null);
   const [allQuantitiesDefined, setAllQuantitiesDefined] = useState(false);
   const navigation = useNavigation();
+  const { updateTipoUsuario } = route.params;
 
   const bloodTypes = ['A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'O-', 'AB-'];
 
@@ -75,27 +76,27 @@ const HemocentroScreen = ({ onNext, onBack }) => {
 
   
 
-  const finalizarCadastro = async (updateTipoUsuario) => {
+  const finalizarCadastro = async () => {
     const uid = auth.currentUser?.uid;
     if (!uid) {
       console.error("UID não definido. Não é possível finalizar o cadastro.");
       alert("Erro interno. Por favor, tente novamente.");
       return;
     }
-  
+
     try {
       const hemocentroRef = doc(db, 'Hemocentro', uid);
       await updateDoc(hemocentroRef, { cadastroCompleto: true });
-      
+
       // Atualiza o tipo de usuário no App.js através da função callback
       updateTipoUsuario("hemocentro");
-      
+
       console.log("Cadastro finalizado com sucesso!");
       navigation.navigate('HomeHemocentro');
     } catch (error) {
       console.error("Erro ao finalizar cadastro:", error);
     }
-};
+  };
 
 
   

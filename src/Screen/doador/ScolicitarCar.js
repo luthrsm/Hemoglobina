@@ -138,6 +138,7 @@ const gerarPdf = async () => {
           <p><strong>Data de Nascimento:</strong> ${carteirinhaData.dataNascimento}</p>
           <p><strong>CPF:</strong> ${carteirinhaData.cpf}</p>
           <p><strong>Tipo Sanguíneo:</strong> ${carteirinhaData.tipoSanguineo}</p>
+          <p><strong>Última Doação:</strong> ${carteirinhaData.ultimaDoacao}</p
         </div>
         <div class="footer">
           Doe sangue, doe vidas.
@@ -264,6 +265,9 @@ const renderCarteirinhaScreen = () => (
           </Text>
           <Text style={styles.carteirinhaText}>
             <Text style={styles.carteirinhaBold}>TIPO SANGUÍNEO:</Text> {carteirinhaData.tipoSanguineo}
+          </Text>
+          <Text style={styles.carteirinhaText}>
+            <Text style={styles.carteirinhaBold}>Última Doação:</Text> {carteirinhaData.ultimaDoacao}
           </Text>
         </View>
       </View>

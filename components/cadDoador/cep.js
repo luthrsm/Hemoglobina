@@ -7,7 +7,7 @@ import axios from 'axios';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { auth, db } from '../../src/Services/firebaseConfig';
 import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 // Definindo o esquema de validação usando Yup
 const schemaCEP = yup.object().shape({
@@ -18,11 +18,11 @@ const schemaCEP = yup.object().shape({
     estado: yup.string(),
 });
 
-const AddressFormDoador = ({ route }) => {
+const AddressFormDoador = ({ navigation, route }) => {
     const { uid } = route.params; // Captura o UID da navegação
     const [formData, setFormData] = useState({});
     const [cep, setCep] = useState(formData.cep || '');
-    const navigation = useNavigation();
+    const { updateTipoUsuario } = route.params;
     const { control, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schemaCEP),
     });
@@ -76,7 +76,7 @@ const AddressFormDoador = ({ route }) => {
         fetchAddress();
     }, [cep]);
 
-    const updateAddress = async (updateTipoUsuario) => {
+    const updateAddress = async () => {
         const uid = auth.currentUser?.uid;
         if (!uid) {
             console.error("UID não definido. Não é possível atualizar dados.");
@@ -93,10 +93,9 @@ const AddressFormDoador = ({ route }) => {
                 bairro: formData.bairro,
                 cidade: formData.cidade,
                 estado: formData.estado,
-                cadastroCompleto: true
+                cadastroCompleto: true,
             });
 
-            // Atualiza o tipo de usuário no App.js através da função callback
             updateTipoUsuario("doador");
 
             console.log('Dados de endereço atualizados!');

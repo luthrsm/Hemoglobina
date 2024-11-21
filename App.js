@@ -238,12 +238,13 @@ export default function App() {
           ) : user.tipoUsuario === "doadorCadastro" ? (
             <>
               <Stack.Screen name="PerfilDoador" component={PerfilDoador} />
-              <Stack.Screen name="AddressFormDoador" component={AddressFormDoador} initialParams={{ updateTipoUsuario }} />
+              <Stack.Screen name="AddressFormDoador" component={AddressFormDoador}
+                initialParams={{ updateTipoUsuario }} />
             </>
           ) : (
             <>
               <Stack.Screen name="PerfilHemocentro" component={PerfilHemocentro} />
-              <Stack.Screen name="AddressForm" component={AddressForm} initialParams={{ updateTipoUsuario }}/>
+              <Stack.Screen name="AddressForm" component={AddressForm} initialParams={{ updateTipoUsuario }} />
 
               <Stack.Screen name="Estoquecad" component={Estoque} initialParams={{ updateTipoUsuario }} />
               <Stack.Screen name="EstoqueScreen" component={EstoqueScreen} />

@@ -331,11 +331,13 @@ const styles = StyleSheet.create({
   hourContainer: {
     marginBottom: 20,
     flexDirection: 'row',
-    justifyContent: 'space-around'
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 60,
   },
 
   dayContainer: {
-    width: '100%',
+    width: '60%',
     marginBottom: 20,
 
   },
@@ -344,7 +346,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000',
     justifyContent: 'center',
-    // fontFamily: 'Poppins-Regular',
     marginBottom: 5,
   },
   hourInput: {
