@@ -38,7 +38,7 @@ const AtencaoScreen = ({ route, navigation }) => {
             },
             {
                 text: 'Colocar doação como pendente',
-                onPress: { handlePendente },
+                onPress: handlePendente ,
                 style: 'cancel',
             },
             {

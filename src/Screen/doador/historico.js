@@ -25,31 +25,26 @@ const HistoricoDoacoes = () => {
       query(
         collection(db, "doacoes"),
         where("userUid", "==", doadorUid), // Filtra doações pelo id do usuário
-        where('status', '==', 'confirmada')
+        where("status", "==", "confirmada")
       ),
       async (querySnapshot) => {
         const fetchedDoacoes = await Promise.all(
           querySnapshot.docs.map(async (docSnapshot) => {
             const doacaoData = docSnapshot.data();
-
-            // Busca a referência do hemocentro usando o hemocentroUid
+  
             const hemocentroRef = doc(db, "Hemocentro", doacaoData.hemocentroUid);
             const hemocentroDoc = await getDoc(hemocentroRef);
-
-            // Verifica se o documento do hemocentro existe
-            if (hemocentroDoc.exists()) {
-              setLocal(hemocentroDoc.data().Nome);
-            } else {
-              console.log("Hemocentro não encontrado!");
-            }
-
+  
+            const hemocentroNome = hemocentroDoc.exists() ? hemocentroDoc.data().Nome : "Hemocentro não encontrado";
+  
             return {
               id: docSnapshot.id,
               ...doacaoData,
+              local: hemocentroNome, 
             };
           })
         );
-
+  
         setDoacoes(fetchedDoacoes);
         console.log("Doações atualizadas:", fetchedDoacoes);
       },
@@ -57,9 +52,9 @@ const HistoricoDoacoes = () => {
         console.error("Erro ao escutar doações:", error);
       }
     );
-
+  
     return () => unsubscribe();
-  }, [doadorUid]);
+  }, [doadorUid]);  
 
 
   useEffect(() => {
@@ -120,7 +115,7 @@ const HistoricoDoacoes = () => {
                         </View>
                         <View style={{ flexDirection: 'row' }}>
                           <Text style={[styles.donationLocation, {fontFamily: 'DM-Sans Medium'}]}>Local:</Text>
-                          <Text style={styles.donationDate}>{local} </Text>
+                          <Text style={styles.donationDate}>{doacao.local} </Text>
                         </View>
                         <View style={{ flexDirection: 'row' }}>
                           <Text style={[styles.donationBloodType, {fontFamily: 'DM-Sans Medium'}]}>Tipo sanguíneo: </Text>

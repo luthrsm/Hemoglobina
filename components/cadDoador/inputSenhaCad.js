@@ -162,13 +162,13 @@ const InputSenhaCadDoador = () => {
                         />
                     </TouchableOpacity>
 
-                    <Text style={styles.text}>
-                        Li e estou de acordo com o{' '}
-                        <TouchableOpacity onPress={() => navigation.navigate('TermosCad')}>
+                    <Text style={styles.label}>
+                        Li e estou de acordo com o{'   '}
+                        <TouchableOpacity style={styles.btLink} onPress={() => navigation.navigate('TermosCad')}>
                             <Text style={styles.link}>Termo de Uso</Text>
-                        </TouchableOpacity>{' '}
-                        e{' '}
-                        <TouchableOpacity onPress={() => navigation.navigate('PoliticasCad')}>
+                        </TouchableOpacity>{'    '}
+                        e{'    '}
+                        <TouchableOpacity style={styles.btLink} onPress={() => navigation.navigate('PoliticasCad')}>
                             <Text style={styles.link}>Política de Privacidade</Text>
                         </TouchableOpacity>
                     </Text>

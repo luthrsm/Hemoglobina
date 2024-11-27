@@ -88,24 +88,24 @@ const CampanhaDoador = () => {
                             : true;
                         return doacaoMatch && sangueMatch;
                     });
-    
+
                 setCampaigns(campanhas);
                 console.log("Campanhas atualizadas:", campanhas);
             });
-    
+
             return unsubscribe;
         } catch (error) {
             console.error("Erro ao buscar campanhas:", error);
         }
     };
-    
-    
+
+
     useEffect(() => {
         const unsubscribe = fetchCampanhas();
-    
+
         return () => unsubscribe && unsubscribe();
-    }, [tipoDoacao, tipoSanguineoSelecionado]); 
-    
+    }, [tipoDoacao, tipoSanguineoSelecionado]);
+
 
 
 
@@ -189,8 +189,8 @@ const CampanhaDoador = () => {
                     <Image source={randomImage.uri} style={styles.image} />
                     <View style={styles.shareContainer}>
                         <Text style={styles.shareText}>Compartilhe:</Text>
-                        <TouchableOpacity onPress={() => handleShare(item)}>
-                            <FontAwesome name="share-alt" size={16} color="#005555" style={styles.icon} />
+                        <TouchableOpacity onPress={() => handleShare(campaign)}>
+                            <FontAwesome name="share-alt" size={20} color="#005555" style={styles.icon} />
                         </TouchableOpacity>
                     </View>
                 </View>

@@ -2,6 +2,7 @@ import React from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Share } from 'react-native';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 const imagens = [
     { id: 1, uri: require('./../../assets/img/agulha.jpg') },
@@ -62,7 +63,7 @@ const CampanhasDetalhes = ({ campaign, onClose }) => {
                 <Image source={randomImage.uri} style={styles.image} />
                 <View style={styles.shareContainer}>
                     <Text style={styles.shareText}>Compartilhe:</Text>
-                    <TouchableOpacity onPress={() => handleShare(item)}>
+                    <TouchableOpacity onPress={() => handleShare(campaign)}>
                         <FontAwesome name="share-alt" size={16} color="#005555" style={styles.icon} />
                     </TouchableOpacity>
                 </View>

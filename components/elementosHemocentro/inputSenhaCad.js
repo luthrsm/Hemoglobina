@@ -177,11 +177,11 @@ const InputSenhaCad = () => {
                     </TouchableOpacity>
 
                     <Text style={styles.label}>
-                        Li e estou de acordo com o{' '}
+                        Li e estou de acordo com o{'   '}
                         <TouchableOpacity style={styles.btLink} onPress={() => navigation.navigate('TermosCad')}>
                             <Text style={styles.link}>Termo de Uso</Text>
-                        </TouchableOpacity>{' '}
-                        e{' '}
+                        </TouchableOpacity>{'    '}
+                        e{'    '}
                         <TouchableOpacity style={styles.btLink} onPress={() => navigation.navigate('PoliticasCad')}>
                             <Text style={styles.link}>Política de Privacidade</Text>
                         </TouchableOpacity>

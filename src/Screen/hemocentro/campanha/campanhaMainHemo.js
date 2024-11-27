@@ -6,6 +6,7 @@ import { SelectList } from 'react-native-dropdown-select-list';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useState, useEffect } from 'react';
 import supabase from '../../../../supabaseClient';
+import { Share } from 'react-native';
 
 import { collection, getDocs, onSnapshot } from 'firebase/firestore';
 import { db } from '../../../Services/firebaseConfig';
@@ -123,7 +124,27 @@ const CampanhaHemo = () => {
         setSelectedCampaign(null); // Limpa a campanha selecionada
     };
 
-    
+    const handleShare = async (campaign) => {
+        const message = `Campanha de doação de sangue: ${campaign.titulo}\n\nTipo Sanguíneo: ${campaign.tipoSanguineo}\n\nLocal: ${campaign.local}\n\nDescrição: ${campaign.descricao}\n\nApoie essa causa!`;
+
+        try {
+            const result = await Share.share({
+                message: message,
+            });
+
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    console.log('Compartilhado com sucesso via:', result.activityType);
+                } else {
+                    console.log('Compartilhado com sucesso!');
+                }
+            } else if (result.action === Share.dismissedAction) {
+                console.log('Compartilhamento cancelado');
+            }
+        } catch (error) {
+            console.log('Erro ao tentar compartilhar:', error.message);
+        }
+    };
 
     const CampanhaList = () => {
         return (
@@ -149,8 +170,9 @@ const CampanhaHemo = () => {
                                 <Image source={randomImage.uri} style={styles.image} />
                                 <View style={styles.shareContainer}>
                                     <Text style={styles.shareText}>Compartilhe:</Text>
+
                                     <TouchableOpacity onPress={() => handleShare(item)}>
-                                        <FontAwesome name="share-alt" size={16} color="#005555" style={styles.icon} />
+                                        <FontAwesome name="share-alt" size={20} color="#005555" style={styles.icon} />
                                     </TouchableOpacity>
                                 </View>
                             </View>
