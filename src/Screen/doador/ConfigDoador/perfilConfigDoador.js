@@ -1,39 +1,63 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, Alert, Modal } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { SelectList } from 'react-native-dropdown-select-list';
 import * as ImagePicker from 'expo-image-picker';
 import { db } from '../../../Services/firebaseConfig';
-import { getAuth, EmailAuthProvider,reauthenticateWithCredential, updateEmail, updatePassword } from 'firebase/auth';
+import { getAuth, EmailAuthProvider, reauthenticateWithCredential, updatePassword, updateEmail, sendEmailVerification } from 'firebase/auth';
 import { getDoc, doc, updateDoc } from 'firebase/firestore';
 import MenuDoador from '../../../../components/menu/menuDoador';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-
+import NetInfo from '@react-native-community/netinfo';
 
 const ProfileScreen = ({ navigation }) => {
   const [userName, setUserName] = useState('');
+  const [userSobrenome, setUserSobrenome] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPhoto, setUserPhoto] = useState(require('../../../../assets/img/iconUser.png'));
   const [userTypeBlood, setUserTypeBlood] = useState('')
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
+  const [newSobrenome, setNewSobrenome] = useState('');
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState('');
   const [newBloodType, setNewBloodType] = useState('');
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [isModalVisibleEmail, setModalVisibleEmail] = useState(false);
+
+  const openModalEmail = () => setModalVisibleEmail(true);
+  const closeModalEmail = () => setModalVisibleEmail(false);
+  
+  const openModal = () => setModalVisible(true);
+  const closeModal = () => setModalVisible(false);
+
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  NetInfo.fetch().then(state => {
+    if (!state.isConnected) {
+      Alert.alert("Erro de Conexão", "Verifique sua conexão com a internet.");
+    }
+  });
 
   useEffect(() => {
-    const auth = getAuth();
-    const user = auth.currentUser;
-    
     if (user) {
-      
       const userRef = doc(db, 'doador', user.uid);
       getDoc(userRef).then((docSnap) => {
         if (docSnap.exists()) {
-          setUserName(docSnap.data().nome);
-          setUserEmail(docSnap.data().email);
-          setUserPhoto(docSnap.data().photoUrl || require('../../../../assets/img/iconUser.png'));
-          setUserTypeBlood(docSnap.data().tipoSanguineo);
+          const data = docSnap.data();
+          setUserName(data.nome);
+          setUserSobrenome(data.sobrenome);
+          setUserEmail(data.email);
+          setUserPhoto(data.photoUrl || require('../../../../assets/img/iconUser.png'));
+          setUserTypeBlood(data.tipoSanguineo);
+
+          // Inicializar os campos editáveis
+          setNewName(data.nome);
+          setNewSobrenome(data.sobrenome);
+          setNewEmail(data.email);
+          setNewBloodType(data.tipoSanguineo);
         }
       }).catch((error) => {
         console.error("Error getting document:", error);
@@ -41,50 +65,110 @@ const ProfileScreen = ({ navigation }) => {
     }
   }, []);
 
-  const handleSave = async () => {
+  const reauthenticateAndChangePassword = async (currentPassword, newPassword) => {
     const auth = getAuth();
     const user = auth.currentUser;
 
+    if (!user) {
+      Alert.alert("Erro", "Nenhum usuário autenticado encontrado.");
+      return;
+    }
+
+    try {
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+
+      await reauthenticateWithCredential(user, credential);
+      console.log("Usuário reautenticado com sucesso!");
+
+      await updatePassword(user, newPassword);
+      Alert.alert("Sucesso", "Sua senha foi alterada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao reautenticar ou alterar senha:", error);
+      if (error.code === "auth/wrong-password") {
+        Alert.alert("Erro", "A senha atual está incorreta.");
+      } else {
+        Alert.alert("Erro", error.message);
+      }
+    }
+  };
+
+  const reauthenticateAndChangeEmail = async (currentPassword, newEmail) => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+  
+    if (!user) {
+      Alert.alert("Erro", "Nenhum usuário autenticado encontrado.");
+      return;
+    }
+  
+    try {
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+  
+      // Reautentica o usuário
+      await reauthenticateWithCredential(user, credential);
+      console.log("Usuário reautenticado com sucesso!");
+  
+      // Envia o link de verificação para o novo e-mail
+      await sendEmailVerification(user);
+      Alert.alert('Verifique seu e-mail', 'Por favor, verifique seu novo e-mail antes de realizar a alteração.');
+  
+      // Após a verificação, o e-mail pode ser atualizado
+      await updateEmail(user, newEmail);
+      Alert.alert("Sucesso", "O e-mail foi atualizado com sucesso!");
+      console.log('Link de verificação enviado para o novo e-mail!');
+    } catch (error) {
+      console.error("Erro ao reautenticar ou alterar o e-mail:", error);
+      if (error.code === "auth/wrong-password") {
+        Alert.alert("Erro", "A senha atual está incorreta.");
+      } else {
+        Alert.alert("Erro", error.message);
+      }
+    }
+};
+
+  
+
+  const handleSave = async () => {
     if (user) {
       const userRef = doc(db, 'doador', user.uid);
-      const credential = EmailAuthProvider.credential(user.email, newPassword); 
-
-      // reautenticação se tiver senha nova
-      if (newPassword) {
-        const credential = EmailAuthProvider.credential(user.email, newPassword); 
-        await reauthenticateWithCredential(user, credential);
-      }
-
-      //att email se for diferente e  manda link de verificação
-      if (newEmail && newEmail !== user.email) {
-        await updateEmail(user, newEmail);
-        await sendEmailVerification(user);
-        console.log('Email atualizado com sucesso! Link de verificação enviado.');
-        Alert.alert('Verifique seu e-mail', 'Por favor, verifique seu novo e-mail antes de realizar a alteração.');
-        return; 
-      }
-
-      //att senha se for diferente
-      if (newPassword) {
-        await updatePassword(user, newPassword);
-        console.log('Senha atualizada com sucesso!');
-      }
-
+  
       try {
-        await updateDoc(userRef, {
-          nome: newName || userName,
-          email: newEmail || userEmail,
-          tipoSanguineo: newBloodType || userTypeBlood,
-          
-        });
-        console.log('Informações atualizadas!');
-        navigation.goBack(); // Volta para a tela anterior
+        // Atualizando o e-mail no Firestore
+        if (newEmail && newEmail !== user.email) {
+          await updateDoc(userRef, {
+            nome: newName,
+            sobrenome: newSobrenome,
+            email: newEmail,
+            tipoSanguineo: newBloodType,
+          });
+  
+          // Atualizando o e-mail no Firebase Auth
+          await updateEmail(user, newEmail);
+          await sendEmailVerification(user); // Envia o link de verificação
+          Alert.alert('Verifique seu e-mail', 'Por favor, verifique seu novo e-mail antes de realizar a alteração.');
+  
+          console.log('Email atualizado com sucesso! Link de verificação enviado.');
+        } else {
+          // Atualizando apenas os outros dados
+          await updateDoc(userRef, {
+            nome: newName,
+            sobrenome: newSobrenome,
+            tipoSanguineo: newBloodType,
+          });
+          console.log('Informações atualizadas!');
+        }
+  
+        Alert.alert("Informações atualizadas!", "Suas informações foram atualizadas com sucesso!");
+        navigation.goBack();
       } catch (error) {
         console.error("Erro ao atualizar informações:", error);
         Alert.alert("Erro", error.message);
       }
     }
   };
+  
+
+
   const scrollViewRef = useRef(null);
   const tipos = [
     { key: "1", value: "Não sei" },
@@ -141,30 +225,19 @@ const ProfileScreen = ({ navigation }) => {
             <Text style={styles.inputLabel}>Nome:</Text>
             <TextInput
               style={styles.input}
-              value={newName || userName}
+              value={newName}
               onChangeText={setNewName}
               placeholder="Digite seu nome"
             />
           </View>
 
           <View style={styles.inputSection}>
-            <Text style={styles.inputLabel}>E-mail:</Text>
+            <Text style={styles.inputLabel}>Sobrenome:</Text>
             <TextInput
               style={styles.input}
-              value={newEmail || userEmail}
-              onChangeText={setNewEmail}
-              placeholder="Digite seu e-mail"
-            />
-          </View>
-
-          <View style={styles.inputSection}>
-            <Text style={styles.inputLabel}>Alterar senha:</Text>
-            <TextInput
-              style={styles.input}
-              secureTextEntry
-              value={newPassword}
-              onChangeText={setNewPassword}
-              placeholder="Digite sua senha"
+              value={newSobrenome}
+              onChangeText={setNewSobrenome}
+              placeholder="Digite seu sobrenome"
             />
           </View>
 
@@ -172,9 +245,9 @@ const ProfileScreen = ({ navigation }) => {
             <Text style={styles.inputLabel}>Tipo sanguíneo:</Text>
             <SelectList
               setSelected={setNewBloodType}
-              value={newBloodType || userTypeBlood}
+              value={newBloodType}
               data={tipos}
-              placeholder={newBloodType || userTypeBlood || "Selecione seu tipo sanguíneo"}
+              placeholder={newBloodType || "Selecione seu tipo sanguíneo"}
               arrowicon={<FontAwesome name="chevron-down" size={12} color={'black'} />}
               search={false}
               boxStyles={styles.boxStyles}
@@ -182,6 +255,105 @@ const ProfileScreen = ({ navigation }) => {
               dropdownStyles={styles.dropdownStyles}
             />
           </View>
+
+          <View style={styles.inputSection}>
+            <TouchableOpacity style={styles.inputLabel} onPress={openModalEmail}>
+              <Text style={styles.inputLabelTxt}>Alterar E-mail</Text>
+            </TouchableOpacity>
+          </View>
+          <Modal
+            visible={isModalVisibleEmail}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={closeModalEmail}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Alterar E-mail</Text>
+
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="Senha atual"
+                  secureTextEntry={true}
+                  value={currentPassword}
+                  onChangeText={setCurrentPassword}
+                />
+
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="Novo e-mail"
+                  value={newEmail}
+                  onChangeText={setNewEmail}
+                />
+
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity style={styles.modalButton} onPress={closeModalEmail}>
+                    <Text style={styles.modalButtonText}>Cancelar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.modalButton}
+                    onPress={() => {
+                      reauthenticateAndChangeEmail(currentPassword, newEmail);
+                      closeModalEmail();
+                    }}
+                  >
+                    <Text style={styles.modalButtonText}>Salvar</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+
+          <View style={styles.inputSection}>
+            <TouchableOpacity style={styles.inputLabel} onPress={openModal}>
+              <Text style={styles.inputLabelTxt}>Alterar senha</Text>
+            </TouchableOpacity>
+          </View>
+          <Modal
+            visible={isModalVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={closeModal}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Alterar Senha</Text>
+
+                <TextInput
+                  style={styles.modalInput}
+                  secureTextEntry={true}
+                  placeholder="Senha atual"
+                  value={currentPassword}
+                  onChangeText={setCurrentPassword}
+                />
+
+                <TextInput
+                  style={styles.modalInput}
+                  secureTextEntry={true}
+                  placeholder="Nova senha"
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                />
+
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity style={styles.modalButton} onPress={closeModal}>
+                    <Text style={styles.modalButtonText}>Cancelar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.modalButton}
+                    onPress={() => {
+                      reauthenticateAndChangePassword(currentPassword, newPassword);
+                      closeModal();
+                    }}
+                  >
+                    <Text style={styles.modalButtonText}>Salvar</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+
+
 
           <TouchableOpacity style={styles.BtProx} onPress={handleSave}>
             <Text style={styles.buttonText}>Salvar</Text>
@@ -273,6 +445,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 5,
   },
+  inputLabelTxt: {
+    fontSize: 16,
+    color: '#AF2B2B',
+    textDecorationLine: 'underline'
+  },
   input: {
     borderWidth: 1,
     borderColor: '#053A45',
@@ -310,6 +487,54 @@ const styles = StyleSheet.create({
     marginTop: '10%',
     width: '50%',
     alignSelf: 'center'
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    height: '27%',
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+    justifyContent: 'center'
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalInput: {
+    width: "100%",
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#053A45',
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#EEF0EB',
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  modalButton: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: "#AF2B2B",
+    borderRadius: 5,
+    marginHorizontal: 5,
+    alignItems: "center",
+  },
+  modalButtonText: {
+    color: "white",
+    fontWeight: "bold",
   },
 });
 

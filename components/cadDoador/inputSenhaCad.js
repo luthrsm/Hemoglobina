@@ -152,6 +152,9 @@ const InputSenhaCadDoador = () => {
                     )}
                 />
                 {errors.confirmarSenha && <Text style={styles.labelError}>{errors.confirmarSenha.message}</Text>}
+                <Text style={styles.senha}>**A senha tem que ter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial</Text>
+                
+
 
                 <View style={styles.termos}>
                     <TouchableOpacity style={styles.checkboxContainer} onPress={handleCheckboxToggle}>
@@ -163,11 +166,11 @@ const InputSenhaCadDoador = () => {
                     </TouchableOpacity>
 
                     <Text style={styles.label}>
-                        Li e estou de acordo com o{'   '}
+                        Li e estou de acordo com o{'    '}
                         <TouchableOpacity style={styles.btLink} onPress={() => navigation.navigate('TermosCad')}>
                             <Text style={styles.link}>Termo de Uso</Text>
-                        </TouchableOpacity>{'    '}
-                        e{'    '}
+                        </TouchableOpacity>{'        '}
+                        e{'          '}
                         <TouchableOpacity style={styles.btLink} onPress={() => navigation.navigate('PoliticasCad')}>
                             <Text style={styles.link}>Política de Privacidade</Text>
                         </TouchableOpacity>
@@ -268,6 +271,9 @@ const styles = StyleSheet.create({
     },
     label: {
         marginLeft: 8,
+        alignContent: 'center',
+        width: '100%',
+        marginTop: 15
     },
     link: {
         textDecorationLine: 'underline',
@@ -314,6 +320,11 @@ const styles = StyleSheet.create({
         fontFamily: 'DM-Sans',
         justifyContent: 'center'
     },
+    senha:{
+        color: '#326771',
+        fontSize: 12,
+        textAlign: 'center'
+    }
 });
 
 

@@ -46,7 +46,7 @@ const ConfigHemo = () => {
 
   const [loggedOut, setLoggedOut] = useState(false);
 
-  const handleLogout = async () => {
+  const Logout = async () => {
     const auth = getAuth();
 
     try {
@@ -57,6 +57,22 @@ const ConfigHemo = () => {
     } catch (error) {
       console.error('Erro ao fazer logout:', error.message);
     }
+  }
+
+  const handleLogout = async () => {
+    Alert.alert('Atenção!', 'Você tem certeza que deseja sair da sua conta?', [
+      {
+        text: 'Sair da conta',
+        onPress: async () => {
+          await Logout();
+        }
+      },
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+    ]);
+
   };
 
   // const route = useRoute();
@@ -89,11 +105,6 @@ const ConfigHemo = () => {
             <Text style={styles.optionText}>Editar perfil</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.option} onPress={handleLogout}>
-            <Image source={require('../../../../assets/img/configImages/sairConta.png')} style={styles.imageBotoes} />
-            <Text style={styles.optionText}>Sair da conta</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('FaleConoscoHemo')}>
             <Image source={require('../../../../assets/img/configImages/faleConosco.png')} style={styles.imageBotoes} />
             <Text style={styles.optionText}>Fale conosco</Text>
@@ -112,6 +123,11 @@ const ConfigHemo = () => {
           <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('SobreHemo')}>
             <Image source={require('../../../../assets/img/configImages/sobre.png')} style={styles.imageBotoes} />
             <Text style={styles.optionText}>Sobre</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.option} onPress={handleLogout}>
+            <Image source={require('../../../../assets/img/configImages/sairConta.png')} style={styles.imageBotoes} />
+            <Text style={styles.optionText}>Sair da conta</Text>
           </TouchableOpacity>
 
         </View>

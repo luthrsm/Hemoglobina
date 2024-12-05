@@ -1,4 +1,4 @@
-import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { Text, SafeAreaView, View, StyleSheet, TextInput, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
@@ -25,38 +25,54 @@ const ConfigGeralDoador = () => {
     const auth = getAuth();
     const user = auth.currentUser;
     const userRef = doc(db, 'doador', user.uid);
-        
+
     // Utiliza onSnapshot para ouvir alterações em tempo real
     const unsubscribe = onSnapshot(userRef, (docSnap) => {
-        if (docSnap.exists()) {
-            const userData = docSnap.data();
-            setUserName(userData.nome);
-            setUserEmail(userData.email);
-            setCartSolicitada(userData.cartSolicitada || false); // Atualiza com o valor de cartSolicitada
-        } else {
-            console.log('Documento não existe!');
-        }
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        setUserName(userData.nome);
+        setUserEmail(userData.email);
+        setCartSolicitada(userData.cartSolicitada || false); // Atualiza com o valor de cartSolicitada
+      } else {
+        console.log('Documento não existe!');
+      }
     });
 
     // Limpa o listener quando o componente for desmontado
     return () => unsubscribe();
-}, []);
+  }, []);
 
   const navigation = useNavigation();
 
   const [loggedOut, setLoggedOut] = useState(false);
 
-  const handleLogout = async () => {
+  const Logout = async () => {
     const auth = getAuth();
-    
+
     try {
-      await signOut(auth);  
+      await signOut(auth);
       console.log('Usuário deslogado com sucesso!');
-      
-      navigation.navigate('WelcomeScreen'); 
+
+      navigation.navigate('WelcomeScreen');
     } catch (error) {
       console.error('Erro ao fazer logout:', error.message);
     }
+  }
+
+  const handleLogout = async () => {
+    Alert.alert('Atenção!', 'Você tem certeza que deseja sair da sua conta?', [
+      {
+        text: 'Sair da conta',
+        onPress: async () => {
+          await Logout();
+        }
+      },
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+    ]);
+
   };
 
 
@@ -68,7 +84,7 @@ const ConfigGeralDoador = () => {
 
       <View style={styles.mainContainer}>
         <View style={styles.voltarContainer}>
-          <TouchableOpacity  onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
             <AntDesign name="arrowleft" size={24} color="#7A0000" />
           </TouchableOpacity>
         </View>
@@ -86,11 +102,6 @@ const ConfigGeralDoador = () => {
             <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('PerfilConfigDoador')}>
               <Image source={require('../../../../assets/img/configImages/lapis.png')} style={styles.imageBotoes} />
               <Text style={styles.optionText}>Editar perfil</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.option} onPress={handleLogout}>
-              <Image source={require('../../../../assets/img/configImages/sairConta.png')} style={styles.imageBotoes} />
-              <Text style={styles.optionText}>Sair da conta</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('FaleConoscoDoador')}>
@@ -116,6 +127,11 @@ const ConfigGeralDoador = () => {
             <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('SobreDoador')}>
               <Image source={require('../../../../assets/img/configImages/sobre.png')} style={styles.imageBotoes} />
               <Text style={styles.optionText}>Sobre</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.option} onPress={handleLogout}>
+              <Image source={require('../../../../assets/img/configImages/sairConta.png')} style={styles.imageBotoes} />
+              <Text style={styles.optionText}>Sair da conta</Text>
             </TouchableOpacity>
 
           </View>

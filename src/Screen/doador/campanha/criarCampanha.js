@@ -184,16 +184,16 @@ const CriarCampanha = () => {
                                 />
                                 <View style={{
                                     position: 'absolute',
-                                    bottom: 10,
                                     right: 20,
                                     fontSize: 12,
+                                    bottom: 60
 
                                 }}>
                                     <Text style={{ color: '#696969', }}>{`Caracteres restantes: ${1000 - campaignDescription.length}`}</Text>
                                 </View>
                             </View>
 
-                            <TouchableOpacity style={{ flexDirection: 'row', gap: 10, alignItems: 'center', }} onPress={handlePress}>
+                            <TouchableOpacity style={{ flexDirection: 'row', gap: 10, alignItems: 'center', marginTop: -70, marginBottom: -20 }} onPress={handlePress}>
                                 <Text style={styles.txtInput}>
                                     Tipo de doação
                                 </Text>
@@ -286,7 +286,8 @@ const styles = StyleSheet.create({
         fontSize: 14
     },
     formContent: {
-        gap: 15
+        gap: 15,
+        marginTop: -25
     },
     txtInput: {
         fontFamily: 'Poppins-Medium',
@@ -315,6 +316,8 @@ const styles = StyleSheet.create({
         paddingLeft: 13,
         textAlignVertical: 'top',
         paddingTop: 15,
+        height: '40%',
+        marginBottom: -60
     },
     boxStyles: {
         width: '95%',
@@ -351,7 +354,6 @@ const styles = StyleSheet.create({
         height: 35,
         alignSelf: 'center',
         justifyContent: 'center',
-        marginTop: 20
     },
     submitButtonTxt: {
         color: 'white',

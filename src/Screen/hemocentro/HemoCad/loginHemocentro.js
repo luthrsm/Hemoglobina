@@ -12,6 +12,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Ionicons } from '@expo/vector-icons';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { sendPasswordResetEmail } from 'firebase/auth';
+
 import { auth } from '../../../Services/firebaseConfig';
 
 //components
@@ -36,6 +38,21 @@ const LoginHemocento = () => {
     } catch (error) {
       console.error("Erro no login:", error.message);
       alert('Erro ao fazer login. Verifique se seu email e senha estão corretos.');
+    }
+  };
+
+  const handlePasswordRecovery = async () => {
+    if (!email) {
+      alert('Por favor, insira o email para recuperar a senha.');
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert('Um email de recuperação foi enviado. Verifique sua caixa de entrada.');
+    } catch (error) {
+      console.error("Erro ao enviar o email de recuperação:", error.message);
+      alert('Erro ao enviar o email de recuperação. Verifique se o email está correto.');
     }
   };
 
@@ -83,7 +100,9 @@ const LoginHemocento = () => {
             </TouchableOpacity>
           </View>
         </View>
-
+        <TouchableOpacity style={styles.inputLabel} onPress={handlePasswordRecovery}>
+          <Text style={styles.inputLabelTxt}>Esqueceu a senha? Clique aqui para recuperar a conta</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.BtProx} onPress={handleLogin}>
           <Text style={styles.txtBtProx}>Próximo</Text>
         </TouchableOpacity>
@@ -176,5 +195,15 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     fontFamily: 'DM-Sans'
+  },
+  inputLabel: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  inputLabelTxt: {
+    fontSize: 13,
+    color: '#AF2B2B',
+    textDecorationLine: 'underline',
+    textAlign: 'center'
   },
 })

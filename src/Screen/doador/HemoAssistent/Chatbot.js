@@ -20,13 +20,17 @@ import { useNavigation } from '@react-navigation/native';
 
 
 const Chatbot = () => {
-    const [chat, setChat] = useState([]);
+    const [chat, setChat] = useState([
+        {
+            role: "model",
+            parts: [{ text: "Recado dos desenvolvedores: O HemoAssistent IA ainda está em desenvolvimento e, portanto, ele ainda não pode responder suas perguntas sobre o Hemoglobina e ainda responde coisas não relacionadas à doação de sangue. Estamos trabalhando para que a sua experiencia usando o nosso sistema seja a melhor possível!" }],
+        },
+    ]);
     const [userInput, setUserInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isSpeaking, setIsSpeaking] = useState(false);
     const navigation = useNavigation();
-
 
     const API_KEY = "AIzaSyD7mayOsrEY2xmf39_LOfMEj3VPJrIBEgg";
 
@@ -87,7 +91,6 @@ const Chatbot = () => {
         }
     };
 
-
     const handleSpeech = async (text) => {
         if (isSpeaking) {
             //se já estiver falando, para
@@ -114,7 +117,7 @@ const Chatbot = () => {
         <View style={styles.container}>
             <View style={styles.headerContainer}>
                 <Text style={styles.title}>HemoAssistent IA</Text>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('ConfiguracoesDoador')}>
                     <FontAwesome6 name="gear" size={24} color="#EEF0EB" style={styles.config} />
                 </TouchableOpacity>
             </View>
@@ -124,15 +127,15 @@ const Chatbot = () => {
                         <AntDesign name="arrowleft" size={24} color="#326771" />
                     </TouchableOpacity>
                 </View>
+                {loading && <ActivityIndicator size="large" style={styles.loader} color="#326771" />}
                 <KeyboardAvoidingView style={styles.contentContainer}>
-
                     <FlatList
                         data={chat}
                         renderItem={renderChatItem}
                         keyExtractor={(item, index) => index.toString()}
                         contentContainerStyle={styles.chatContainer}
                     />
-                    {loading && <ActivityIndicator size="large" style={styles.loader} color="#000" />}
+                    
                     {error && <Text style={styles.error}>{error}</Text>}
                     <View style={styles.inputContainer}>
                         <TextInput
@@ -145,14 +148,14 @@ const Chatbot = () => {
                         <TouchableOpacity style={styles.button} onPress={handleUserInput}>
                             <FontAwesome name="send-o" size={24} color="white" />
                         </TouchableOpacity>
-
                     </View>
                 </KeyboardAvoidingView>
             </View>
             <MenuDoador />
         </View>
-    )
-}
+    );
+};
+
 
 const styles = StyleSheet.create({
     container: {
@@ -196,7 +199,8 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         flexShrink: 1,
         width: '90%',
-        marginBottom: 50
+        marginBottom: 50,
+        marginTop: 25
     },
     chatContainer: {
         flexGrow: 1,
@@ -231,7 +235,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     error: {
-        color: "#f00",
+        color: "#af2b2b",
         marginTop: 10,
     },
 });

@@ -105,9 +105,6 @@ const CriarCampanhaHemo = () => {
                             <TouchableOpacity style={styles.btModal} onPress={() => setModalVisible(false)}>
                                 <Text style={styles.txtBtModal}>Entendi</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.btModal}>
-                                <Text style={styles.txtBtModal}>Não entendi, quero saber mais</Text>
-                            </TouchableOpacity>
                         </View>
                     </View>
                 </Modal>
@@ -123,12 +120,12 @@ const CriarCampanhaHemo = () => {
             <View style={styles.headerContainer}>
                 <Text style={styles.title}>Campanhas</Text>
                 <TouchableOpacity style={styles.btConfig}>
-                    <FontAwesome6 name="gear" size={24} color="#EEF0EB"  />
+                    <FontAwesome6 name="gear" size={24} color="#EEF0EB" />
                 </TouchableOpacity>
             </View>
             <View style={styles.mainContainer}>
                 <View style={styles.voltarContainer}>
-                    <TouchableOpacity onPress={()=> navigation.goBack()}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
                         <AntDesign name="arrowleft" size={28} color="#326771" />
                     </TouchableOpacity>
                 </View>
@@ -172,28 +169,28 @@ const CriarCampanhaHemo = () => {
                                 <TextInput
                                     value={campaignDescription}
                                     onChangeText={(text) => {
-                                        if (text.length <= 1000) { // adjust the limit to your desired value
+                                        if (text.length <= 1000) {
                                             setCampaignDescription(text);
                                         }
                                     }}
                                     placeholder="Digite aqui a descrição da campanha..."
-                                    multiline={true}
+                                    multiline
                                     numberOfLines={10}
                                     maxLength={1000}
                                     style={styles.TextAreainput}
                                 />
                                 <View style={{
                                     position: 'absolute',
-                                    bottom: 10,
                                     right: 20,
                                     fontSize: 12,
+                                    bottom: 60
 
                                 }}>
                                     <Text style={{ color: '#696969', }}>{`Caracteres restantes: ${1000 - campaignDescription.length}`}</Text>
                                 </View>
                             </View>
 
-                            <TouchableOpacity style={{ flexDirection: 'row', gap: 10, alignItems: 'center', }} onPress={handlePress}>
+                            <TouchableOpacity style={{ flexDirection: 'row', gap: 10, alignItems: 'center', marginTop: -70, marginBottom: -20 }} onPress={handlePress}>
                                 <Text style={styles.txtInput}>
                                     Tipo de doação
                                 </Text>
@@ -264,7 +261,7 @@ const styles = StyleSheet.create({
         letterSpacing: 1.5,
         fontSize: 16
     },
-    
+
     btConfig: {
         marginRight: 20,
     },
@@ -286,7 +283,8 @@ const styles = StyleSheet.create({
         fontSize: 14
     },
     formContent: {
-        gap: 15
+        gap: 15,
+        marginTop: -25
     },
     txtInput: {
         fontFamily: 'Poppins-Medium',
@@ -314,7 +312,9 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         paddingLeft: 13,
         textAlignVertical: 'top',
-        paddingTop: 15
+        paddingTop: 15,
+        height: '40%',
+        marginBottom: -60
     },
     boxStyles: {
         width: '95%',
@@ -351,7 +351,6 @@ const styles = StyleSheet.create({
         height: 35,
         alignSelf: 'center',
         justifyContent: 'center',
-        marginTop: 20
     },
     submitButtonTxt: {
         color: 'white',
